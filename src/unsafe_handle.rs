@@ -64,7 +64,7 @@ pub trait AsUnsafeFile {
         }
     }
 
-    /// Like `as_file`, but returns a value which is not explicitly tied
+    /// Like `as_file_view`, but returns a value which is not explicitly tied
     /// to the lifetime of `self`.
     ///
     /// # Safety
@@ -96,7 +96,7 @@ pub trait AsUnsafeFile {
         }
     }
 
-    /// Like `as_file`, but returns a value which is not explicitly tied
+    /// Like `as_file_view`, but returns a value which is not explicitly tied
     /// to the lifetime of `self`.
     ///
     /// # Safety
@@ -129,7 +129,7 @@ pub trait AsUnsafeFile {
         }
     }
 
-    /// Like `as_file`, but returns a value which is not explicitly tied
+    /// Like `as_file_view`, but returns a value which is not explicitly tied
     /// to the lifetime of `self`.
     ///
     /// # Safety
@@ -196,7 +196,7 @@ pub trait AsUnsafeSocket {
         }
     }
 
-    /// Like `as_tcp_stream`, but returns a value which is not explicitly
+    /// Like `as_tcp_stream_view`, but returns a value which is not explicitly
     /// tied to the lifetime of `self`.
     ///
     /// # Safety
@@ -228,8 +228,8 @@ pub trait AsUnsafeSocket {
         }
     }
 
-    /// Like `as_tcp_listener`, but returns a value which is not explicitly
-    /// tied to the lifetime of `self`.
+    /// Like `as_tcp_listener_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
     ///
     /// # Safety
     ///
@@ -259,7 +259,7 @@ pub trait AsUnsafeSocket {
         }
     }
 
-    /// Like `as_udp_socket`, but returns a value which is not explicitly
+    /// Like `as_udp_socket_view`, but returns a value which is not explicitly
     /// tied to the lifetime of `self`.
     ///
     /// # Safety
@@ -292,7 +292,7 @@ pub trait AsUnsafeSocket {
         }
     }
 
-    /// Like `as_unix_stream`, but returns a value which is not explicitly
+    /// Like `as_unix_stream_view`, but returns a value which is not explicitly
     /// tied to the lifetime of `self`.
     ///
     /// # Safety
