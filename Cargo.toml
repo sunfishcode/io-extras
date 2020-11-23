@@ -1,0 +1,26 @@
+[package]
+name = "unsafe-io"
+version = "0.0.0"
+description = "Non-owning unsafe I/O"
+authors = ["Dan Gohman <dev@sunfishcode.online>"]
+edition = "2018"
+license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+keywords = ["api", "io", "stream"]
+categories = ["os", "rust-patterns"]
+repository = "https://github.com/sunfishcode/unsafe-io"
+readme = "README.md"
+
+[build-dependencies]
+rustc_version = "0.3.2"
+
+[target.'cfg(windows)'.dependencies]
+os_pipe = { version = "0.9.2", optional = true }
+
+[dev-dependencies]
+anyhow = "1.0.38"
+
+[target.'cfg(not(target_os = "wasi"))'.dev-dependencies]
+os_pipe = "0.9.2"
+
+[badges]
+maintenance = { status = "actively-developed" }
