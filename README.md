@@ -24,3 +24,4 @@ the resource they point to.
 [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
 [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
 RRGGRYHTUJGTUY
+vBHgN54tJKmYaqy
