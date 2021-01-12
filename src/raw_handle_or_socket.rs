@@ -55,6 +55,12 @@ pub trait IntoRawHandleOrSocket {
 /// [`SOCKET`]: https://doc.rust-lang.org/std/os/windows/raw/type.SOCKET.html
 unsafe impl Send for RawHandleOrSocket {}
 
+/// The Windows `HANDLE` and `SOCKET` types may be shared between threads.
+///
+/// [`HANDLE`]: https://doc.rust-lang.org/std/os/windows/raw/type.HANDLE.html
+/// [`SOCKET`]: https://doc.rust-lang.org/std/os/windows/raw/type.SOCKET.html
+unsafe impl Sync for RawHandleOrSocket {}
+
 impl AsRawHandleOrSocket for RawHandleOrSocket {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> Self {
