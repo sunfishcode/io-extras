@@ -20,7 +20,10 @@ use std::{
 /// It's reasonable to worry that this might be trying too hard to make Windows
 /// work like Unix, however in this case, the number of types is small, so the
 /// enum is simple and the overhead is relatively low, and the benefit is that
-/// we can abstract over major `Read` and `Write` resources.
+/// we can abstract over major [`Read`] and [`Write`] resources.
+///
+/// [`Read`]: std::io::Read
+/// [`Write`]: std::io::Write
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
 pub enum RawHandleOrSocket {
     /// A `RawHandle`.
@@ -46,7 +49,10 @@ pub trait IntoRawHandleOrSocket {
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket;
 }
 
-/// The Windows `HANDLE` and `SOCKET` types may be sent between threads.
+/// The Windows [`HANDLE`] and [`SOCKET`] types may be sent between threads.
+///
+/// [`HANDLE`]: https://doc.rust-lang.org/std/os/windows/raw/type.HANDLE.html
+/// [`SOCKET`]: https://doc.rust-lang.org/std/os/windows/raw/type.SOCKET.html
 unsafe impl Send for RawHandleOrSocket {}
 
 impl AsRawHandleOrSocket for RawHandleOrSocket {

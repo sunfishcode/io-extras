@@ -20,7 +20,7 @@
 //! | File     | [`RawFd`]      | [`RawHandle`]         || [`UnsafeHandle`] or [`UnsafeFile`]   |
 //! | Pipe     | [`RawFd`]      | [`RawHandle`]         || [`UnsafeHandle`] or [`UnsafeFile`]   |
 //! | Socket   | [`RawFd`]      | [`RawSocket`]         || [`UnsafeHandle`] or [`UnsafeSocket`] |
-//! | Either   | [`RawFd`]      | [`RawHandleOrSocket`] || [`UnsafeHandle`]                     |
+//! | Any      | [`RawFd`]      | [`RawHandleOrSocket`] || [`UnsafeHandle`]                     |
 //!
 //! and the main traits are:
 //!
