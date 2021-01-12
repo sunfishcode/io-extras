@@ -203,31 +203,35 @@ pub trait FromUnsafeSocket {
 pub struct UnsafeHandle(InnerFileOrSocket);
 
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
-/// Windows considers to be `RawHandle`s—mainly files and pipes.
+/// Windows considers to be [`RawHandle`]s—mainly files and pipes.
 ///
-/// Like `UnsafeHandle`, this doesn't implement `Into*` or `From*` traits.
+/// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
+///
+/// [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
 #[derive(Copy, Clone)]
 pub struct UnsafeFile(InnerFile);
 
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
-/// Windows considers to be `RawSocket`s—mainly TCP listeners and streams and
+/// Windows considers to be [`RawSocket`]s—mainly TCP streams and listeners and
 /// UDP sockets.
 ///
-/// Like `UnsafeHandle`, this doesn't implement `Into*` or `From*` traits.
+/// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
+///
+/// [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
 #[derive(Copy, Clone)]
 pub struct UnsafeSocket(InnerSocket);
 
 /// A non-owning unsafe I/O handle that implements [`Read`]. `Read` functions
 /// are considered safe, so this type requires `unsafe` to construct.
 ///
-/// Like `UnsafeHandle`, this doesn't implement `Into*` or `From*` traits.
+/// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
 #[derive(Copy, Clone)]
 pub struct UnsafeReadable(InnerFileOrSocket);
 
 /// A non-owning unsafe I/O handle that implements [`Write`]. `Write` functions
 /// considered are safe, so this type requires `unsafe` to construct.
 ///
-/// Like `UnsafeHandle`, this doesn't implement `Into*` or `From*` traits.
+/// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
 #[derive(Copy, Clone)]
 pub struct UnsafeWriteable(InnerFileOrSocket);
 

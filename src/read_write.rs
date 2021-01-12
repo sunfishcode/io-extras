@@ -26,21 +26,18 @@ pub trait AsUnsafeReadWriteHandle {
     fn as_unsafe_write_handle(&self) -> UnsafeHandle;
 }
 
-/// Like [`std::os::unix::io::AsRawFd`], but specifically for use with
-/// implementations which may contain both reading and writing file
-/// descriptors.
+/// Like [`AsRawFd`], but specifically for use with implementations which may
+/// contain both reading and writing file descriptors.
 #[cfg(not(windows))]
 pub trait AsRawReadWriteFd {
     /// Extracts the raw file descriptor for reading.
     ///
-    /// Like [`std::os::unix::io::AsRawFd::as_raw_fd`], but returns the reading
-    /// file descriptor.
+    /// Like [`AsRawFd::as_raw_fd`], but returns the reading file descriptor.
     fn as_raw_read_fd(&self) -> RawFd;
 
     /// Extracts the raw file descriptor for writing.
     ///
-    /// Like [`std::os::unix::io::AsRawFd::as_raw_fd`], but returns the writing
-    /// file descriptor.
+    /// Like [`AsRawFd::as_raw_fd`], but returns the writing file descriptor.
     fn as_raw_write_fd(&self) -> RawFd;
 }
 
@@ -49,9 +46,15 @@ pub trait AsRawReadWriteFd {
 #[cfg(windows)]
 pub trait AsRawReadWriteHandleOrSocket {
     /// Extracts the raw handle or socket for reading.
+    ///
+    /// Like [`AsRawHandleOrSocket::as_raw_handle_or_socket`], but returns the
+    /// reading handle.
     fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket;
 
     /// Extracts the raw handle or socket for writing.
+    ///
+    /// Like [`AsRawHandleOrSocket::as_raw_handle_or_socket`], but returns the
+    /// writing handle.
     fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket;
 }
 

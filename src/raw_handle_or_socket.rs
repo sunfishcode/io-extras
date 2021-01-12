@@ -30,23 +30,19 @@ pub enum RawHandleOrSocket {
     Socket(RawSocket),
 }
 
-/// Like [`std::os::windows::io::AsRawHandle`] and
-/// [`std::os::windows::io::AsRawSocket`], but implementable by types which
+/// Like [`AsRawHandle`] and [`AsRawSocket`], but implementable by types which
 /// can implement either one.
 pub trait AsRawHandleOrSocket {
-    /// Like [`std::os::windows::io::AsRawHandle::as_raw_handle`] and
-    /// [`std::os::windows::io::AsRawSocket::as_raw_socket`] but can return
-    /// either type.
+    /// Like [`AsRawHandle::as_raw_handle`] and [`AsRawSocket::as_raw_socket`]
+    /// but can return either type.
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket;
 }
 
-/// Like [`std::os::windows::io::IntoRawHandle`] and
-/// [`std::os::windows::io::IntoRawSocket`], but implementable by types which
-/// can implement either one.
+/// Like [`IntoRawHandle`] and [`IntoRawSocket`], but implementable by types
+/// which can implement either one.
 pub trait IntoRawHandleOrSocket {
-    /// Like [`std::os::windows::io::IntoRawHandle::into_raw_handle`] and
-    /// [`std::os::windows::io::IntoRawSocket::into_raw_socket`] but can return
-    /// either type.
+    /// Like [`IntoRawHandle::into_raw_handle`] and
+    /// [`IntoRawSocket::into_raw_socket`] but can return either type.
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket;
 }
 
