@@ -14,10 +14,7 @@ use std::{
 };
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
-use {
-    std::os::windows::io::FromRawHandle,
-    unsafe_io::{AsRawHandleOrSocket, RawHandleOrSocket},
-};
+use {std::os::windows::io::FromRawHandle, unsafe_io::AsRawHandleOrSocket};
 
 fn main() -> anyhow::Result<()> {
     let stdout = stdout();
@@ -53,10 +50,11 @@ fn main() -> anyhow::Result<()> {
     writeln!(
         ManuallyDrop::new(unsafe {
             std::fs::File::from_raw_handle(
-                match stdout.as_unsafe_handle().as_raw_handle_or_socket() {
-                    RawHandleOrSocket::Handle(handle) => handle,
-                    RawHandleOrSocket::Socket(_) => panic!(),
-                },
+                stdout
+                    .as_unsafe_handle()
+                    .as_raw_handle_or_socket()
+                    .as_raw_handle()
+                    .unwrap(),
             )
         }),
         "hello, world"

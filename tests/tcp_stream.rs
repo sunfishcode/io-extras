@@ -14,10 +14,7 @@ use std::{
 };
 use unsafe_io::{AsUnsafeHandle, AsUnsafeSocket, FromUnsafeSocket};
 #[cfg(windows)]
-use {
-    std::os::windows::io::FromRawSocket,
-    unsafe_io::{AsRawHandleOrSocket, RawHandleOrSocket},
-};
+use {std::os::windows::io::FromRawSocket, unsafe_io::AsRawHandleOrSocket};
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
@@ -60,10 +57,11 @@ fn tcp_stream_write() -> anyhow::Result<()> {
         writeln!(
             ManuallyDrop::new(unsafe {
                 std::net::TcpStream::from_raw_socket(
-                    match stream.as_unsafe_socket().as_raw_handle_or_socket() {
-                        RawHandleOrSocket::Handle(_) => panic!(),
-                        RawHandleOrSocket::Socket(socket) => socket,
-                    },
+                    stream
+                        .as_unsafe_socket()
+                        .as_raw_handle_or_socket()
+                        .as_raw_socket()
+                        .unwrap(),
                 )
             }),
             "Write via raw socket"
@@ -154,10 +152,11 @@ fn tcp_stream_read() -> anyhow::Result<()> {
         let mut buf = String::new();
         ManuallyDrop::new(unsafe {
             std::net::TcpStream::from_raw_socket(
-                match stream.as_unsafe_socket().as_raw_handle_or_socket() {
-                    RawHandleOrSocket::Handle(_) => panic!(),
-                    RawHandleOrSocket::Socket(socket) => socket,
-                },
+                stream
+                    .as_unsafe_socket()
+                    .as_raw_handle_or_socket()
+                    .as_raw_socket()
+                    .unwrap(),
             )
         })
         .read_to_string(&mut buf)?;

@@ -14,10 +14,7 @@ use std::{
 };
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
-use {
-    std::os::windows::io::FromRawHandle,
-    unsafe_io::{AsRawHandleOrSocket, RawHandleOrSocket},
-};
+use {std::os::windows::io::FromRawHandle, unsafe_io::AsRawHandleOrSocket};
 
 #[test]
 #[cfg_attr(miri, ignore)] // pipe I/O calls foreign functions
@@ -55,10 +52,11 @@ fn os_pipe_write() -> anyhow::Result<()> {
         writeln!(
             ManuallyDrop::new(unsafe {
                 std::fs::File::from_raw_handle(
-                    match output.as_unsafe_handle().as_raw_handle_or_socket() {
-                        RawHandleOrSocket::Handle(handle) => handle,
-                        RawHandleOrSocket::Socket(_) => panic!(),
-                    },
+                    output
+                        .as_unsafe_handle()
+                        .as_raw_handle_or_socket()
+                        .as_raw_handle()
+                        .unwrap(),
                 )
             }),
             "Write via raw socket"
@@ -144,10 +142,11 @@ fn os_pipe_read() -> anyhow::Result<()> {
         let mut buf = String::new();
         ManuallyDrop::new(unsafe {
             std::fs::File::from_raw_handle(
-                match stream.as_unsafe_handle().as_raw_handle_or_socket() {
-                    RawHandleOrSocket::Handle(handle) => handle,
-                    RawHandleOrSocket::Socket(_) => panic!(),
-                },
+                stream
+                    .as_unsafe_handle()
+                    .as_raw_handle_or_socket()
+                    .as_raw_handle()
+                    .unwrap(),
             )
         })
         .read_to_string(&mut buf)?;
