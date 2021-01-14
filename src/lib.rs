@@ -60,7 +60,7 @@
 //! [`AsRawSocket`]: https://doc.rust-lang.org/std/os/windows/io/trait.AsRawHandle.html
 //! [`IntoRawSocket`]: https://doc.rust-lang.org/std/os/windows/io/trait.IntoRawHandle.html
 //! [`FromRawSocket`]: https://doc.rust-lang.org/std/os/windows/io/trait.FromRawHandle.html
-//! [`RawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/enum.RawHandleOrSocket.html
+//! [`RawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/struct.RawHandleOrSocket.html
 //! [`AsRawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.AsRawHandleOrSocket.html
 //! [`IntoRawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.IntoRawHandleOrSocket.html
 //! [`AsRawReadWriteHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.AsRawReadWriteHandleOrSocket.html
