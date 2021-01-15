@@ -28,7 +28,7 @@ fn main() -> anyhow::Result<()> {
 
     // Obtain an `UnsafeFile` and use it to construct a temporary manually-drop
     // `File` to write.
-    writeln!(stdout.as_file(), "hello, world")?;
+    writeln!(stdout.as_file_view(), "hello, world")?;
 
     // Similar, but do it manually.
     writeln!(

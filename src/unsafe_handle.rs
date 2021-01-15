@@ -55,9 +55,25 @@ pub trait AsUnsafeFile {
     /// Note that `AsUnsafeFile` may be implemented for types which are not
     /// normal files, and which don't support all the methods on `File`.
     #[inline]
-    fn as_file(&self) -> View<File> {
+    fn as_file_view(&self) -> View<File> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { File::from_unsafe_file(unsafe_file) };
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_file`, but returns a value which is not explicitly tied
+    /// to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[inline]
+    unsafe fn as_unscoped_file_view(&self) -> View<'static, File> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = File::from_unsafe_file(unsafe_file);
         View {
             target: ManuallyDrop::new(file),
             _phantom_data: PhantomData,
@@ -104,9 +120,25 @@ pub trait AsUnsafeSocket {
     /// Note that `AsUnsafeSocket` may be implemented for types which are not
     /// TCP streams, and which don't support all the methods on `TcpStream`.
     #[inline]
-    fn as_tcp_stream(&self) -> View<TcpStream> {
+    fn as_tcp_stream_view(&self) -> View<TcpStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_stream = unsafe { TcpStream::from_unsafe_socket(unsafe_socket) };
+        View {
+            target: ManuallyDrop::new(tcp_stream),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_tcp_stream`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[inline]
+    unsafe fn as_unscoped_tcp_stream_view(&self) -> View<'static, TcpStream> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let tcp_stream = TcpStream::from_unsafe_socket(unsafe_socket);
         View {
             target: ManuallyDrop::new(tcp_stream),
             _phantom_data: PhantomData,
@@ -120,9 +152,25 @@ pub trait AsUnsafeSocket {
     /// TCP listeners, and which don't support all the methods on
     /// `TcpListener`.
     #[inline]
-    fn as_tcp_listener(&self) -> View<TcpListener> {
+    fn as_tcp_listener_view(&self) -> View<TcpListener> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_listener = unsafe { TcpListener::from_unsafe_socket(unsafe_socket) };
+        View {
+            target: ManuallyDrop::new(tcp_listener),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_tcp_listener`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[inline]
+    unsafe fn as_unscoped_tcp_listener_view(&self) -> View<'static, TcpListener> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let tcp_listener = TcpListener::from_unsafe_socket(unsafe_socket);
         View {
             target: ManuallyDrop::new(tcp_listener),
             _phantom_data: PhantomData,
@@ -135,9 +183,25 @@ pub trait AsUnsafeSocket {
     /// Note that `AsUnsafeSocket` may be implemented for types which are not
     /// UDP sockets, and which don't support all the methods on `UdpSocket`.
     #[inline]
-    fn as_udp_socket(&self) -> View<UdpSocket> {
+    fn as_udp_socket_view(&self) -> View<UdpSocket> {
         let unsafe_socket = self.as_unsafe_socket();
         let udp_socket = unsafe { UdpSocket::from_unsafe_socket(unsafe_socket) };
+        View {
+            target: ManuallyDrop::new(udp_socket),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_udp_socket`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[inline]
+    unsafe fn as_unscoped_udp_socket_view(&self) -> View<'static, UdpSocket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let udp_socket = UdpSocket::from_unsafe_socket(unsafe_socket);
         View {
             target: ManuallyDrop::new(udp_socket),
             _phantom_data: PhantomData,
@@ -152,9 +216,26 @@ pub trait AsUnsafeSocket {
     /// `UnixStream`.
     #[cfg(unix)]
     #[inline]
-    fn as_unix_stream(&self) -> View<UnixStream> {
+    fn as_unix_stream_view(&self) -> View<UnixStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let unix_stream = unsafe { UnixStream::from_unsafe_socket(unsafe_socket) };
+        View {
+            target: ManuallyDrop::new(unix_stream),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_unix_stream`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(unix)]
+    #[inline]
+    unsafe fn as_unscoped_unix_stream_view(&self) -> View<'static, UnixStream> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let unix_stream = UnixStream::from_unsafe_socket(unsafe_socket);
         View {
             target: ManuallyDrop::new(unix_stream),
             _phantom_data: PhantomData,
@@ -665,33 +746,33 @@ impl AsRawSocket for UnsafeSocket {
 impl Read for UnsafeReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.as_file().read(buf)
+        self.as_file_view().read(buf)
     }
 
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut]) -> io::Result<usize> {
-        self.as_file().read_vectored(bufs)
+        self.as_file_view().read_vectored(bufs)
     }
 
     #[cfg(can_vector)]
     #[inline]
     fn is_read_vectored(&self) -> bool {
-        self.as_file().is_read_vectored()
+        self.as_file_view().is_read_vectored()
     }
 
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        self.as_file().read_to_end(buf)
+        self.as_file_view().read_to_end(buf)
     }
 
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
-        self.as_file().read_to_string(buf)
+        self.as_file_view().read_to_string(buf)
     }
 
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
-        self.as_file().read_exact(buf)
+        self.as_file_view().read_exact(buf)
     }
 }
 
@@ -757,39 +838,39 @@ impl Read for UnsafeReadable {
 impl Write for UnsafeWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.as_file().write(buf)
+        self.as_file_view().write(buf)
     }
 
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
-        self.as_file().flush()
+        self.as_file_view().flush()
     }
 
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice]) -> io::Result<usize> {
-        self.as_file().write_vectored(bufs)
+        self.as_file_view().write_vectored(bufs)
     }
 
     #[cfg(can_vector)]
     #[inline]
     fn is_write_vectored(&self) -> bool {
-        self.as_file().is_write_vectored()
+        self.as_file_view().is_write_vectored()
     }
 
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
-        self.as_file().write_all(buf)
+        self.as_file_view().write_all(buf)
     }
 
     #[cfg(write_all_vectored)]
     #[inline]
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice]) -> io::Result<()> {
-        self.as_file().write_all_vectored(bufs)
+        self.as_file_view().write_all_vectored(bufs)
     }
 
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
-        self.as_file().write_fmt(fmt)
+        self.as_file_view().write_fmt(fmt)
     }
 }
 

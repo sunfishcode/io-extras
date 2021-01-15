@@ -30,7 +30,7 @@ fn os_pipe_write() -> anyhow::Result<()> {
 
         // Obtain an `UnsafeSocket` and use it to construct a temporary manually-drop
         // `PipeWriter` to write.
-        writeln!(output.as_file(), "Write via as_file")?;
+        writeln!(output.as_file_view(), "Write via as_file_view")?;
 
         // Similar, but do it manually.
         writeln!(
@@ -72,7 +72,7 @@ fn os_pipe_write() -> anyhow::Result<()> {
     assert_eq!(
         buf,
         "Write via UnsafeWriteable\n\
-                Write via as_file\n\
+                Write via as_file_view\n\
                 Write via unsafe handle\n\
                 Write via raw fd\n"
     );
@@ -81,7 +81,7 @@ fn os_pipe_write() -> anyhow::Result<()> {
     assert_eq!(
         buf,
         "Write via UnsafeWriteable\n\
-                Write via as_file\n\
+                Write via as_file_view\n\
                 Write via unsafe handle\n\
                 Write via raw socket\n"
     );
@@ -113,7 +113,7 @@ fn os_pipe_read() -> anyhow::Result<()> {
     // `PipeReader` to read.
     let stream = write_to_pipe()?;
     let mut buf = String::new();
-    stream.as_file().read_to_string(&mut buf)?;
+    stream.as_file_view().read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
 
     // Similar, but do it manually.

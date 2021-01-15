@@ -33,7 +33,7 @@ fn tcp_stream_write() -> anyhow::Result<()> {
 
         // Obtain an `UnsafeSocket` and use it to construct a temporary manually-drop
         // `TcpStream` to write.
-        writeln!(stream.as_tcp_stream(), "Write via as_tcp_stream")?;
+        writeln!(stream.as_tcp_stream_view(), "Write via as_tcp_stream_view")?;
 
         // Similar, but do it manually.
         writeln!(
@@ -78,7 +78,7 @@ fn tcp_stream_write() -> anyhow::Result<()> {
     assert_eq!(
         buf,
         "Write via UnsafeWriteable\n\
-                Write via as_tcp_stream\n\
+                Write via as_tcp_stream_view\n\
                 Write via unsafe socket\n\
                 Write via raw fd\n"
     );
@@ -87,7 +87,7 @@ fn tcp_stream_write() -> anyhow::Result<()> {
     assert_eq!(
         buf,
         "Write via UnsafeWriteable\n\
-                Write via as_tcp_stream\n\
+                Write via as_tcp_stream_view\n\
                 Write via unsafe socket\n\
                 Write via raw socket\n"
     );
@@ -121,7 +121,7 @@ fn tcp_stream_read() -> anyhow::Result<()> {
     // `TcpStream` to read.
     let stream = accept()?;
     let mut buf = String::new();
-    stream.as_tcp_stream().read_to_string(&mut buf)?;
+    stream.as_tcp_stream_view().read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
 
     // Similar, but do it manually.
