@@ -1,6 +1,6 @@
 //! The `UnsafeHandle` type and supporting types and traits.
 
-#[cfg(all(windows, feature = "os_pipe"))]
+#[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 #[cfg(unix)]
 use std::os::unix::{
@@ -74,6 +74,72 @@ pub trait AsUnsafeFile {
     unsafe fn as_unscoped_file_view(&self) -> View<'static, File> {
         let unsafe_file = self.as_unsafe_file();
         let file = File::from_unsafe_file(unsafe_file);
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Utility for returning a value which dereferences to a `&PipeReader` or
+    /// `&mut PipeReader`.
+    ///
+    /// Note that `AsUnsafeFile` may be implemented for types which are not
+    /// pipes, and which don't support all the methods on `PipeReader`.
+    #[cfg(feature = "os_pipe")]
+    #[inline]
+    fn as_pipe_reader_view(&self) -> View<PipeReader> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = unsafe { PipeReader::from_unsafe_file(unsafe_file) };
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_file`, but returns a value which is not explicitly tied
+    /// to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "os_pipe")]
+    #[inline]
+    unsafe fn as_unscoped_pipe_reader_view(&self) -> View<'static, PipeReader> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = PipeReader::from_unsafe_file(unsafe_file);
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Utility for returning a value which dereferences to a `&PipeWriter` or
+    /// `&mut PipeWriter`.
+    ///
+    /// Note that `AsUnsafeFile` may be implemented for types which are not
+    /// pipes, and which don't support all the methods on `PipeWriter`.
+    #[cfg(feature = "os_pipe")]
+    #[inline]
+    fn as_pipe_writer_view(&self) -> View<PipeWriter> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = unsafe { PipeWriter::from_unsafe_file(unsafe_file) };
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    /// Like `as_file`, but returns a value which is not explicitly tied
+    /// to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "os_pipe")]
+    #[inline]
+    unsafe fn as_unscoped_pipe_writer_view(&self) -> View<'static, PipeWriter> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = PipeWriter::from_unsafe_file(unsafe_file);
         View {
             target: ManuallyDrop::new(file),
             _phantom_data: PhantomData,
