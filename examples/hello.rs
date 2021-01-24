@@ -36,6 +36,14 @@ fn main() -> anyhow::Result<()> {
         "hello, world"
     )?;
 
+    // Similar, but gratuitously pass stdout through `from_filelike`.
+    writeln!(
+        ManuallyDrop::new(std::fs::File::from_filelike(unsafe {
+            std::fs::File::from_unsafe_file(stdout.as_unsafe_file())
+        })),
+        "hello, world"
+    )?;
+
     // Similar, but use the Posix-ish-specific type.
     #[cfg(not(windows))]
     writeln!(

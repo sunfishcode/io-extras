@@ -151,16 +151,6 @@ pub trait AsUnsafeFile {
 pub trait IntoUnsafeFile {
     /// Convert `self` into an unsafe file.
     fn into_unsafe_file(self) -> UnsafeFile;
-
-    /// Utility for converting `self` into a `File`.
-    #[inline]
-    fn into_file(self) -> File
-    where
-        Self: Sized,
-    {
-        let unsafe_file = self.into_unsafe_file();
-        unsafe { File::from_unsafe_file(unsafe_file) }
-    }
 }
 
 /// A trait for types which can be constructed from unsafe files.
@@ -173,6 +163,17 @@ pub trait FromUnsafeFile {
     /// unsafe handle without using unsafe, so the caller must ensure that it
     /// doesn't outlive the underlying resource.
     unsafe fn from_unsafe_file(unsafe_file: UnsafeFile) -> Self;
+
+    /// Convert from a type which implements `IntoUnsafeFile` into a type that
+    /// implements `FromUnsafeFile`.
+    #[inline]
+    fn from_filelike<IUF: IntoUnsafeFile>(into_unsafe_file: IUF) -> Self
+    where
+        Self: Sized,
+    {
+        let unsafe_file = into_unsafe_file.into_unsafe_file();
+        unsafe { Self::from_unsafe_file(unsafe_file) }
+    }
 }
 
 /// A trait for types which contain an unsafe socket and can expose it.
@@ -313,16 +314,6 @@ pub trait AsUnsafeSocket {
 pub trait IntoUnsafeSocket {
     /// Convert `self` into an unsafe socket.
     fn into_unsafe_socket(self) -> UnsafeSocket;
-
-    /// Utility for converting `self` into a `TcpStream`.
-    #[inline]
-    fn into_tcp_stream(self) -> TcpStream
-    where
-        Self: Sized,
-    {
-        let unsafe_socket = self.into_unsafe_socket();
-        unsafe { TcpStream::from_unsafe_socket(unsafe_socket) }
-    }
 }
 
 /// A trait for types which can be constructed from unsafe sockets.
@@ -335,6 +326,17 @@ pub trait FromUnsafeSocket {
     /// unsafe handle without using unsafe, so the caller must ensure that it
     /// doesn't outlive the underlying resource.
     unsafe fn from_unsafe_socket(unsafe_socket: UnsafeSocket) -> Self;
+
+    /// Convert from a type which implements `IntoUnsafeSocket` into a type
+    /// that implements `FromUnsafeSocket`.
+    #[inline]
+    fn from_socketlike<IUS: IntoUnsafeSocket>(into_unsafe_socket: IUS) -> Self
+    where
+        Self: Sized,
+    {
+        let unsafe_socket = into_unsafe_socket.into_unsafe_socket();
+        unsafe { Self::from_unsafe_socket(unsafe_socket) }
+    }
 }
 
 /// A non-owning unsafe I/O handle.
