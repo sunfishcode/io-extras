@@ -38,6 +38,14 @@ fn os_pipe_write() -> anyhow::Result<()> {
             "Write via unsafe handle"
         )?;
 
+        // Similar, but gratuitously pass stdout through `from_filelike`.
+        writeln!(
+            ManuallyDrop::new(std::fs::File::from_filelike(unsafe {
+                std::fs::File::from_unsafe_file(output.as_unsafe_file())
+            })),
+            "Write via unsafe handle using from_filelike"
+        )?;
+
         // Similar, but use the Posix-ish-specific type.
         #[cfg(not(windows))]
         writeln!(
@@ -74,6 +82,7 @@ fn os_pipe_write() -> anyhow::Result<()> {
         "Write via UnsafeWriteable\n\
                 Write via as_file_view\n\
                 Write via unsafe handle\n\
+                Write via unsafe handle using from_filelike\n\
                 Write via raw fd\n"
     );
 
@@ -83,6 +92,7 @@ fn os_pipe_write() -> anyhow::Result<()> {
         "Write via UnsafeWriteable\n\
                 Write via as_file_view\n\
                 Write via unsafe handle\n\
+                Write via unsafe handle using from_filelike\n\
                 Write via raw socket\n"
     );
 
