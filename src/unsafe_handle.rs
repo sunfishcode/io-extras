@@ -167,11 +167,11 @@ pub trait FromUnsafeFile {
     /// Convert from a type which implements `IntoUnsafeFile` into a type that
     /// implements `FromUnsafeFile`.
     #[inline]
-    fn from_filelike<IUF: IntoUnsafeFile>(into_unsafe_file: IUF) -> Self
+    fn from_filelike<Filelike: IntoUnsafeFile>(filelike: Filelike) -> Self
     where
         Self: Sized,
     {
-        let unsafe_file = into_unsafe_file.into_unsafe_file();
+        let unsafe_file = filelike.into_unsafe_file();
         unsafe { Self::from_unsafe_file(unsafe_file) }
     }
 }
