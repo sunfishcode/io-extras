@@ -330,11 +330,11 @@ pub trait FromUnsafeSocket {
     /// Convert from a type which implements `IntoUnsafeSocket` into a type
     /// that implements `FromUnsafeSocket`.
     #[inline]
-    fn from_socketlike<IUS: IntoUnsafeSocket>(into_unsafe_socket: IUS) -> Self
+    fn from_socketlike<Socketlike: IntoUnsafeSocket>(socketlike: Socketlike) -> Self
     where
         Self: Sized,
     {
-        let unsafe_socket = into_unsafe_socket.into_unsafe_socket();
+        let unsafe_socket = socketlike.into_unsafe_socket();
         unsafe { Self::from_unsafe_socket(unsafe_socket) }
     }
 }
