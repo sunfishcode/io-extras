@@ -21,9 +21,9 @@ Being non-owning, these handles operate much like raw pointers in Rust. They
 are considered safe to construct, but unsafe to use in any way that depends on
 the resource they point to.
 
-For a safe owning API, see the [io-handles] crate.
+For a safe owning API, see the [io-streams] crate.
 
 [`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
 [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
 [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
-[io-handles]: https://github.com/sunfishcode/io-handles/
+[io-streams]: https://github.com/sunfishcode/io-streams/
