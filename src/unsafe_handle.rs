@@ -417,21 +417,20 @@ pub trait FromUnsafeSocket {
 
 /// A non-owning unsafe I/O handle.
 ///
-/// On Posix-ish platforms this is just a `RawFd`. On Windows it is a minimal
-/// abstraction over `RawHandle` and `RawSocket`. Similar to Rust raw pointers,
-/// it is considered safe to construct these, but unsafe to do any I/O with
-/// them (effectively dereferencing them).
+/// On Posix-ish platforms this is just a [`RawFd`]. On Windows it is a minimal
+/// abstraction over [`RawHandle`] and [`RawSocket`]. Similar to Rust raw
+/// pointers, it is considered safe to construct these, but unsafe to do any
+/// I/O with them (effectively dereferencing them).
 ///
-/// Note that this doesn't implement `Into*` or `From*` traits, as those imply
-/// ownership transfers, and this type is non-owning.
+/// [`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
+/// [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
+/// [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
 #[derive(Copy, Clone)]
 #[repr(transparent)]
 pub struct UnsafeHandle(InnerFileOrSocket);
 
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
 /// Windows considers to be [`RawHandle`]s—mainly files and pipes.
-///
-/// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
 ///
 /// [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
 #[derive(Copy, Clone)]
@@ -441,8 +440,6 @@ pub struct UnsafeFile(InnerFile);
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
 /// Windows considers to be [`RawSocket`]s—mainly TCP streams and listeners and
 /// UDP sockets.
-///
-/// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
 ///
 /// [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
 #[derive(Copy, Clone)]
@@ -1163,7 +1160,7 @@ impl Write for UnsafeWriteable {
 }
 
 /// Like `AsUnsafeFile::as_file_view`, but with the method for
-/// obtaining as `RawHandle` from an `UnsafeReadable` or `UnsafeWriteable`
+/// obtaining a [`RawHandle`] from an [`UnsafeReadable`] or [`UnsafeWriteable`]
 /// factored out.
 ///
 /// # Safety
@@ -1179,7 +1176,7 @@ unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<File> {
 }
 
 /// Like `AsUnsafeSocket::as_tcp_stream_view`, but with the method for
-/// obtaining as `RawSocket` from an `UnsafeReadable` or `UnsafeWriteable`
+/// obtaining a [`RawSocket`] from an [`UnsafeReadable`] or [`UnsafeWriteable`]
 /// factored out.
 ///
 /// # Safety
