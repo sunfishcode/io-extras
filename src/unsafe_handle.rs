@@ -1031,6 +1031,7 @@ unsafe fn as_tcp_stream<T: AsRawHandleOrSocket>(_t: &T, raw_socket: RawSocket) -
 
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeHandle {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Just print the fd number; don't try to print the path or any
         // information about it, because this information is otherwise
@@ -1043,6 +1044,7 @@ impl fmt::Debug for UnsafeHandle {
 
 #[cfg(windows)]
 impl fmt::Debug for UnsafeHandle {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Just print the raw handle or socket; don't try to print the path or
         // any information about it, because this information is otherwise
@@ -1055,6 +1057,7 @@ impl fmt::Debug for UnsafeHandle {
 
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeFile {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeFile")
@@ -1065,6 +1068,7 @@ impl fmt::Debug for UnsafeFile {
 
 #[cfg(windows)]
 impl fmt::Debug for UnsafeFile {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw handle.
         f.debug_struct("UnsafeFile")
@@ -1075,6 +1079,7 @@ impl fmt::Debug for UnsafeFile {
 
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeSocket {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeSocket")
@@ -1085,6 +1090,7 @@ impl fmt::Debug for UnsafeSocket {
 
 #[cfg(windows)]
 impl fmt::Debug for UnsafeSocket {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw socket.
         f.debug_struct("UnsafeSocket")
@@ -1095,6 +1101,7 @@ impl fmt::Debug for UnsafeSocket {
 
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeReadable {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeReadable")
@@ -1105,6 +1112,7 @@ impl fmt::Debug for UnsafeReadable {
 
 #[cfg(windows)]
 impl fmt::Debug for UnsafeReadable {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw handle or socket.
         f.debug_struct("UnsafeReadable")
@@ -1115,6 +1123,7 @@ impl fmt::Debug for UnsafeReadable {
 
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeWriteable {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeWriteable")
@@ -1125,6 +1134,7 @@ impl fmt::Debug for UnsafeWriteable {
 
 #[cfg(windows)]
 impl fmt::Debug for UnsafeWriteable {
+    #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw handle or socket.
         f.debug_struct("UnsafeWriteable")
