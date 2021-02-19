@@ -35,6 +35,13 @@ use {
 pub trait AsUnsafeHandle {
     /// Return the contained unsafe handle.
     fn as_unsafe_handle(&self) -> UnsafeHandle;
+
+    /// Test whether `self.as_unsafe_handle()` is equal to
+    /// `other.as_unsafe_handle()`.
+    #[inline]
+    fn eq_handle<Handlelike: IntoUnsafeHandle + AsUnsafeHandle>(&self, other: &Handlelike) -> bool {
+        unsafe { self.as_unsafe_handle().eq(other.as_unsafe_handle()) }
+    }
 }
 
 /// A trait for types which can be converted into an unsafe handle.
@@ -45,7 +52,7 @@ pub trait IntoUnsafeHandle {
 }
 
 /// A trait for types which contain an unsafe file and can expose it.
-pub trait AsUnsafeFile {
+pub trait AsUnsafeFile: AsUnsafeHandle {
     /// Return the contained unsafe file.
     fn as_unsafe_file(&self) -> UnsafeFile;
 
@@ -145,10 +152,17 @@ pub trait AsUnsafeFile {
             _phantom_data: PhantomData,
         }
     }
+
+    /// Test whether `self.as_unsafe_file().as_unsafe_handle()` is equal to
+    /// `other.as_unsafe_file().as_unsafe_handle()`.
+    #[inline]
+    fn eq_file<Filelike: IntoUnsafeFile + AsUnsafeFile>(&self, other: &Filelike) -> bool {
+        unsafe { self.as_unsafe_handle().eq(other.as_unsafe_handle()) }
+    }
 }
 
 /// A trait for types which can be converted into unsafe files.
-pub trait IntoUnsafeFile {
+pub trait IntoUnsafeFile: IntoUnsafeHandle {
     /// Convert `self` into an unsafe file.
     fn into_unsafe_file(self) -> UnsafeFile;
 }
@@ -177,7 +191,7 @@ pub trait FromUnsafeFile {
 }
 
 /// A trait for types which contain an unsafe socket and can expose it.
-pub trait AsUnsafeSocket {
+pub trait AsUnsafeSocket: AsUnsafeHandle {
     /// Return the contained unsafe socket.
     fn as_unsafe_socket(&self) -> UnsafeSocket;
 
@@ -308,10 +322,17 @@ pub trait AsUnsafeSocket {
             _phantom_data: PhantomData,
         }
     }
+
+    /// Test whether `self.as_unsafe_socket().as_unsafe_handle()` is equal to
+    /// `other.as_unsafe_socket().as_unsafe_handle()`.
+    #[inline]
+    fn eq_socket<Socketlike: IntoUnsafeSocket + AsUnsafeSocket>(&self, other: &Socketlike) -> bool {
+        unsafe { self.as_unsafe_handle().eq(other.as_unsafe_handle()) }
+    }
 }
 
 /// A trait for types which can be converted into unsafe sockets.
-pub trait IntoUnsafeSocket {
+pub trait IntoUnsafeSocket: IntoUnsafeHandle {
     /// Convert `self` into an unsafe socket.
     fn into_unsafe_socket(self) -> UnsafeSocket;
 }
@@ -622,10 +643,36 @@ impl AsRawFd for UnsafeReadable {
 }
 
 #[cfg(not(windows))]
+impl UnsafeReadable {
+    #[inline]
+    unsafe fn as_file_view(&self) -> View<File> {
+        let raw_fd = self.as_raw_fd();
+        let file = File::from_raw_fd(raw_fd);
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
+    }
+}
+
+#[cfg(not(windows))]
 impl AsRawFd for UnsafeWriteable {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
         self.0
+    }
+}
+
+#[cfg(not(windows))]
+impl UnsafeWriteable {
+    #[inline]
+    unsafe fn as_file_view(&self) -> View<File> {
+        let raw_fd = self.as_raw_fd();
+        let file = File::from_raw_fd(raw_fd);
+        View {
+            target: ManuallyDrop::new(file),
+            _phantom_data: PhantomData,
+        }
     }
 }
 
@@ -656,7 +703,7 @@ impl<T: AsRawHandleOrSocket> AsUnsafeHandle for T {
 }
 
 #[cfg(windows)]
-impl<T: AsRawHandle> AsUnsafeFile for T {
+impl<T: AsRawHandle + AsUnsafeHandle> AsUnsafeFile for T {
     #[inline]
     fn as_unsafe_file(&self) -> UnsafeFile {
         UnsafeFile(AsRawHandle::as_raw_handle(self))
@@ -664,7 +711,7 @@ impl<T: AsRawHandle> AsUnsafeFile for T {
 }
 
 #[cfg(windows)]
-impl<T: AsRawSocket> AsUnsafeSocket for T {
+impl<T: AsRawSocket + AsUnsafeHandle> AsUnsafeSocket for T {
     #[inline]
     fn as_unsafe_socket(&self) -> UnsafeSocket {
         UnsafeSocket(AsRawSocket::as_raw_socket(self))
@@ -672,7 +719,7 @@ impl<T: AsRawSocket> AsUnsafeSocket for T {
 }
 
 #[cfg(windows)]
-impl<T: IntoRawHandle> IntoUnsafeFile for T {
+impl<T: IntoRawHandle + IntoUnsafeHandle> IntoUnsafeFile for T {
     #[inline]
     fn into_unsafe_file(self) -> UnsafeFile {
         UnsafeFile(Self::into_raw_handle(self))
@@ -680,7 +727,7 @@ impl<T: IntoRawHandle> IntoUnsafeFile for T {
 }
 
 #[cfg(windows)]
-impl<T: IntoRawSocket> IntoUnsafeSocket for T {
+impl<T: IntoRawSocket + IntoUnsafeSocket> IntoUnsafeSocket for T {
     #[inline]
     fn into_unsafe_socket(self) -> UnsafeSocket {
         UnsafeSocket(IntoRawSocket::into_raw_socket(self))
@@ -696,63 +743,70 @@ impl<T: FromRawHandle> FromUnsafeFile for T {
 }
 
 #[cfg(windows)]
-impl<T: FromRawSocket> FromUnsafeSocket for T {
+impl<T: FromRawSocket + OwnsRaw> FromUnsafeSocket for T {
     #[inline]
     unsafe fn from_unsafe_socket(unsafe_socket: UnsafeSocket) -> Self {
         Self::from_raw_socket(unsafe_socket.0)
     }
 }
 
+// Safety: `File` owns its handle.
 #[cfg(windows)]
-impl IntoUnsafeHandle for File {
+unsafe impl IntoUnsafeHandle for File {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
+// Safety: `ChildStdin` owns its handle.
 #[cfg(windows)]
-impl IntoUnsafeHandle for ChildStdin {
+unsafe impl IntoUnsafeHandle for ChildStdin {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
+// Safety: `ChildStdout` owns its handle.
 #[cfg(windows)]
-impl IntoUnsafeHandle for ChildStdout {
+unsafe impl IntoUnsafeHandle for ChildStdout {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
+// Safety: `ChildStderr` owns its handle.
 #[cfg(windows)]
-impl IntoUnsafeHandle for ChildStderr {
+unsafe impl IntoUnsafeHandle for ChildStderr {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
+// Safety: `TcpStream` owns its handle.
 #[cfg(windows)]
-impl IntoUnsafeHandle for TcpStream {
+unsafe impl IntoUnsafeHandle for TcpStream {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
+// Safety: `PipeReader` owns its handle.
 #[cfg(all(windows, feature = "os_pipe"))]
-impl IntoUnsafeHandle for PipeReader {
+unsafe impl IntoUnsafeHandle for PipeReader {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
+// Safety: `PipeWriter` owns its handle.
 #[cfg(all(windows, feature = "os_pipe"))]
-impl IntoUnsafeHandle for PipeWriter {
+unsafe impl IntoUnsafeHandle for PipeWriter {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
@@ -819,33 +873,33 @@ impl AsRawSocket for UnsafeSocket {
 impl Read for UnsafeReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.as_file_view().read(buf)
+        unsafe { self.as_file_view() }.read(buf)
     }
 
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut]) -> io::Result<usize> {
-        self.as_file_view().read_vectored(bufs)
+        unsafe { self.as_file_view() }.read_vectored(bufs)
     }
 
     #[cfg(can_vector)]
     #[inline]
     fn is_read_vectored(&self) -> bool {
-        self.as_file_view().is_read_vectored()
+        unsafe { self.as_file_view() }.is_read_vectored()
     }
 
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        self.as_file_view().read_to_end(buf)
+        unsafe { self.as_file_view() }.read_to_end(buf)
     }
 
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
-        self.as_file_view().read_to_string(buf)
+        unsafe { self.as_file_view() }.read_to_string(buf)
     }
 
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
-        self.as_file_view().read_exact(buf)
+        unsafe { self.as_file_view() }.read_exact(buf)
     }
 }
 
@@ -854,17 +908,19 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.read(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.read(buf),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read(buf),
+            Raw::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.read(buf),
         }
     }
 
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.read_vectored(bufs),
+            Raw::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.read_vectored(bufs)
+            }
             Raw::Socket(raw_socket) => {
-                unsafe { as_tcp_stream(self, raw_socket) }.read_vectored(bufs)
+                unsafe { as_tcp_stream_view(self, raw_socket) }.read_vectored(bufs)
             }
         }
     }
@@ -873,9 +929,9 @@ impl Read for UnsafeReadable {
     #[inline]
     fn is_read_vectored(&self) -> bool {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.is_read_vectored(),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.is_read_vectored(),
             Raw::Socket(raw_socket) => {
-                unsafe { as_tcp_stream(self, raw_socket) }.is_read_vectored()
+                unsafe { as_tcp_stream_view(self, raw_socket) }.is_read_vectored()
             }
         }
     }
@@ -883,17 +939,21 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.read_to_end(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.read_to_end(buf),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read_to_end(buf),
+            Raw::Socket(raw_socket) => {
+                unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_end(buf)
+            }
         }
     }
 
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.read_to_string(buf),
+            Raw::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.read_to_string(buf)
+            }
             Raw::Socket(raw_socket) => {
-                unsafe { as_tcp_stream(self, raw_socket) }.read_to_string(buf)
+                unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_string(buf)
             }
         }
     }
@@ -901,8 +961,10 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.read_exact(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.read_exact(buf),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read_exact(buf),
+            Raw::Socket(raw_socket) => {
+                unsafe { as_tcp_stream_view(self, raw_socket) }.read_exact(buf)
+            }
         }
     }
 }
@@ -911,39 +973,39 @@ impl Read for UnsafeReadable {
 impl Write for UnsafeWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.as_file_view().write(buf)
+        unsafe { self.as_file_view() }.write(buf)
     }
 
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
-        self.as_file_view().flush()
+        unsafe { self.as_file_view() }.flush()
     }
 
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice]) -> io::Result<usize> {
-        self.as_file_view().write_vectored(bufs)
+        unsafe { self.as_file_view() }.write_vectored(bufs)
     }
 
     #[cfg(can_vector)]
     #[inline]
     fn is_write_vectored(&self) -> bool {
-        self.as_file_view().is_write_vectored()
+        unsafe { self.as_file_view() }.is_write_vectored()
     }
 
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
-        self.as_file_view().write_all(buf)
+        unsafe { self.as_file_view() }.write_all(buf)
     }
 
     #[cfg(write_all_vectored)]
     #[inline]
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice]) -> io::Result<()> {
-        self.as_file_view().write_all_vectored(bufs)
+        unsafe { self.as_file_view() }.write_all_vectored(bufs)
     }
 
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
-        self.as_file_view().write_fmt(fmt)
+        unsafe { self.as_file_view() }.write_fmt(fmt)
     }
 }
 
@@ -952,25 +1014,27 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.write(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.write(buf),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write(buf),
+            Raw::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.write(buf),
         }
     }
 
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.flush(),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.flush(),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.flush(),
+            Raw::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.flush(),
         }
     }
 
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.write_vectored(bufs),
+            Raw::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.write_vectored(bufs)
+            }
             Raw::Socket(raw_socket) => {
-                unsafe { as_tcp_stream(self, raw_socket) }.write_vectored(bufs)
+                unsafe { as_tcp_stream_view(self, raw_socket) }.write_vectored(bufs)
             }
         }
     }
@@ -979,9 +1043,11 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn is_write_vectored(&self) -> bool {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.is_write_vectored(),
+            Raw::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.is_write_vectored()
+            }
             Raw::Socket(raw_socket) => {
-                unsafe { as_tcp_stream(self, raw_socket) }.is_write_vectored()
+                unsafe { as_tcp_stream_view(self, raw_socket) }.is_write_vectored()
             }
         }
     }
@@ -989,8 +1055,10 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.write_all(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.write_all(buf),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_all(buf),
+            Raw::Socket(raw_socket) => {
+                unsafe { as_tcp_stream_view(self, raw_socket) }.write_all(buf)
+            }
         }
     }
 
@@ -999,10 +1067,10 @@ impl Write for UnsafeWriteable {
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice]) -> io::Result<()> {
         match self.0 .0 {
             Raw::Handle(raw_handle) => {
-                unsafe { as_file(self, raw_handle) }.write_all_vectored(bufs)
+                unsafe { as_file_view(self, raw_handle) }.write_all_vectored(bufs)
             }
             Raw::Socket(raw_socket) => {
-                unsafe { as_tcp_stream(self, raw_socket) }.write_all_vectored(bufs)
+                unsafe { as_tcp_stream_view(self, raw_socket) }.write_all_vectored(bufs)
             }
         }
     }
@@ -1010,15 +1078,17 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file(self, raw_handle) }.write_fmt(fmt),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream(self, raw_socket) }.write_fmt(fmt),
+            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_fmt(fmt),
+            Raw::Socket(raw_socket) => {
+                unsafe { as_tcp_stream_view(self, raw_socket) }.write_fmt(fmt)
+            }
         }
     }
 }
 
 #[cfg(windows)]
 #[inline]
-unsafe fn as_file<T: AsRawHandleOrSocket>(_t: &T, raw_handle: RawHandle) -> View<File> {
+unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<File> {
     View {
         target: ManuallyDrop::new(File::from_raw_handle(raw_handle)),
         _phantom_data: PhantomData,
@@ -1027,7 +1097,7 @@ unsafe fn as_file<T: AsRawHandleOrSocket>(_t: &T, raw_handle: RawHandle) -> View
 
 #[cfg(windows)]
 #[inline]
-unsafe fn as_tcp_stream<T: AsRawHandleOrSocket>(_t: &T, raw_socket: RawSocket) -> View<TcpStream> {
+unsafe fn as_tcp_stream_view<T>(_t: &T, raw_socket: RawSocket) -> View<TcpStream> {
     View {
         target: ManuallyDrop::new(TcpStream::from_raw_socket(raw_socket)),
         _phantom_data: PhantomData,
