@@ -37,6 +37,14 @@
 //!
 //! \* These types do not have `From` traits.
 //!
+//! The `AsUnsafe*` and `IntoUnsafe*` traits require types to guarantee that
+//! they own the handles that they return. This differs from their `AsRaw*` and
+//! `IntoRaw*` counterparts, which require no such guarantee. This crate defines
+//! an [`OwnsRaw`] trait which is unsafe to implement and which allows types to
+//! declare that they own the handles they hold, allowing them to opt into the
+//! blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
+//! [rust-lang/rust#76969] for further background.
+//!
 //! This crates also defines several additional utilities:
 //!
 //! [`UnsafeHandle`] has methods [`as_readable`] and [`as_writeable`] which
@@ -70,17 +78,20 @@
 //! [`Write`]: std::io::Write
 //! [`as_readable`]: UnsafeHandle::as_readable
 //! [`as_writeable`]: UnsafeHandle::as_writeable
+//! [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969
 
 #![deny(missing_docs)]
 #![cfg_attr(can_vector, feature(can_vector))]
 #![cfg_attr(write_all_vectored, feature(write_all_vectored))]
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
+mod owns_raw;
 #[cfg(windows)]
 mod raw_handle_or_socket;
 mod read_write;
 mod unsafe_handle;
 
+pub use owns_raw::OwnsRaw;
 #[cfg(windows)]
 pub use raw_handle_or_socket::{AsRawHandleOrSocket, IntoRawHandleOrSocket, RawHandleOrSocket};
 #[cfg(not(windows))]

@@ -1,5 +1,6 @@
 //! The `UnsafeHandle` type and supporting types and traits.
 
+use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 #[cfg(unix)]
@@ -31,8 +32,17 @@ use {
 };
 
 /// A trait for types which contain an unsafe handle and can expose it.
+///
+/// A type implementing `AsUnsafeHandle` guarantees that the return value from
+/// `as_unsafe_handle` on an instance of the type is a copy of a handle which is
+/// owned.
+///
+/// # Safety
+///
+/// This trait is `unsafe` because types implementing it must guarantee they
+/// own their handle.
 #[allow(clippy::module_name_repetitions)]
-pub trait AsUnsafeHandle {
+pub unsafe trait AsUnsafeHandle {
     /// Return the contained unsafe handle.
     fn as_unsafe_handle(&self) -> UnsafeHandle;
 
@@ -45,14 +55,32 @@ pub trait AsUnsafeHandle {
 }
 
 /// A trait for types which can be converted into an unsafe handle.
+///
+/// A type implementing `IntoUnsafeHandle` guarantees that the return value
+/// from `into_unsafe_handle` on an instance of the type is a copy of a handle
+/// which is owned by that instance.
+///
+/// # Safety
+///
+/// This trait is `unsafe` because types implementing it must guarantee they
+/// own their handle.
 #[allow(clippy::module_name_repetitions)]
-pub trait IntoUnsafeHandle {
+pub unsafe trait IntoUnsafeHandle {
     /// Convert `self` into an unsafe handle.
     fn into_unsafe_handle(self) -> UnsafeHandle;
 }
 
 /// A trait for types which contain an unsafe file and can expose it.
-pub trait AsUnsafeFile: AsUnsafeHandle {
+///
+/// A type implementing `AsUnsafeFile` guarantees that the return value
+/// from `as_unsafe_file` on an instance of the type is a copy of a handle
+/// which is owned.
+///
+/// # Safety
+///
+/// This trait is `unsafe` because types implementing it must guarantee they
+/// own their handle.
+pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     /// Return the contained unsafe file.
     fn as_unsafe_file(&self) -> UnsafeFile;
 
@@ -162,7 +190,16 @@ pub trait AsUnsafeFile: AsUnsafeHandle {
 }
 
 /// A trait for types which can be converted into unsafe files.
-pub trait IntoUnsafeFile: IntoUnsafeHandle {
+///
+/// A type implementing `IntoUnsafeFile` guarantees that the return value
+/// from `into_unsafe_file` on an instance of the type is a copy of a handle
+/// which is owned by that instance.
+///
+/// # Safety
+///
+/// This trait is `unsafe` because types implementing it must guarantee they
+/// own their handle.
+pub unsafe trait IntoUnsafeFile: IntoUnsafeHandle {
     /// Convert `self` into an unsafe file.
     fn into_unsafe_file(self) -> UnsafeFile;
 }
@@ -191,7 +228,16 @@ pub trait FromUnsafeFile {
 }
 
 /// A trait for types which contain an unsafe socket and can expose it.
-pub trait AsUnsafeSocket: AsUnsafeHandle {
+///
+/// A type implementing `AsUnsafeSocket` guarantees that the return value
+/// from `as_unsafe_socket` on an instance of the type is a copy of a socket
+/// which is owned.
+///
+/// # Safety
+///
+/// This trait is `unsafe` because types implementing it must guarantee they
+/// own their socket.
+pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// Return the contained unsafe socket.
     fn as_unsafe_socket(&self) -> UnsafeSocket;
 
@@ -332,7 +378,16 @@ pub trait AsUnsafeSocket: AsUnsafeHandle {
 }
 
 /// A trait for types which can be converted into unsafe sockets.
-pub trait IntoUnsafeSocket: IntoUnsafeHandle {
+///
+/// A type implementing `IntoUnsafeSocket` guarantees that the return value
+/// from `into_unsafe_socket` on an instance of the type is a copy of a handle
+/// which is owned by that instance.
+///
+/// # Safety
+///
+/// This trait is `unsafe` because types implementing it must guarantee they
+/// own their socket.
+pub unsafe trait IntoUnsafeSocket: IntoUnsafeHandle {
     /// Convert `self` into an unsafe socket.
     fn into_unsafe_socket(self) -> UnsafeSocket;
 }
@@ -562,8 +617,9 @@ impl UnsafeSocket {
 
 // Posix-ish implementations.
 
+// Safety: By requiring `T: OwnsRaw`, we can assume the `AsRawFd` owns its fd.
 #[cfg(not(windows))]
-impl<T: AsRawFd> AsUnsafeHandle for T {
+unsafe impl<T: AsRawFd + OwnsRaw> AsUnsafeHandle for T {
     #[inline]
     fn as_unsafe_handle(&self) -> UnsafeHandle {
         UnsafeHandle(self.as_raw_fd())
@@ -571,7 +627,7 @@ impl<T: AsRawFd> AsUnsafeHandle for T {
 }
 
 #[cfg(not(windows))]
-impl<T: AsRawFd> AsUnsafeFile for T {
+unsafe impl<T: AsRawFd + OwnsRaw> AsUnsafeFile for T {
     #[inline]
     fn as_unsafe_file(&self) -> UnsafeFile {
         UnsafeFile(self.as_raw_fd())
@@ -579,7 +635,7 @@ impl<T: AsRawFd> AsUnsafeFile for T {
 }
 
 #[cfg(not(windows))]
-impl<T: AsRawFd> AsUnsafeSocket for T {
+unsafe impl<T: AsRawFd + OwnsRaw> AsUnsafeSocket for T {
     #[inline]
     fn as_unsafe_socket(&self) -> UnsafeSocket {
         UnsafeSocket(self.as_raw_fd())
@@ -587,7 +643,7 @@ impl<T: AsRawFd> AsUnsafeSocket for T {
 }
 
 #[cfg(not(windows))]
-impl<T: IntoRawFd> IntoUnsafeHandle for T {
+unsafe impl<T: IntoRawFd + OwnsRaw> IntoUnsafeHandle for T {
     #[inline]
     fn into_unsafe_handle(self) -> UnsafeHandle {
         UnsafeHandle(self.into_raw_fd())
@@ -595,7 +651,7 @@ impl<T: IntoRawFd> IntoUnsafeHandle for T {
 }
 
 #[cfg(not(windows))]
-impl<T: IntoRawFd> IntoUnsafeFile for T {
+unsafe impl<T: IntoRawFd + OwnsRaw> IntoUnsafeFile for T {
     #[inline]
     fn into_unsafe_file(self) -> UnsafeFile {
         UnsafeFile(self.into_raw_fd())
@@ -603,7 +659,7 @@ impl<T: IntoRawFd> IntoUnsafeFile for T {
 }
 
 #[cfg(not(windows))]
-impl<T: IntoRawFd> IntoUnsafeSocket for T {
+unsafe impl<T: IntoRawFd + OwnsRaw> IntoUnsafeSocket for T {
     #[inline]
     fn into_unsafe_socket(self) -> UnsafeSocket {
         UnsafeSocket(self.into_raw_fd())
@@ -611,7 +667,7 @@ impl<T: IntoRawFd> IntoUnsafeSocket for T {
 }
 
 #[cfg(not(windows))]
-impl<T: FromRawFd> FromUnsafeFile for T {
+impl<T: FromRawFd + OwnsRaw> FromUnsafeFile for T {
     #[inline]
     unsafe fn from_unsafe_file(unsafe_file: UnsafeFile) -> Self {
         Self::from_raw_fd(unsafe_file.0)
@@ -619,7 +675,7 @@ impl<T: FromRawFd> FromUnsafeFile for T {
 }
 
 #[cfg(not(windows))]
-impl<T: FromRawFd> FromUnsafeSocket for T {
+impl<T: FromRawFd + OwnsRaw> FromUnsafeSocket for T {
     #[inline]
     unsafe fn from_unsafe_socket(unsafe_socket: UnsafeSocket) -> Self {
         Self::from_raw_fd(unsafe_socket.0)
@@ -644,6 +700,12 @@ impl AsRawFd for UnsafeReadable {
 
 #[cfg(not(windows))]
 impl UnsafeReadable {
+    /// Like `AsUnsafeFile::as_file_view`, but `unsafe` because
+    /// `UnsafeReadable` doesn't own its file desctiptor.
+    ///
+    /// # Safety
+    ///
+    /// The contained file descriptor must be valid.
     #[inline]
     unsafe fn as_file_view(&self) -> View<File> {
         let raw_fd = self.as_raw_fd();
@@ -665,6 +727,12 @@ impl AsRawFd for UnsafeWriteable {
 
 #[cfg(not(windows))]
 impl UnsafeWriteable {
+    /// Like `AsUnsafeFile::as_file_view`, but `unsafe` because
+    /// `UnsafeWriteable` doesn't own its file desctiptor.
+    ///
+    /// # Safety
+    ///
+    /// The contained file descriptor must be valid.
     #[inline]
     unsafe fn as_file_view(&self) -> View<File> {
         let raw_fd = self.as_raw_fd();
@@ -694,8 +762,10 @@ impl AsRawFd for UnsafeSocket {
 
 // Windows implementations.
 
+// Safety: By requiring `T: OwnsRaw`, we can assume the `AsRawHandleOrSocket`
+// owns its handle or socket.
 #[cfg(windows)]
-impl<T: AsRawHandleOrSocket> AsUnsafeHandle for T {
+unsafe impl<T: AsRawHandleOrSocket + OwnsRaw> AsUnsafeHandle for T {
     #[inline]
     fn as_unsafe_handle(&self) -> UnsafeHandle {
         UnsafeHandle(self.as_raw_handle_or_socket())
@@ -703,7 +773,7 @@ impl<T: AsRawHandleOrSocket> AsUnsafeHandle for T {
 }
 
 #[cfg(windows)]
-impl<T: AsRawHandle + AsUnsafeHandle> AsUnsafeFile for T {
+unsafe impl<T: AsRawHandle + AsUnsafeHandle + OwnsRaw> AsUnsafeFile for T {
     #[inline]
     fn as_unsafe_file(&self) -> UnsafeFile {
         UnsafeFile(AsRawHandle::as_raw_handle(self))
@@ -711,7 +781,7 @@ impl<T: AsRawHandle + AsUnsafeHandle> AsUnsafeFile for T {
 }
 
 #[cfg(windows)]
-impl<T: AsRawSocket + AsUnsafeHandle> AsUnsafeSocket for T {
+unsafe impl<T: AsRawSocket + AsUnsafeHandle + OwnsRaw> AsUnsafeSocket for T {
     #[inline]
     fn as_unsafe_socket(&self) -> UnsafeSocket {
         UnsafeSocket(AsRawSocket::as_raw_socket(self))
@@ -719,7 +789,7 @@ impl<T: AsRawSocket + AsUnsafeHandle> AsUnsafeSocket for T {
 }
 
 #[cfg(windows)]
-impl<T: IntoRawHandle + IntoUnsafeHandle> IntoUnsafeFile for T {
+unsafe impl<T: IntoRawHandle + IntoUnsafeHandle + OwnsRaw> IntoUnsafeFile for T {
     #[inline]
     fn into_unsafe_file(self) -> UnsafeFile {
         UnsafeFile(Self::into_raw_handle(self))
@@ -727,7 +797,7 @@ impl<T: IntoRawHandle + IntoUnsafeHandle> IntoUnsafeFile for T {
 }
 
 #[cfg(windows)]
-impl<T: IntoRawSocket + IntoUnsafeSocket> IntoUnsafeSocket for T {
+unsafe impl<T: IntoRawSocket + IntoUnsafeSocket + OwnsRaw> IntoUnsafeSocket for T {
     #[inline]
     fn into_unsafe_socket(self) -> UnsafeSocket {
         UnsafeSocket(IntoRawSocket::into_raw_socket(self))
@@ -735,7 +805,7 @@ impl<T: IntoRawSocket + IntoUnsafeSocket> IntoUnsafeSocket for T {
 }
 
 #[cfg(windows)]
-impl<T: FromRawHandle> FromUnsafeFile for T {
+impl<T: FromRawHandle + OwnsRaw> FromUnsafeFile for T {
     #[inline]
     unsafe fn from_unsafe_file(unsafe_file: UnsafeFile) -> Self {
         Self::from_raw_handle(unsafe_file.0)
@@ -873,6 +943,9 @@ impl AsRawSocket for UnsafeSocket {
 impl Read for UnsafeReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        // Safety: The caller of `as_readable()`, which is unsafe, is expected
+        // to ensure that the underlying resource outlives this
+        // `UnsafeReadable`.
         unsafe { self.as_file_view() }.read(buf)
     }
 
@@ -973,6 +1046,9 @@ impl Read for UnsafeReadable {
 impl Write for UnsafeWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        // Safety: The caller of `as_writeable()`, which is unsafe, is expected
+        // to ensure that the underlying resource outlives this
+        // `UnsafeReadable`.
         unsafe { self.as_file_view() }.write(buf)
     }
 
@@ -1086,6 +1162,13 @@ impl Write for UnsafeWriteable {
     }
 }
 
+/// Like `AsUnsafeFile::as_file_view`, but with the method for
+/// obtaining as `RawHandle` from an `UnsafeReadable` or `UnsafeWriteable`
+/// factored out.
+///
+/// # Safety
+///
+/// `raw_handle` must be valid.
 #[cfg(windows)]
 #[inline]
 unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<File> {
@@ -1095,6 +1178,13 @@ unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<File> {
     }
 }
 
+/// Like `AsUnsafeSocket::as_tcp_stream_view`, but with the method for
+/// obtaining as `RawSocket` from an `UnsafeReadable` or `UnsafeWriteable`
+/// factored out.
+///
+/// # Safety
+///
+/// `raw_socket` must be valid.
 #[cfg(windows)]
 #[inline]
 unsafe fn as_tcp_stream_view<T>(_t: &T, raw_socket: RawSocket) -> View<TcpStream> {
