@@ -1,6 +1,6 @@
 //! This example is similar to the tcp_stream test, but writes to a `PipeWriter`.
 
-#![cfg(all(not(target_os = "wasi"), any(not(windows), feature = "os_pipe")))]
+#![cfg(all(not(target_os = "wasi"), feature = "os_pipe"))]
 
 use os_pipe::{pipe, PipeReader};
 #[cfg(unix)]
