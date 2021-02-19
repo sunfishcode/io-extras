@@ -3,7 +3,7 @@
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 #[cfg(unix)]
-use std::os::unix::net::{UnixListener, UnixStream};
+use std::os::unix::net::{UnixDatagram, UnixListener, UnixStream};
 use std::{
     fs::File,
     io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock},
@@ -29,8 +29,7 @@ use std::{
 /// `AsRaw*` and `IntoRaw*` implementations.
 pub unsafe trait OwnsRaw {}
 
-// Safety: The following standard-library types are all known to own their file
-// descriptors.
+// Safety: The following types are all known to own their file descriptors.
 unsafe impl OwnsRaw for Stdin {}
 unsafe impl<'a> OwnsRaw for StdinLock<'a> {}
 unsafe impl OwnsRaw for Stdout {}
@@ -52,3 +51,31 @@ unsafe impl OwnsRaw for PipeWriter {}
 unsafe impl OwnsRaw for UnixStream {}
 #[cfg(unix)]
 unsafe impl OwnsRaw for UnixListener {}
+#[cfg(unix)]
+unsafe impl OwnsRaw for UnixDatagram {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::io::Stdin {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::io::Stdout {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::io::Stderr {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::fs::File {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::process::ChildStdin {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::process::ChildStdout {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::process::ChildStderr {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::net::TcpStream {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::net::TcpListener {}
+#[cfg(feature = "async-std")]
+unsafe impl OwnsRaw for async_std::net::UdpSocket {}
+#[cfg(all(feature = "async-std", unix))]
+unsafe impl OwnsRaw for async_std::os::unix::net::UnixStream {}
+#[cfg(all(feature = "async-std", unix))]
+unsafe impl OwnsRaw for async_std::os::unix::net::UnixListener {}
+#[cfg(all(feature = "async-std", unix))]
+unsafe impl OwnsRaw for async_std::os::unix::net::UnixDatagram {}

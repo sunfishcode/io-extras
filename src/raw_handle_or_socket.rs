@@ -26,6 +26,7 @@ use std::{
 /// [`Read`]: std::io::Read
 /// [`Write`]: std::io::Write
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
+#[repr(transparent)]
 pub struct RawHandleOrSocket(pub(crate) Raw);
 
 /// The enum itself is a private type so that we have the flexibility to change
