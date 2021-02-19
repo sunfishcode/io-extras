@@ -349,6 +349,7 @@ pub trait FromUnsafeSocket {
 /// Note that this doesn't implement `Into*` or `From*` traits, as those imply
 /// ownership transfers, and this type is non-owning.
 #[derive(Copy, Clone)]
+#[repr(transparent)]
 pub struct UnsafeHandle(InnerFileOrSocket);
 
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
@@ -358,6 +359,7 @@ pub struct UnsafeHandle(InnerFileOrSocket);
 ///
 /// [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
 #[derive(Copy, Clone)]
+#[repr(transparent)]
 pub struct UnsafeFile(InnerFile);
 
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
@@ -368,6 +370,7 @@ pub struct UnsafeFile(InnerFile);
 ///
 /// [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
 #[derive(Copy, Clone)]
+#[repr(transparent)]
 pub struct UnsafeSocket(InnerSocket);
 
 /// A non-owning unsafe I/O handle that implements [`Read`]. `Read` functions
@@ -375,6 +378,7 @@ pub struct UnsafeSocket(InnerSocket);
 ///
 /// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
 #[derive(Copy, Clone)]
+#[repr(transparent)]
 pub struct UnsafeReadable(InnerFileOrSocket);
 
 /// A non-owning unsafe I/O handle that implements [`Write`]. `Write` functions
@@ -382,6 +386,7 @@ pub struct UnsafeReadable(InnerFileOrSocket);
 ///
 /// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
 #[derive(Copy, Clone)]
+#[repr(transparent)]
 pub struct UnsafeWriteable(InnerFileOrSocket);
 
 /// Posix-ish platforms use a single "file descriptor" type for all the kinds
