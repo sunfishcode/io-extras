@@ -54,6 +54,53 @@
 //! implement both [`Read`] and [`Write`] and may contain either one handle
 //! (such as a socket) or two (such as stdin and stdout, or a pair of pipes).
 //!
+//! # Examples
+//!
+//! To use the [`AsUnsafeHandle`] trait:
+//!
+//! ```rust
+//! use unsafe_io::AsUnsafeHandle;
+//!
+//! // Open a normal file.
+//! let file = std::fs::File::open("Cargo.toml").unwrap();
+//!
+//! // Extract the raw handle.
+//! let unsafe_handle = file.as_unsafe_handle();
+//! ```
+//!
+//! To implement the [`AsUnsafeHandle`] trait for a type, implement the
+//! [`AsRawFd`] trait for Posix-ish platforms and the [`AsRawHandleOrSocket`]
+//! trait for Windows platforms, and then implement [`OwnsRaw`]:
+//!
+//! ```rust
+//! use std::fs::File;
+//! use unsafe_io::OwnsRaw;
+//! #[cfg(windows)]
+//! use unsafe_io::{AsRawHandleOrSocket, RawHandleOrSocket};
+//! #[cfg(unix)]
+//! use std::os::unix::io::{AsRawFd, RawFd};
+//! #[cfg(target_os = "wasi")]
+//! use std::os::wasi::io::{AsRawFd, RawFd};
+//!
+//! struct MyType(File);
+//!
+//! #[cfg(not(windows))]
+//! impl AsRawFd for MyType {
+//!     fn as_raw_fd(&self) -> RawFd { self.0.as_raw_fd() }
+//! }
+//!
+//! #[cfg(windows)]
+//! impl AsRawHandleOrSocket for MyType {
+//!     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket { self.0.as_raw_handle_or_socket() }
+//! }
+//!
+//! // Safety: `MyType` owns its raw handle.
+//! unsafe impl OwnsRaw for MyType {}
+//! ```
+//!
+//! This requires unsafe because implementing `OwnsRaw` asserts that the type
+//! owns its raw handle. See the [char-device] crate for a complete example.
+//!
 //! [`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
 //! [`AsRawFd`]: https://doc.rust-lang.org/std/os/unix/io/trait.AsRawFd.html
 //! [`IntoRawFd`]: https://doc.rust-lang.org/std/os/unix/io/trait.IntoRawFd.html
@@ -78,6 +125,7 @@
 //! [`as_readable`]: UnsafeHandle::as_readable
 //! [`as_writeable`]: UnsafeHandle::as_writeable
 //! [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969
+//! [char-device]: https://crates.io/crates/char-device/
 
 #![deny(missing_docs)]
 #![cfg_attr(can_vector, feature(can_vector))]
