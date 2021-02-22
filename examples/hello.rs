@@ -9,7 +9,7 @@ use std::os::unix::io::{AsRawFd, FromRawFd};
 #[cfg(target_os = "wasi")]
 use std::os::wasi::io::{AsRawFd, FromRawFd};
 use std::{
-    io::{stderr, stdout, Write},
+    io::{stdout, Write},
     mem::ManuallyDrop,
 };
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
@@ -19,8 +19,6 @@ use {std::os::windows::io::FromRawHandle, unsafe_io::AsRawHandleOrSocket};
 fn main() -> anyhow::Result<()> {
     let stdout = stdout();
     let stdout = stdout.lock();
-    let stderr = stderr();
-    let stderr = stderr.lock();
 
     // Obtain an `UnsafeWriteable` and use it to write.
     writeln!(
@@ -42,6 +40,15 @@ fn main() -> anyhow::Result<()> {
     writeln!(
         ManuallyDrop::new(std::fs::File::from_filelike(unsafe {
             std::fs::File::from_unsafe_file(stdout.as_unsafe_file())
+        })),
+        "hello, world"
+    )?;
+
+    // Similar, but even more gratuitously pass stdout through `as_file_view`
+    // and `from_filelike`.
+    writeln!(
+        ManuallyDrop::new(std::fs::File::from_filelike(unsafe {
+            std::fs::File::from_unsafe_file(stdout.as_file_view().as_unsafe_file())
         })),
         "hello, world"
     )?;
@@ -69,19 +76,6 @@ fn main() -> anyhow::Result<()> {
         }),
         "hello, world"
     )?;
-
-    // Trivially assert that stdout and stderr has the same handles as
-    // themselves and different handles from each other.
-    assert!(stdout.eq_handle(&stdout));
-    assert!(stderr.eq_handle(&stderr));
-    assert!(!stdout.eq_handle(&stderr));
-    assert!(!stderr.eq_handle(&stdout));
-
-    // The same is true of file-like views of their handles.
-    assert!(stdout.eq_file(&stdout));
-    assert!(stderr.eq_file(&stderr));
-    assert!(!stdout.eq_file(&stderr));
-    assert!(!stderr.eq_file(&stdout));
 
     Ok(())
 }
