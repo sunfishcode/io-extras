@@ -2,10 +2,8 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
-#[cfg(unix)]
-use std::os::unix::io::{AsRawFd, FromRawFd};
-#[cfg(target_os = "wasi")]
-use std::os::wasi::io::{AsRawFd, FromRawFd};
+#[cfg(not(windows))]
+use unsafe_io::posish::{AsRawFd, FromRawFd};
 use std::{
     io::{Read, Write},
     mem::ManuallyDrop,

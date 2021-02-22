@@ -9,13 +9,10 @@ use super::AsUnsafeHandle;
 use super::UnsafeHandle;
 #[cfg(windows)]
 use super::{AsRawHandleOrSocket, RawHandleOrSocket};
+#[cfg(not(windows))]
+use crate::posish::{AsRawFd, RawFd};
 #[cfg(unix)]
-use std::os::unix::{
-    io::{AsRawFd, RawFd},
-    net::UnixStream,
-};
-#[cfg(target_os = "wasi")]
-use std::os::wasi::io::{AsRawFd, RawFd};
+use std::os::unix::net::UnixStream;
 use std::{fs::File, net::TcpStream};
 
 /// An analog of [`AsUnsafeHandle`] for streams which may have one or two

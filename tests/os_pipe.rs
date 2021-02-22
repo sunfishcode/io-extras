@@ -3,10 +3,8 @@
 #![cfg(all(not(target_os = "wasi"), feature = "os_pipe"))]
 
 use os_pipe::{pipe, PipeReader};
-#[cfg(unix)]
-use std::os::unix::io::{AsRawFd, FromRawFd};
-#[cfg(target_os = "wasi")]
-use std::os::wasi::io::{AsRawFd, FromRawFd};
+#[cfg(not(windows))]
+use unsafe_io::posish::{AsRawFd, FromRawFd};
 use std::{
     io::{Read, Write},
     mem::ManuallyDrop,

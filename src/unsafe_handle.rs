@@ -3,13 +3,10 @@
 use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
+#[cfg(not(windows))]
+use crate::posish::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 #[cfg(unix)]
-use std::os::unix::{
-    io::{AsRawFd, FromRawFd, IntoRawFd, RawFd},
-    net::UnixStream,
-};
-#[cfg(target_os = "wasi")]
-use std::os::wasi::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
+use std::os::unix::net::UnixStream;
 use std::{
     fmt,
     fs::File,

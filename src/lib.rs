@@ -73,16 +73,13 @@
 //! trait for Windows platforms, and then implement [`OwnsRaw`]:
 //!
 //! ```rust
-//! use std::fs::File;
 //! use unsafe_io::OwnsRaw;
+//! #[cfg(not(windows))]
+//! use unsafe_io::posish::{AsRawFd, RawFd};
 //! #[cfg(windows)]
 //! use unsafe_io::{AsRawHandleOrSocket, RawHandleOrSocket};
-//! #[cfg(unix)]
-//! use std::os::unix::io::{AsRawFd, RawFd};
-//! #[cfg(target_os = "wasi")]
-//! use std::os::wasi::io::{AsRawFd, RawFd};
 //!
-//! struct MyType(File);
+//! struct MyType(std::fs::File);
 //!
 //! #[cfg(not(windows))]
 //! impl AsRawFd for MyType {
@@ -153,3 +150,6 @@ pub use unsafe_handle::{
     FromUnsafeSocket, IntoUnsafeFile, IntoUnsafeHandle, IntoUnsafeSocket, UnsafeFile, UnsafeHandle,
     UnsafeReadable, UnsafeSocket, UnsafeWriteable, View,
 };
+
+#[cfg(not(windows))]
+pub mod posish;
