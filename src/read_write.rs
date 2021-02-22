@@ -15,8 +15,10 @@ use crate::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
 use std::os::unix::net::UnixStream;
 use std::{fs::File, net::TcpStream};
 
-/// An analog of [`AsUnsafeHandle`] for streams which may have one or two
-/// handles, for reading and writing.
+/// Like [`AsUnsafeHandle`], but for types which may have one or two handles,
+/// for reading and writing.
+///
+/// For types that only have one, both functions return the same value.
 pub trait AsUnsafeReadWriteHandle {
     /// Extracts the unsafe handle for reading.
     fn as_unsafe_read_handle(&self) -> UnsafeHandle;
@@ -25,8 +27,10 @@ pub trait AsUnsafeReadWriteHandle {
     fn as_unsafe_write_handle(&self) -> UnsafeHandle;
 }
 
-/// Like [`AsRawFd`], but specifically for use with implementations which may
-/// contain both reading and writing file descriptors.
+/// Like [`AsRawFd`], but for types which may have one or two file descriptors,
+/// for reading and writing.
+///
+/// For types that only have one, both functions return the same value.
 #[cfg(not(windows))]
 pub trait AsRawReadWriteFd {
     /// Extracts the raw file descriptor for reading.
@@ -40,8 +44,10 @@ pub trait AsRawReadWriteFd {
     fn as_raw_write_fd(&self) -> RawFd;
 }
 
-/// Like [`AsRawHandleOrSocket`], but specifically for use with implementations
-/// which may contain both reading and writing file descriptors.
+/// Like [`AsRawHandleOrSocket`], but for types which may have one or two
+/// handles or sockets, for reading and writing.
+///
+/// For types that only have one, both functions return the same value.
 #[cfg(windows)]
 pub trait AsRawReadWriteHandleOrSocket {
     /// Extracts the raw handle or socket for reading.

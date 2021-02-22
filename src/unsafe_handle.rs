@@ -570,7 +570,14 @@ impl UnsafeHandle {
     ///
     /// # Safety
     ///
-    /// The resulting value must not outlive the underlying resource.
+    /// The resulting [`UnsafeReadable`] value must not outlive the underlying
+    /// resource.
+    ///
+    /// Also, callers should avoid mixing uses of `UnsafeReadable` with the
+    /// type's `Read` or `Write` implementations if the type uses buffering, as
+    /// for example [`async_std::fs::File`] does.
+    ///
+    /// [`async_std::fs::File`]: https://docs.rs/async-std/latest/async_std/fs/struct.File.html
     #[inline]
     #[must_use]
     pub const unsafe fn as_readable(self) -> UnsafeReadable {
@@ -581,7 +588,14 @@ impl UnsafeHandle {
     ///
     /// # Safety
     ///
-    /// The resulting value must not outlive the underlying resource.
+    /// The resulting [`UnsafeWriteable`] value must not outlive the underlying
+    /// resource.
+    ///
+    /// Also, callers should avoid mixing uses of `UnsafeWriteable` with the
+    /// type's `Read` or `Write` implementation if the type uses buffering, as
+    /// for example [`async_std::fs::File`] does.
+    ///
+    /// [`async_std::fs::File`]: https://docs.rs/async-std/latest/async_std/fs/struct.File.html
     #[inline]
     #[must_use]
     pub const unsafe fn as_writeable(self) -> UnsafeWriteable {
@@ -627,7 +641,8 @@ impl UnsafeHandle {
     }
 
     /// Like [`FromRawHandle::from_raw_handle`] and
-    /// [`FromRawSocket::from_raw_socket`] combined.
+    /// [`FromRawSocket::from_raw_socket`] combined, but isn't unsafe because
+    /// it doesn't imply a dereference.
     #[cfg(windows)]
     #[inline]
     #[must_use]

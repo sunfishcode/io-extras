@@ -1,19 +1,6 @@
 //! Non-owning unsafe I/O
 //!
-//! A brief explanation of the naming convention:
-//!
-//! "Raw" is for platform-specific types and traits, such as `std`'s [`RawFd`],
-//! [`AsRawFd`], [`RawHandle`], [`AsRawHandle`], and similar, as well as
-//! `unsafe-io`'s [`RawHandleOrSocket`], [`AsRawHandleOrSocket`], and similar.
-//! "Handle" in this context means a Windows [`HANDLE`].
-//!
-//! "Unsafe" is for minimal platform-independent abstractions on top of the
-//! platform-specific types, such as [`UnsafeHandle`] (abstracts over `RawFd`
-//! and `RawHandleOrSocket`), [`UnsafeFile`] (abstracts over `RawFd` and
-//! `RawHandle`), and [`UnsafeSocket`] (abstracts over `RawFd` and
-//! `RawSocket`). "Handle" in this context means any kind of I/O handle.
-//!
-//! In table form, the main types are:
+//! In table form, the main types and traits provided by this crate are:
 //!
 //! | Resource | Posix-ish type | Windows type          || Platform-independent types           |
 //! | -------- | -------------- | --------------------- || ------------------------------------ |
@@ -35,24 +22,62 @@
 //! | [`UnsafeSocket`] | [`AsUnsafeSocket`] | [`IntoUnsafeSocket`] | [`FromUnsafeSocket`] |
 //! | [`UnsafeHandle`] | [`AsUnsafeHandle`] | [`IntoUnsafeHandle`] | [`FromUnsafeHandle`] |
 //!
-//! The `AsUnsafe*` and `IntoUnsafe*` traits require types to guarantee that
-//! they own the handles that they return. This differs from their `AsRaw*` and
-//! `IntoRaw*` counterparts, which require no such guarantee. This crate
-//! defines an [`OwnsRaw`] trait which is unsafe to implement and which allows
-//! types to declare that they own the handles they hold, allowing them to opt
-//! into the blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
+//! A brief explanation of the naming convention:
+//!
+//! "Raw" is for platform-specific types and traits, such as `std`'s [`RawFd`],
+//! [`AsRawFd`], [`RawHandle`], [`AsRawHandle`], and similar, as well as
+//! `unsafe-io`'s [`RawHandleOrSocket`], [`AsRawHandleOrSocket`], and similar.
+//! "Handle" in this context means a Windows [`HANDLE`].
+//!
+//! "Unsafe" is for minimal platform-independent abstractions on top of the
+//! platform-specific types, such as [`UnsafeHandle`] (abstracts over `RawFd`
+//! and `RawHandleOrSocket`), [`UnsafeFile`] (abstracts over `RawFd` and
+//! `RawHandle`), and [`UnsafeSocket`] (abstracts over `RawFd` and
+//! `RawSocket`). "Handle" in this context means any kind of I/O handle.
+//!
+//! # Ownership Guarantees
+//!
+//! The `AsUnsafe*` and `IntoUnsafe*` trait functions return non-owning handles,
+//! however these traits do require types that implement them to guarantee that
+//! they own the handles. This differs from their `AsRaw*` and `IntoRaw*`
+//! counterparts, which do not require such a guarantee. This crate defines an
+//! [`OwnsRaw`] trait which is unsafe to implement and which allows types to
+//! declare that they own the handles they hold, allowing them to opt into the
+//! blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
 //! [rust-lang/rust#76969] for further background.
+//!
+//! # Additional Utilities
 //!
 //! This crates also defines several additional utilities:
 //!
-//! [`UnsafeHandle`] has methods [`as_readable`] and [`as_writeable`] which
-//! return similar non-owning types [`UnsafeReadable`] and [`UnsafeWriteable`],
-//! respectively, which implement [`Read`] and [`Write`].
+//!  - `UnsafeHandle` has functions [`as_readable`] and [`as_writeable`] which
+//!    return similar non-owning types [`UnsafeReadable`] and
+//!    [`UnsafeWriteable`], respectively, which implement [`Read`] and
+//!    [`Write`].
 //!
-//! [`AsUnsafeReadWriteHandle`], [`AsRawReadWriteFd`], and
-//! [`AsRawReadWriteHandleOrSocket`], are traits for working with types that
-//! implement both [`Read`] and [`Write`] and may contain either one handle
-//! (such as a socket) or two (such as stdin and stdout, or a pair of pipes).
+//!  - `AsUnsafeFile` has functions [`as_file_view`], `as_pipe_reader_view`,
+//!    and `as_pipe_writer_view` (enable [the `os_pipe` feature]), and
+//!    `AsUnsafeSocket` has functions [`as_tcp_stream_view`],
+//!    [`as_tcp_listener_view`], [`as_udp_socket_view`], and
+//!    [`as_unix_stream_view`] (on [`unix`] platforms), for obtaining a
+//!    temporary [view] of a handle as various higher-level types.
+//!
+//!  - `AsUnsafeHandle` has an [`eq_handle`] function, `AsUnsafeFile` has an
+//!    [`eq_file`] function, and `AsUnsafeSocket` has an [`eq_socket`]
+//!    function, for comparing whether two types hold the same handle, and are
+//!    safe to call.
+//!
+//!  - `FromUnsafeFile` has a [`from_filelike`] function, and
+//!    `FromUnsafeSocket` has a [`from_socketlike`] function, for constructing
+//!    a type from any type which implements [`IntoUnsafeFile`], or
+//!    [`IntoUnsafeSocket`], respectively. Unlike in the corresponding "Raw"
+//!    traits, these functions are safe to call.
+//!
+//!  - [`AsUnsafeReadWriteHandle`], [`AsRawReadWriteFd`], and
+//!    [`AsRawReadWriteHandleOrSocket`] are traits for working with types that
+//!    implement both [`Read`] and [`Write`] and may contain either one handle
+//!    (such as a socket) or two (such as stdin and stdout, or a pair of
+//!    pipes).
 //!
 //! # Examples
 //!
@@ -64,8 +89,27 @@
 //! // Open a normal file.
 //! let file = std::fs::File::open("Cargo.toml").unwrap();
 //!
-//! // Extract the raw handle.
+//! // Extract the handle.
 //! let unsafe_handle = file.as_unsafe_handle();
+//! ```
+//!
+//! Many types implement `AsUnsafeHandle`, however very few types implement
+//! `FromUnsafeHandle`. Most types implement only `FromUnsafeFile` or
+//! `FromUnsafeSocket` instead. For an example that extracts a handle and
+//! constructs a new file, we use the [`IntoUnsafeFile`] and [`AsUnsafeFile`]
+//! traits:
+//!
+//! ```rust
+//! use unsafe_io::{FromUnsafeFile, IntoUnsafeFile};
+//!
+//! // Open a normal file.
+//! let file = std::fs::File::open("Cargo.toml").unwrap();
+//!
+//! // Consume the file, returning the handle.
+//! let unsafe_file = file.into_unsafe_file();
+//!
+//! // Construct a new file with the handle.
+//! let file = unsafe { std::fs::File::from_unsafe_file(unsafe_file) };
 //! ```
 //!
 //! To implement the [`AsUnsafeHandle`] trait for a type, implement the
@@ -95,12 +139,13 @@
 //!     }
 //! }
 //!
-//! // Safety: `MyType` owns its raw handle.
+//! // Safety: `MyType` owns its handle.
 //! unsafe impl OwnsRaw for MyType {}
 //! ```
 //!
-//! This requires unsafe because implementing `OwnsRaw` asserts that the type
-//! owns its raw handle. See the [char-device] crate for a complete example.
+//! This requires `unsafe` because implementing [`OwnsRaw`] asserts that the
+//! type owns its raw handle. See the [char-device] crate for a complete
+//! example.
 //!
 //! [`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
 //! [`AsRawFd`]: https://doc.rust-lang.org/std/os/unix/io/trait.AsRawFd.html
@@ -125,13 +170,27 @@
 //! [`Write`]: std::io::Write
 //! [`as_readable`]: UnsafeHandle::as_readable
 //! [`as_writeable`]: UnsafeHandle::as_writeable
+//! [`as_file_view`]: AsUnsafeFile::as_file_view
+//! [`as_tcp_stream_view`]: AsUnsafeSocket::as_tcp_stream_view
+//! [`as_tcp_listener_view`]: AsUnsafeSocket::as_tcp_listener_view
+//! [`as_udp_socket_view`]: AsUnsafeSocket::as_udp_socket_view
+//! [`as_unix_stream_view`]: https://docs.rs/unsafe-io/latest/unsafe_io/trait.AsUnsafeSocket.html#method.as_unix_stream_view
+//! [`eq_handle`]: AsUnsafeHandle::eq_handle
+//! [`eq_file`]: AsUnsafeFile::eq_file
+//! [`eq_socket`]: AsUnsafeSocket::eq_socket
+//! [`from_handlelike`]: FromUnsafeHandle::from_handlelike
+//! [`from_filelike`]: FromUnsafeFile::from_filelike
+//! [`from_socketlike`]: FromUnsafeSocket::from_socketlike
 //! [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969
 //! [char-device]: https://crates.io/crates/char-device/
+//! [the `os_pipe` feature]: https://docs.rs/crate/unsafe-io/latest/features#os_pipe
+//! [`unix`]: https://doc.rust-lang.org/std/os/unix/net/struct.UnixStream.html
+//! [view]: View
 
 // This crate is very minimal and doesn't do anything except define types and
 // traits and implement them with trivial inline implementations. As an
 // experiment, let's throw ludicrous amounts of checks at it and see how it
-// goes. As always, exercise discresion: if fixing a warning would make the
+// goes. As always, exercise discretion: if fixing a warning would make the
 // code worse, disable the warning instead.
 #![deny(
     future_incompatible,
