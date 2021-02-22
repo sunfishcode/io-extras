@@ -12,10 +12,9 @@
   </p>
 </div>
 
-Have you ever found yourself writing essentially the same code twice, once
-for [`RawFd`] for Posix-ish platforms and once for [`RawHandle`] or
-[`RawSocket`] for Windows platforms? This crate abstracts over those platform
-differences.
+Have you ever found yourself writing essentially the same code twice, once for
+[`RawFd`] for Posix-ish platforms and once for [`RawHandle`] or [`RawSocket`]
+for Windows platforms? This crate abstracts over those platform differences.
 
 Being non-owning, these handles operate much like raw pointers in Rust. They
 are considered safe to construct, but unsafe to use in any way that depends on

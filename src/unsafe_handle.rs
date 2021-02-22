@@ -458,8 +458,8 @@ pub struct UnsafeHandle(InnerFileOrSocket);
 pub struct UnsafeFile(InnerFile);
 
 /// A non-owning unsafe I/O handle which on Windows is limited to handling what
-/// Windows considers to be [`RawSocket`]s—mainly TCP streams and listeners and
-/// UDP sockets.
+/// Windows considers to be [`RawSocket`]s—mainly TCP streams and listeners
+/// and UDP sockets.
 ///
 /// [`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
 #[derive(Copy, Clone)]
@@ -1467,9 +1467,9 @@ impl Write for UnsafeWriteable {
     }
 }
 
-/// Like `AsUnsafeFile::as_file_view`, but with the method for
-/// obtaining a [`RawHandle`] from an [`UnsafeReadable`] or [`UnsafeWriteable`]
-/// factored out.
+/// Like `AsUnsafeFile::as_file_view`, but with the method for obtaining a
+/// [`RawHandle`] from an [`UnsafeReadable`] or [`UnsafeWriteable`] factored
+/// out.
 ///
 /// # Safety
 ///
