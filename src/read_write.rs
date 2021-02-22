@@ -1,6 +1,8 @@
-//! This defines [`AsUnsafeReadWriteHandle`], and supporting utilities, for
-//! working with types which are both `Read` and `Write` and which may have
-//! either one or two raw handles.
+//! This defines [`AsUnsafeReadWriteHandle`], and supporting utilities, which
+//! is similar to [`AsUnsafeHandle`] except that instead of just having one
+//! `as_unsafe_handle` function, it has separate `as_unsafe_read_handle` and
+//! `as_unsafe_write_handle` functions, so that it can be implemented by
+//! types which contain two handles, one for reading and one for writing.
 
 #[cfg(doc)]
 use super::AsUnsafeHandle;

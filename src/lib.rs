@@ -2,12 +2,12 @@
 //!
 //! A brief explanation of the naming convention:
 //!
-//! `Raw` is for platform-specific types and traits, such as `std`'s [`RawFd`],
+//! "Raw" is for platform-specific types and traits, such as `std`'s [`RawFd`],
 //! [`AsRawFd`], [`RawHandle`], [`AsRawHandle`], and similar, as well as
 //! `unsafe-io`'s [`RawHandleOrSocket`], [`AsRawHandleOrSocket`], and similar.
 //! "Handle" in this context means a Windows [`HANDLE`].
 //!
-//! `Unsafe` is for minimal platform-independent abstractions on top of the
+//! "Unsafe" is for minimal platform-independent abstractions on top of the
 //! platform-specific types, such as [`UnsafeHandle`] (abstracts over `RawFd`
 //! and `RawHandleOrSocket`), [`UnsafeFile`] (abstracts over `RawFd` and
 //! `RawHandle`), and [`UnsafeSocket`] (abstracts over `RawFd` and `RawSocket`).

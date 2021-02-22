@@ -1,5 +1,18 @@
-//! The `RawHandleOrSocket` type and `AsRawHandleOrSocket` trait, providing a
-//! minimal Windows analog for the Posix-ish `RawFd` type and `AsRawFd` trait.
+//! The [`RawHandleOrSocket`] type and accompanying [`AsRawHandleOrSocket`],
+//! [`IntoRawHandleOrSocket`], and [`FromRawHandleOrSocket`] traits. These
+//! provide minimal Windows analogs for the Posix-ish `RawFd` type and
+//! accompanying `AsRawFd`, `IntoRawFd`, and `FromRawFd` traits.
+//!
+//! These types are only defined on Windows and do not requre implementors to
+//! assert that they own their resources. See [`UnsafeHandle`] and
+//! accompanying [`AsUnsafeHandle`], [`IntoRawHandle`], and
+//! [`FromUnsafeHandle`] traits for platform-independent interfaces which do
+//! include ownership assertions.
+//!
+//! [`UnsafeHandle`]: crate::UnsafeHandle
+//! [`AsUnsafeHandle`]: crate::AsUnsafeHandle
+//! [`IntoUnsafeHandle`]: crate::IntoUnsafeHandle
+//! [`FromUnsafeHandle`]: crate::FromUnsafeHandle
 
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
@@ -19,9 +32,10 @@ use std::{
 /// enum which can hold either.
 ///
 /// It's reasonable to worry that this might be trying too hard to make Windows
-/// work like Unix, however in this case, the number of types is small, so the
-/// enum is simple and the overhead is relatively low, and the benefit is that
-/// we can abstract over major [`Read`] and [`Write`] resources.
+/// work like Posix-ish platforms, however in this case, the number of types is
+/// small, so the enum is simple and the overhead is relatively low, and the
+/// benefit is that we can abstract over major [`Read`] and [`Write`]
+/// resources.
 ///
 /// [`Read`]: std::io::Read
 /// [`Write`]: std::io::Write

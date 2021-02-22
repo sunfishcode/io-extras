@@ -1,4 +1,4 @@
-//! Define the `OwnsRaw` trait and implement it for well-known types.
+//! Define the [`OwnsRaw`] trait and implement it for well-known types.
 
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
@@ -17,7 +17,7 @@ use std::{
 /// background. The `UnsafeHandle` type provided by this crate serves as an
 /// implementation of [this suggestion].
 ///
-/// `OwnsRaw` is a trait that types can implement to declare that they
+/// `OwnsRaw` is a trait that types can implement to declare that they do
 /// own their file descriptors.
 ///
 /// [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969

@@ -1,4 +1,4 @@
-//! The `UnsafeHandle` type and supporting types and traits.
+//! The [`UnsafeHandle`] type and supporting types and traits.
 
 use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
@@ -482,6 +482,12 @@ pub struct UnsafeSocket(InnerSocket);
 /// are considered safe, so this type requires `unsafe` to construct.
 ///
 /// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
+///
+/// # Platform-specific behavior
+///
+/// On Posix-ish platforms, this reads from the handle as if it were a
+/// [`File`]. On Windows, this reads from a file-like handle as if it were a
+/// [`File`], and from a socket-like handle as if it were a [`TcpStream`].
 #[derive(Copy, Clone)]
 #[repr(transparent)]
 pub struct UnsafeReadable(InnerFileOrSocket);
@@ -490,6 +496,12 @@ pub struct UnsafeReadable(InnerFileOrSocket);
 /// considered are safe, so this type requires `unsafe` to construct.
 ///
 /// Like [`UnsafeHandle`], this doesn't implement `Into*` or `From*` traits.
+///
+/// # Platform-specific behavior
+///
+/// On Posix-ish platforms, this writes to the handle as if it were a
+/// [`File`]. On Windows, this writes to a file-like handle as if it were a
+/// [`File`], and to a socket-like handle as if it were a [`TcpStream`].
 #[derive(Copy, Clone)]
 #[repr(transparent)]
 pub struct UnsafeWriteable(InnerFileOrSocket);
@@ -528,7 +540,8 @@ pub struct View<'resource, Target: AsUnsafeHandle> {
     /// this is a non-owning view over the underlying resource.
     target: ManuallyDrop<Target>,
 
-    /// This field exists because we don't otherwise explicitly use `'resource`.
+    /// This field exists because we don't otherwise explicitly use
+    /// `'resource`.
     _phantom_data: PhantomData<&'resource ()>,
 }
 
