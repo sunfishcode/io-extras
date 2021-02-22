@@ -154,6 +154,71 @@ impl AsRawReadWriteFd for UnixStream {
     }
 }
 
+#[cfg(all(feature = "async-std", not(windows)))]
+impl AsRawReadWriteFd for async_std::fs::File {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(feature = "async-std", windows))]
+impl AsRawReadWriteHandleOrSocket for async_std::fs::File {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(feature = "async-std", not(windows)))]
+impl AsRawReadWriteFd for async_std::net::TcpStream {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(feature = "async-std", windows))]
+impl AsRawReadWriteHandleOrSocket for async_std::net::TcpStream {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(feature = "async-std", unix))]
+impl AsRawReadWriteFd for async_std::os::unix::net::UnixStream {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
 #[cfg(not(windows))]
 impl<T: AsRawReadWriteFd> AsRawReadWriteFd for Box<T> {
     #[inline]

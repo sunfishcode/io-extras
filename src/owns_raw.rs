@@ -64,12 +64,8 @@ unsafe impl OwnsRaw for async_std::io::Stdout {}
 unsafe impl OwnsRaw for async_std::io::Stderr {}
 #[cfg(feature = "async-std")]
 unsafe impl OwnsRaw for async_std::fs::File {}
-#[cfg(feature = "async-std")]
-unsafe impl OwnsRaw for async_std::process::ChildStdin {}
-#[cfg(feature = "async-std")]
-unsafe impl OwnsRaw for async_std::process::ChildStdout {}
-#[cfg(feature = "async-std")]
-unsafe impl OwnsRaw for async_std::process::ChildStderr {}
+// async_std's `ChildStdin`, `ChildStdout`, and `ChildStderr` don't implement
+// `AsRawFd` or `AsRawHandle`.
 #[cfg(feature = "async-std")]
 unsafe impl OwnsRaw for async_std::net::TcpStream {}
 #[cfg(feature = "async-std")]

@@ -252,6 +252,65 @@ impl AsRawHandleOrSocket for UdpSocket {
     }
 }
 
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::io::Stdin {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::io::Stdout {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::io::Stderr {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::fs::File {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+// async_std's `ChildStdin`, `ChildStdout`, and `ChildStderr` don't implement
+// `AsRawFd` or `AsRawHandle`.
+
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::net::TcpStream {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::net::TcpListener {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl AsRawHandleOrSocket for async_std::net::UdpSocket {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
 #[cfg(feature = "os_pipe")]
 impl AsRawHandleOrSocket for PipeReader {
     #[inline]
