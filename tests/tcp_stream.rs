@@ -3,7 +3,7 @@
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
 #[cfg(not(windows))]
-use unsafe_io::posish::{AsRawFd, FromRawFd};
+use unsafe_io::os::posish::{AsRawFd, FromRawFd};
 use std::{
     io::{Read, Write},
     mem::ManuallyDrop,
@@ -12,7 +12,7 @@ use std::{
 };
 use unsafe_io::{AsUnsafeHandle, AsUnsafeSocket, FromUnsafeSocket};
 #[cfg(windows)]
-use {std::os::windows::io::FromRawSocket, unsafe_io::AsRawHandleOrSocket};
+use {std::os::windows::io::FromRawSocket, unsafe_io::os::windows::AsRawHandleOrSocket};
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions

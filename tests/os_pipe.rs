@@ -4,7 +4,7 @@
 
 use os_pipe::{pipe, PipeReader};
 #[cfg(not(windows))]
-use unsafe_io::posish::{AsRawFd, FromRawFd};
+use unsafe_io::os::posish::{AsRawFd, FromRawFd};
 use std::{
     io::{Read, Write},
     mem::ManuallyDrop,
@@ -12,7 +12,7 @@ use std::{
 };
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
-use {std::os::windows::io::FromRawHandle, unsafe_io::AsRawHandleOrSocket};
+use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrSocket};
 
 #[test]
 #[cfg_attr(miri, ignore)] // pipe I/O calls foreign functions

@@ -26,6 +26,8 @@ use std::{
     process::{ChildStderr, ChildStdin, ChildStdout},
 };
 
+pub use crate::read_write::AsRawReadWriteHandleOrSocket;
+
 /// A Windows analog for the Posix-ish `AsRawFd` type. Unlike Posix-ish
 /// platforms which have a single type for files and sockets, Windows has
 /// distinct types, `RawHandle` and `RawSocket`; this type behaves like an

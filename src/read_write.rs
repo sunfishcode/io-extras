@@ -8,9 +8,9 @@
 use super::AsUnsafeHandle;
 use super::UnsafeHandle;
 #[cfg(windows)]
-use super::{AsRawHandleOrSocket, RawHandleOrSocket};
+use crate::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
 #[cfg(not(windows))]
-use crate::posish::{AsRawFd, RawFd};
+use crate::os::posish::{AsRawFd, RawFd};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::{fs::File, net::TcpStream};

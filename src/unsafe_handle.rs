@@ -4,7 +4,7 @@ use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 #[cfg(not(windows))]
-use crate::posish::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
+use crate::os::posish::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::{
@@ -18,9 +18,10 @@ use std::{
 };
 #[cfg(windows)]
 use {
-    super::{
-        raw_handle_or_socket::Raw, AsRawHandleOrSocket, FromRawHandleOrSocket,
+    crate::os::windows::{
+        AsRawHandleOrSocket, FromRawHandleOrSocket,
         IntoRawHandleOrSocket, RawHandleOrSocket,
+        Raw
     },
     std::{
         os::windows::io::{

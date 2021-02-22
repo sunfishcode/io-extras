@@ -75,9 +75,9 @@
 //! ```rust
 //! use unsafe_io::OwnsRaw;
 //! #[cfg(not(windows))]
-//! use unsafe_io::posish::{AsRawFd, RawFd};
+//! use unsafe_io::os::posish::{AsRawFd, RawFd};
 //! #[cfg(windows)]
-//! use unsafe_io::{AsRawHandleOrSocket, RawHandleOrSocket};
+//! use unsafe_io::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
 //!
 //! struct MyType(std::fs::File);
 //!
@@ -130,20 +130,10 @@
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
 mod owns_raw;
-#[cfg(windows)]
-mod raw_handle_or_socket;
 mod read_write;
 mod unsafe_handle;
 
 pub use owns_raw::OwnsRaw;
-#[cfg(windows)]
-pub use raw_handle_or_socket::{
-    AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, RawHandleOrSocket,
-};
-#[cfg(not(windows))]
-pub use read_write::AsRawReadWriteFd;
-#[cfg(windows)]
-pub use read_write::AsRawReadWriteHandleOrSocket;
 pub use read_write::AsUnsafeReadWriteHandle;
 pub use unsafe_handle::{
     AsUnsafeFile, AsUnsafeHandle, AsUnsafeSocket, FromUnsafeFile, FromUnsafeHandle,
@@ -151,5 +141,4 @@ pub use unsafe_handle::{
     UnsafeReadable, UnsafeSocket, UnsafeWriteable, View,
 };
 
-#[cfg(not(windows))]
-pub mod posish;
+pub mod os;
