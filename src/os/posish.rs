@@ -2,9 +2,9 @@
 //! so that users don't need target-specific code to import them.
 
 #[cfg(unix)]
-pub use std::os::unix::io::{AsRawFd, IntoRawFd, FromRawFd, RawFd};
+pub use std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 #[cfg(target_os = "wasi")]
-pub use std::os::wasi::io::{AsRawFd, IntoRawFd, FromRawFd, RawFd};
+pub use std::os::wasi::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 
 pub use crate::read_write::AsRawReadWriteFd;
 

@@ -7,10 +7,10 @@
 #[cfg(doc)]
 use super::AsUnsafeHandle;
 use super::UnsafeHandle;
-#[cfg(windows)]
-use crate::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
 #[cfg(not(windows))]
 use crate::os::posish::{AsRawFd, RawFd};
+#[cfg(windows)]
+use crate::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::{fs::File, net::TcpStream};

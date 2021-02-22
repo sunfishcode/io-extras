@@ -2,9 +2,7 @@
 //! or more desireable than regular hello world in any practical way. It just
 //! demonstrates the API of this crate.
 
-use std::{
-    io::{stderr, stdout},
-};
+use std::io::{stderr, stdout};
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle};
 
 #[test]

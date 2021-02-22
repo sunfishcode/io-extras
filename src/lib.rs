@@ -10,8 +10,8 @@
 //! "Unsafe" is for minimal platform-independent abstractions on top of the
 //! platform-specific types, such as [`UnsafeHandle`] (abstracts over `RawFd`
 //! and `RawHandleOrSocket`), [`UnsafeFile`] (abstracts over `RawFd` and
-//! `RawHandle`), and [`UnsafeSocket`] (abstracts over `RawFd` and `RawSocket`).
-//! "Handle" in this context means any kind of I/O handle.
+//! `RawHandle`), and [`UnsafeSocket`] (abstracts over `RawFd` and
+//! `RawSocket`). "Handle" in this context means any kind of I/O handle.
 //!
 //! In table form, the main types are:
 //!
@@ -73,22 +73,26 @@
 //! trait for Windows platforms, and then implement [`OwnsRaw`]:
 //!
 //! ```rust
-//! use unsafe_io::OwnsRaw;
 //! #[cfg(not(windows))]
 //! use unsafe_io::os::posish::{AsRawFd, RawFd};
 //! #[cfg(windows)]
 //! use unsafe_io::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
+//! use unsafe_io::OwnsRaw;
 //!
 //! struct MyType(std::fs::File);
 //!
 //! #[cfg(not(windows))]
 //! impl AsRawFd for MyType {
-//!     fn as_raw_fd(&self) -> RawFd { self.0.as_raw_fd() }
+//!     fn as_raw_fd(&self) -> RawFd {
+//!         self.0.as_raw_fd()
+//!     }
 //! }
 //!
 //! #[cfg(windows)]
 //! impl AsRawHandleOrSocket for MyType {
-//!     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket { self.0.as_raw_handle_or_socket() }
+//!     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+//!         self.0.as_raw_handle_or_socket()
+//!     }
 //! }
 //!
 //! // Safety: `MyType` owns its raw handle.

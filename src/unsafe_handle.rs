@@ -1,10 +1,10 @@
 //! The [`UnsafeHandle`] type and supporting types and traits.
 
+#[cfg(not(windows))]
+use crate::os::posish::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
-#[cfg(not(windows))]
-use crate::os::posish::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::{
@@ -19,9 +19,7 @@ use std::{
 #[cfg(windows)]
 use {
     crate::os::windows::{
-        AsRawHandleOrSocket, FromRawHandleOrSocket,
-        IntoRawHandleOrSocket, RawHandleOrSocket,
-        Raw
+        AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, Raw, RawHandleOrSocket,
     },
     std::{
         os::windows::io::{

@@ -1,15 +1,16 @@
-//! This example is similar to the tcp_stream test, but writes to a `PipeWriter`.
+//! This example is similar to the tcp_stream test, but writes to a
+//! `PipeWriter`.
 
 #![cfg(all(not(target_os = "wasi"), feature = "os_pipe"))]
 
 use os_pipe::{pipe, PipeReader};
-#[cfg(not(windows))]
-use unsafe_io::os::posish::{AsRawFd, FromRawFd};
 use std::{
     io::{Read, Write},
     mem::ManuallyDrop,
     thread,
 };
+#[cfg(not(windows))]
+use unsafe_io::os::posish::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
 use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrSocket};

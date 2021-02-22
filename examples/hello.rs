@@ -4,12 +4,12 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
-#[cfg(not(windows))]
-use unsafe_io::os::posish::{AsRawFd, FromRawFd};
 use std::{
     io::{stdout, Write},
     mem::ManuallyDrop,
 };
+#[cfg(not(windows))]
+use unsafe_io::os::posish::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
 use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrSocket};
