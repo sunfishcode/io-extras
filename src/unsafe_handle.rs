@@ -51,8 +51,12 @@ pub unsafe trait AsUnsafeHandle {
 
     /// Test whether `self.as_unsafe_handle()` is equal to
     /// `other.as_unsafe_handle()`.
+    ///
+    /// That this depends on the guarantee that types that implement
+    /// `AsUnsafeHandle` own their resources, so we won't erroneously compare
+    /// dangling handles.
     #[inline]
-    fn eq_handle<Handlelike: IntoUnsafeHandle + AsUnsafeHandle>(&self, other: &Handlelike) -> bool {
+    fn eq_handle<Handlelike: AsUnsafeHandle>(&self, other: &Handlelike) -> bool {
         unsafe { self.as_unsafe_handle().eq(other.as_unsafe_handle()) }
     }
 }
@@ -203,8 +207,12 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
 
     /// Test whether `self.as_unsafe_file().as_unsafe_handle()` is equal to
     /// `other.as_unsafe_file().as_unsafe_handle()`.
+    ///
+    /// That this depends on the guarantee that types that implement
+    /// `AsUnsafeFile` own their resources, so we won't erroneously compare
+    /// dangling handles.
     #[inline]
-    fn eq_file<Filelike: IntoUnsafeFile + AsUnsafeFile>(&self, other: &Filelike) -> bool {
+    fn eq_file<Filelike: AsUnsafeFile>(&self, other: &Filelike) -> bool {
         unsafe { self.as_unsafe_handle().eq(other.as_unsafe_handle()) }
     }
 }
@@ -391,8 +399,12 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
 
     /// Test whether `self.as_unsafe_socket().as_unsafe_handle()` is equal to
     /// `other.as_unsafe_socket().as_unsafe_handle()`.
+    ///
+    /// That this depends on the guarantee that types that implement
+    /// `AsUnsafeSocket` own their resources, so we won't erroneously compare
+    /// dangling handles.
     #[inline]
-    fn eq_socket<Socketlike: IntoUnsafeSocket + AsUnsafeSocket>(&self, other: &Socketlike) -> bool {
+    fn eq_socket<Socketlike: AsUnsafeSocket>(&self, other: &Socketlike) -> bool {
         unsafe { self.as_unsafe_handle().eq(other.as_unsafe_handle()) }
     }
 }
