@@ -34,8 +34,8 @@ use {
 /// A trait for types which contain an unsafe handle and can expose it.
 ///
 /// A type implementing `AsUnsafeHandle` guarantees that the return value from
-/// `as_unsafe_handle` on an instance of the type is a copy of a handle which is
-/// owned.
+/// `as_unsafe_handle` on an instance of the type is a copy of a handle which
+/// is owned.
 ///
 /// # Safety
 ///
