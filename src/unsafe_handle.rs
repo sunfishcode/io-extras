@@ -114,10 +114,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     fn as_file_view(&self) -> View<'_, File> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { File::from_unsafe_file(unsafe_file) };
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 
     /// Like `as_file_view`, but returns a value which is not explicitly tied
@@ -130,10 +127,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     unsafe fn as_unscoped_file_view(&self) -> View<'static, File> {
         let unsafe_file = self.as_unsafe_file();
         let file = File::from_unsafe_file(unsafe_file);
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 
     /// Utility for returning a value which dereferences to a `&PipeReader` or
@@ -146,10 +140,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     fn as_pipe_reader_view(&self) -> View<'_, PipeReader> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { PipeReader::from_unsafe_file(unsafe_file) };
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 
     /// Like `as_file_view`, but returns a value which is not explicitly tied
@@ -163,10 +154,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     unsafe fn as_unscoped_pipe_reader_view(&self) -> View<'static, PipeReader> {
         let unsafe_file = self.as_unsafe_file();
         let file = PipeReader::from_unsafe_file(unsafe_file);
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 
     /// Utility for returning a value which dereferences to a `&PipeWriter` or
@@ -179,10 +167,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     fn as_pipe_writer_view(&self) -> View<'_, PipeWriter> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { PipeWriter::from_unsafe_file(unsafe_file) };
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 
     /// Like `as_file_view`, but returns a value which is not explicitly tied
@@ -196,10 +181,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     unsafe fn as_unscoped_pipe_writer_view(&self) -> View<'static, PipeWriter> {
         let unsafe_file = self.as_unsafe_file();
         let file = PipeWriter::from_unsafe_file(unsafe_file);
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 
     /// Test whether `self.as_unsafe_file().as_unsafe_handle()` is equal to
@@ -275,10 +257,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     fn as_tcp_stream_view(&self) -> View<'_, TcpStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_stream = unsafe { TcpStream::from_unsafe_socket(unsafe_socket) };
-        View {
-            target: ManuallyDrop::new(tcp_stream),
-            _phantom_data: PhantomData,
-        }
+        View::new(tcp_stream)
     }
 
     /// Like `as_tcp_stream_view`, but returns a value which is not explicitly
@@ -291,10 +270,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     unsafe fn as_unscoped_tcp_stream_view(&self) -> View<'static, TcpStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_stream = TcpStream::from_unsafe_socket(unsafe_socket);
-        View {
-            target: ManuallyDrop::new(tcp_stream),
-            _phantom_data: PhantomData,
-        }
+        View::new(tcp_stream)
     }
 
     /// Utility for returning a value which dereferences to a `&TcpListener` or
@@ -307,10 +283,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     fn as_tcp_listener_view(&self) -> View<'_, TcpListener> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_listener = unsafe { TcpListener::from_unsafe_socket(unsafe_socket) };
-        View {
-            target: ManuallyDrop::new(tcp_listener),
-            _phantom_data: PhantomData,
-        }
+        View::new(tcp_listener)
     }
 
     /// Like `as_tcp_listener_view`, but returns a value which is not
@@ -323,10 +296,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     unsafe fn as_unscoped_tcp_listener_view(&self) -> View<'static, TcpListener> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_listener = TcpListener::from_unsafe_socket(unsafe_socket);
-        View {
-            target: ManuallyDrop::new(tcp_listener),
-            _phantom_data: PhantomData,
-        }
+        View::new(tcp_listener)
     }
 
     /// Utility for returning a value which dereferences to a `&UdpSocket` or
@@ -338,10 +308,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     fn as_udp_socket_view(&self) -> View<'_, UdpSocket> {
         let unsafe_socket = self.as_unsafe_socket();
         let udp_socket = unsafe { UdpSocket::from_unsafe_socket(unsafe_socket) };
-        View {
-            target: ManuallyDrop::new(udp_socket),
-            _phantom_data: PhantomData,
-        }
+        View::new(udp_socket)
     }
 
     /// Like `as_udp_socket_view`, but returns a value which is not explicitly
@@ -354,10 +321,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     unsafe fn as_unscoped_udp_socket_view(&self) -> View<'static, UdpSocket> {
         let unsafe_socket = self.as_unsafe_socket();
         let udp_socket = UdpSocket::from_unsafe_socket(unsafe_socket);
-        View {
-            target: ManuallyDrop::new(udp_socket),
-            _phantom_data: PhantomData,
-        }
+        View::new(udp_socket)
     }
 
     /// Utility for returning a value which dereferences to a `&UnixStream` or
@@ -371,10 +335,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     fn as_unix_stream_view(&self) -> View<'_, UnixStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let unix_stream = unsafe { UnixStream::from_unsafe_socket(unsafe_socket) };
-        View {
-            target: ManuallyDrop::new(unix_stream),
-            _phantom_data: PhantomData,
-        }
+        View::new(unix_stream)
     }
 
     /// Like `as_unix_stream_view`, but returns a value which is not explicitly
@@ -388,10 +349,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     unsafe fn as_unscoped_unix_stream_view(&self) -> View<'static, UnixStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let unix_stream = UnixStream::from_unsafe_socket(unsafe_socket);
-        View {
-            target: ManuallyDrop::new(unix_stream),
-            _phantom_data: PhantomData,
-        }
+        View::new(unix_stream)
     }
 
     /// Test whether `self.as_unsafe_socket().as_unsafe_handle()` is equal to
@@ -540,6 +498,18 @@ pub struct View<'resource, Target: AsUnsafeHandle> {
     /// This field exists because we don't otherwise explicitly use
     /// `'resource`.
     _phantom_data: PhantomData<&'resource ()>,
+}
+
+impl<Target: AsUnsafeHandle> View<'_, Target> {
+    /// Creates a new `View` which nominally takes ownership of `target` but
+    /// does not own the underlying resource.
+    #[inline]
+    fn new(target: Target) -> Self {
+        Self {
+            target: ManuallyDrop::new(target),
+            _phantom_data: PhantomData,
+        }
+    }
 }
 
 impl<Target: AsUnsafeHandle> Deref for View<'_, Target> {
@@ -862,10 +832,7 @@ impl UnsafeReadable {
     unsafe fn as_file_view(&self) -> View<'_, File> {
         let raw_fd = self.as_raw_fd();
         let file = File::from_raw_fd(raw_fd);
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 }
 
@@ -911,10 +878,7 @@ impl UnsafeWriteable {
     unsafe fn as_file_view(&self) -> View<'_, File> {
         let raw_fd = self.as_raw_fd();
         let file = File::from_raw_fd(raw_fd);
-        View {
-            target: ManuallyDrop::new(file),
-            _phantom_data: PhantomData,
-        }
+        View::new(file)
     }
 }
 
@@ -1534,10 +1498,8 @@ impl Write for UnsafeWriteable {
 #[cfg(windows)]
 #[inline]
 unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<'_, File> {
-    View {
-        target: ManuallyDrop::new(File::from_raw_handle(raw_handle)),
-        _phantom_data: PhantomData,
-    }
+    let file = File::from_raw_handle(raw_handle);
+    View::new(file)
 }
 
 /// Like `AsUnsafeSocket::as_tcp_stream_view`, but with the method for
@@ -1550,10 +1512,8 @@ unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<'_, File> {
 #[cfg(windows)]
 #[inline]
 unsafe fn as_tcp_stream_view<T>(_t: &T, raw_socket: RawSocket) -> View<'_, TcpStream> {
-    View {
-        target: ManuallyDrop::new(TcpStream::from_raw_socket(raw_socket)),
-        _phantom_data: PhantomData,
-    }
+    let tcp_stream = TcpStream::from_raw_socket(raw_socket);
+    View::new(tcp_stream)
 }
 
 #[cfg(not(windows))]
