@@ -212,7 +212,6 @@
     meta_variable_misuse,
     missing_copy_implementations,
     missing_crate_level_docs,
-    missing_doc_code_examples,
     non_ascii_idents,
     pointer_structural_match,
     private_doc_tests,
@@ -229,6 +228,7 @@
     unused_results,
     variant_size_differences
 )]
+#![allow(missing_doc_code_examples)]
 #![deny(
     clippy::all,
     clippy::cargo,
