@@ -4,13 +4,13 @@
 //! `as_unsafe_write_handle` functions, so that it can be implemented by
 //! types which contain two handles, one for reading and one for writing.
 
-#[cfg(doc)]
-use super::AsUnsafeHandle;
-use super::UnsafeHandle;
 #[cfg(not(windows))]
 use crate::os::posish::{AsRawFd, RawFd};
 #[cfg(windows)]
 use crate::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
+#[cfg(doc)]
+use crate::AsUnsafeHandle;
+use crate::{OwnsRaw, UnsafeHandle};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::{fs::File, net::TcpStream};
@@ -64,7 +64,7 @@ pub trait AsRawReadWriteHandleOrSocket {
 }
 
 #[cfg(not(windows))]
-impl<T: AsRawReadWriteFd> AsUnsafeReadWriteHandle for T {
+impl<T: AsRawReadWriteFd + OwnsRaw> AsUnsafeReadWriteHandle for T {
     #[inline]
     fn as_unsafe_read_handle(&self) -> UnsafeHandle {
         UnsafeHandle::from_raw_fd(self.as_raw_read_fd())
@@ -77,7 +77,7 @@ impl<T: AsRawReadWriteFd> AsUnsafeReadWriteHandle for T {
 }
 
 #[cfg(windows)]
-impl<T: AsRawReadWriteHandleOrSocket> AsUnsafeReadWriteHandle for T {
+impl<T: AsRawReadWriteHandleOrSocket + OwnsRaw> AsUnsafeReadWriteHandle for T {
     #[inline]
     fn as_unsafe_read_handle(&self) -> UnsafeHandle {
         UnsafeHandle::from_raw_handle_or_socket(self.as_raw_read_handle_or_socket())
