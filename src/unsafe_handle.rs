@@ -21,7 +21,9 @@ use std::{
 };
 #[cfg(windows)]
 use {
-    super::{raw_handle_or_socket::Raw, AsRawHandleOrSocket, RawHandleOrSocket},
+    super::{
+        raw_handle_or_socket::Raw, AsRawHandleOrSocket, IntoRawHandleOrSocket, RawHandleOrSocket,
+    },
     std::{
         os::windows::io::{
             AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, IntoRawSocket,
@@ -694,6 +696,10 @@ impl<T: FromRawFd + OwnsRaw> FromUnsafeSocket for T {
     }
 }
 
+/// `UnsafeHandle` doesn't own its handle, but `AsRawFd` doesn't require any
+/// guarantees about lifetimes, so it's safe to implement. This is similar to
+/// how `RawFd` implements `AsRawFd` (see the `raw_fd_reflexive_traits` trait
+/// implementations in `std`).
 #[cfg(not(windows))]
 impl AsRawFd for UnsafeHandle {
     #[inline]
@@ -702,10 +708,32 @@ impl AsRawFd for UnsafeHandle {
     }
 }
 
+/// `UnsafeHandle` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(not(windows))]
+impl IntoRawFd for UnsafeHandle {
+    #[inline]
+    fn into_raw_fd(self) -> RawFd {
+        self.0
+    }
+}
+
+/// `UnsafeReadable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(not(windows))]
 impl AsRawFd for UnsafeReadable {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
+        self.0
+    }
+}
+
+/// `UnsafeReadable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(not(windows))]
+impl IntoRawFd for UnsafeReadable {
+    #[inline]
+    fn into_raw_fd(self) -> RawFd {
         self.0
     }
 }
@@ -729,10 +757,22 @@ impl UnsafeReadable {
     }
 }
 
+/// `UnsafeWriteable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(not(windows))]
 impl AsRawFd for UnsafeWriteable {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
+        self.0
+    }
+}
+
+/// `UnsafeWriteable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(not(windows))]
+impl IntoRawFd for UnsafeWriteable {
+    #[inline]
+    fn into_raw_fd(self) -> RawFd {
         self.0
     }
 }
@@ -756,6 +796,8 @@ impl UnsafeWriteable {
     }
 }
 
+/// `UnsafeFile` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(not(windows))]
 impl AsRawFd for UnsafeFile {
     #[inline]
@@ -764,10 +806,32 @@ impl AsRawFd for UnsafeFile {
     }
 }
 
+/// `UnsafeFile` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(not(windows))]
+impl IntoRawFd for UnsafeFile {
+    #[inline]
+    fn into_raw_fd(self) -> RawFd {
+        self.0
+    }
+}
+
+/// `UnsafeSocket` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(not(windows))]
 impl AsRawFd for UnsafeSocket {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
+        self.0
+    }
+}
+
+/// `UnsafeSocket` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(not(windows))]
+impl IntoRawFd for UnsafeSocket {
+    #[inline]
+    fn into_raw_fd(self) -> RawFd {
         self.0
     }
 }
@@ -895,6 +959,8 @@ unsafe impl IntoUnsafeHandle for PipeWriter {
     }
 }
 
+/// `UnsafeHandle` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawHandleOrSocket for UnsafeHandle {
     #[inline]
@@ -903,6 +969,18 @@ impl AsRawHandleOrSocket for UnsafeHandle {
     }
 }
 
+/// `UnsafeHandle` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawHandleOrSocket for UnsafeHandle {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        self.0
+    }
+}
+
+/// `UnsafeReadable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawHandleOrSocket for UnsafeReadable {
     #[inline]
@@ -911,6 +989,18 @@ impl AsRawHandleOrSocket for UnsafeReadable {
     }
 }
 
+/// `UnsafeReadable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawHandleOrSocket for UnsafeReadable {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        self.0
+    }
+}
+
+/// `UnsafeWriteable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawHandleOrSocket for UnsafeWriteable {
     #[inline]
@@ -919,6 +1009,18 @@ impl AsRawHandleOrSocket for UnsafeWriteable {
     }
 }
 
+/// `UnsafeWriteable` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawHandleOrSocket for UnsafeWriteable {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        self.0
+    }
+}
+
+/// `UnsafeFile` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawHandleOrSocket for UnsafeFile {
     #[inline]
@@ -927,6 +1029,18 @@ impl AsRawHandleOrSocket for UnsafeFile {
     }
 }
 
+/// `UnsafeFile` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawHandleOrSocket for UnsafeFile {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_handle(self.0)
+    }
+}
+
+/// `UnsafeFile` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawHandle for UnsafeFile {
     #[inline]
@@ -935,6 +1049,18 @@ impl AsRawHandle for UnsafeFile {
     }
 }
 
+/// `UnsafeFile` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawHandle for UnsafeFile {
+    #[inline]
+    fn into_raw_handle(self) -> RawHandle {
+        self.0
+    }
+}
+
+/// `UnsafeSocket` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawHandleOrSocket for UnsafeSocket {
     #[inline]
@@ -943,10 +1069,32 @@ impl AsRawHandleOrSocket for UnsafeSocket {
     }
 }
 
+/// `UnsafeSocket` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawHandleOrSocket for UnsafeSocket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(self.0)
+    }
+}
+
+/// `UnsafeSocket` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
 #[cfg(windows)]
 impl AsRawSocket for UnsafeSocket {
     #[inline]
     fn as_raw_socket(&self) -> RawSocket {
+        self.0
+    }
+}
+
+/// `UnsafeSocket` doesn't own its handle; see the comments for
+/// `impl AsRawFd for UnsafeHandle`.
+#[cfg(windows)]
+impl IntoRawSocket for UnsafeSocket {
+    #[inline]
+    fn into_raw_socket(self) -> RawSocket {
         self.0
     }
 }

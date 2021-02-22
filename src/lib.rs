@@ -39,10 +39,10 @@
 //!
 //! The `AsUnsafe*` and `IntoUnsafe*` traits require types to guarantee that
 //! they own the handles that they return. This differs from their `AsRaw*` and
-//! `IntoRaw*` counterparts, which require no such guarantee. This crate defines
-//! an [`OwnsRaw`] trait which is unsafe to implement and which allows types to
-//! declare that they own the handles they hold, allowing them to opt into the
-//! blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
+//! `IntoRaw*` counterparts, which require no such guarantee. This crate
+//! defines an [`OwnsRaw`] trait which is unsafe to implement and which allows
+//! types to declare that they own the handles they hold, allowing them to opt
+//! into the blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
 //! [rust-lang/rust#76969] for further background.
 //!
 //! This crates also defines several additional utilities:
