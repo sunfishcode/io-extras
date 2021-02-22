@@ -3,7 +3,7 @@
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
 use std::{
-    io::{Read, Write},
+    io::{self, Read, Write},
     mem::ManuallyDrop,
     net::{TcpListener, TcpStream},
     thread,
@@ -16,11 +16,11 @@ use {std::os::windows::io::FromRawSocket, unsafe_io::os::windows::AsRawHandleOrS
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
-fn tcp_stream_write() -> anyhow::Result<()> {
+fn tcp_stream_write() -> io::Result<()> {
     let listener = TcpListener::bind("localhost:0")?;
     let addr = listener.local_addr()?;
 
-    let _t = thread::spawn(move || -> anyhow::Result<()> {
+    let _t = thread::spawn(move || -> io::Result<()> {
         let stream = TcpStream::connect(addr)?;
 
         // Obtain an `UnsafeWriteable` and use it to write.
@@ -93,11 +93,11 @@ fn tcp_stream_write() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn accept() -> anyhow::Result<TcpStream> {
+fn accept() -> io::Result<TcpStream> {
     let listener = TcpListener::bind("localhost:0")?;
     let addr = listener.local_addr()?;
 
-    let _t = thread::spawn(move || -> anyhow::Result<()> {
+    let _t = thread::spawn(move || -> io::Result<()> {
         let mut stream = TcpStream::connect(addr)?;
         write!(stream, "hello, world")?;
         Ok(())
@@ -108,7 +108,7 @@ fn accept() -> anyhow::Result<TcpStream> {
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
-fn tcp_stream_read() -> anyhow::Result<()> {
+fn tcp_stream_read() -> io::Result<()> {
     // Obtain an `UnsafeReadable` and use it to read.
     let stream = accept()?;
     let mut buf = String::new();

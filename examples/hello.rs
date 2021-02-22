@@ -5,7 +5,7 @@
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
 use std::{
-    io::{stdout, Write},
+    io::{self, stdout, Write},
     mem::ManuallyDrop,
 };
 #[cfg(not(windows))]
@@ -14,7 +14,7 @@ use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
 use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrSocket};
 
-fn main() -> anyhow::Result<()> {
+fn main() -> io::Result<()> {
     let stdout = stdout();
     let stdout = stdout.lock();
 

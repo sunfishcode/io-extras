@@ -5,7 +5,7 @@
 
 use os_pipe::{pipe, PipeReader};
 use std::{
-    io::{Read, Write},
+    io::{self, Read, Write},
     mem::ManuallyDrop,
     thread,
 };
@@ -17,10 +17,10 @@ use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrS
 
 #[test]
 #[cfg_attr(miri, ignore)] // pipe I/O calls foreign functions
-fn os_pipe_write() -> anyhow::Result<()> {
+fn os_pipe_write() -> io::Result<()> {
     let (mut input, output) = pipe()?;
 
-    let _t = thread::spawn(move || -> anyhow::Result<()> {
+    let _t = thread::spawn(move || -> io::Result<()> {
         // Obtain an `UnsafeWriteable` and use it to write.
         writeln!(
             unsafe { output.as_unsafe_handle().as_writeable() },
@@ -98,10 +98,10 @@ fn os_pipe_write() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_to_pipe() -> anyhow::Result<PipeReader> {
+fn write_to_pipe() -> io::Result<PipeReader> {
     let (input, mut output) = pipe()?;
 
-    let _t = thread::spawn(move || -> anyhow::Result<()> {
+    let _t = thread::spawn(move || -> io::Result<()> {
         write!(output, "hello, world")?;
         Ok(())
     });
@@ -111,7 +111,7 @@ fn write_to_pipe() -> anyhow::Result<PipeReader> {
 
 #[test]
 #[cfg_attr(miri, ignore)] // pipe I/O calls foreign functions
-fn os_pipe_read() -> anyhow::Result<()> {
+fn os_pipe_read() -> io::Result<()> {
     // Obtain an `UnsafeReadable` and use it to read.
     let stream = write_to_pipe()?;
     let mut buf = String::new();
