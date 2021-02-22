@@ -49,7 +49,7 @@ impl RawHandleOrSocket {
     /// Like [`FromRawHandle::from_raw_handle`], but isn't unsafe because it
     /// doesn't imply a dereference.
     ///
-    /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle
+    /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle::from_raw_handle
     #[inline]
     pub fn from_raw_handle(raw_handle: RawHandle) -> Self {
         Self(Raw::Handle(raw_handle))
@@ -58,7 +58,7 @@ impl RawHandleOrSocket {
     /// Like [`FromRawSocket::from_raw_socket`], but isn't unsafe because it
     /// doesn't imply a dereference.
     ///
-    /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket
+    /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket::from_raw_socket
     #[inline]
     pub fn from_raw_socket(raw_socket: RawSocket) -> Self {
         Self(Raw::Socket(raw_socket))
@@ -103,14 +103,14 @@ pub trait IntoRawHandleOrSocket {
 
 /// The Windows [`HANDLE`] and [`SOCKET`] types may be sent between threads.
 ///
-/// [`HANDLE`]: https://doc.rust-lang.org/std/os/windows/raw/type.HANDLE.html
-/// [`SOCKET`]: https://doc.rust-lang.org/std/os/windows/raw/type.SOCKET.html
+/// [`HANDLE`]: std::os::windows::raw::HANDLE
+/// [`SOCKET`]: std::os::windows::raw::SOCKET
 unsafe impl Send for RawHandleOrSocket {}
 
-/// The Windows `HANDLE` and `SOCKET` types may be shared between threads.
+/// The Windows [`HANDLE`] and [`SOCKET`] types may be shared between threads.
 ///
-/// [`HANDLE`]: https://doc.rust-lang.org/std/os/windows/raw/type.HANDLE.html
-/// [`SOCKET`]: https://doc.rust-lang.org/std/os/windows/raw/type.SOCKET.html
+/// [`HANDLE`]: std::os::windows::raw::HANDLE
+/// [`SOCKET`]: std::os::windows::raw::SOCKET
 unsafe impl Sync for RawHandleOrSocket {}
 
 impl AsRawHandleOrSocket for RawHandleOrSocket {
