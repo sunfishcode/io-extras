@@ -463,25 +463,40 @@ pub struct UnsafeReadable(InnerFileOrSocket);
 pub struct UnsafeWriteable(InnerFileOrSocket);
 
 /// Posix-ish platforms use a single "file descriptor" type for all the kinds
-/// of resources we're abstracting over, so we can just use that.
+/// of resources we're abstracting over, so we can just use that for
+/// everything.
 #[cfg(not(windows))]
 type InnerFileOrSocket = RawFd;
+
+/// See the comments for [`InnerFileOrSocket`].
 #[cfg(not(windows))]
 type InnerFile = RawFd;
+
+/// See the comments for [`InnerFileOrSocket`].
 #[cfg(not(windows))]
 type InnerSocket = RawFd;
 
-/// Windows has multiple types.
+/// Windows uses separate types for file-like and socket-like resources, so we
+/// use each type for its purpose.
 #[cfg(windows)]
 type InnerFileOrSocket = RawHandleOrSocket;
+
+/// See the comments for [`InnerFileOrSocket`].
 #[cfg(windows)]
 type InnerFile = RawHandle;
+
+/// See the comments for [`InnerFileOrSocket`].
 #[cfg(windows)]
 type InnerSocket = RawSocket;
 
-/// A view of a resource which dereferences to a `&Target` or `&mut Target`.
+/// A non-owning view of a resource which dereferences to a `&Target` or
+/// `&mut Target`.
 pub struct View<'resource, Target: AsUnsafeHandle> {
+    /// The value to dereference to. It's wrapped in `ManuallyDrop` because
+    /// this is a non-owning view over the underlying resource.
     target: ManuallyDrop<Target>,
+
+    /// This field exists because we don't otherwise explicitly use `'resource`.
     _phantom_data: PhantomData<&'resource ()>,
 }
 
