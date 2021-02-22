@@ -101,6 +101,23 @@ pub trait IntoRawHandleOrSocket {
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket;
 }
 
+/// Like [`FromRawHandle`] and [`FromRawSocket`], but implementable by types
+/// which can implement both.
+///
+/// Note: Don't implement this trait for types which can only implement one
+/// or the other, such that it would need to panic if passed the wrong form.
+///
+/// [`FromRawHandle`]: std::os::windows::io::FromRawHandle
+/// [`FromRawSocket`]: std::os::windows::io::FromRawSocket
+pub trait FromRawHandleOrSocket {
+    /// Like [`FromRawHandle::from_raw_handle`] and
+    /// [`FromRawSocket::from_raw_socket`] but can be passed either type.
+    ///
+    /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle::from_raw_handle
+    /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket::from_raw_socket
+    unsafe fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self;
+}
+
 /// The Windows [`HANDLE`] and [`SOCKET`] types may be sent between threads.
 ///
 /// [`HANDLE`]: std::os::windows::raw::HANDLE

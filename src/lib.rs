@@ -29,13 +29,11 @@
 //! | [`RawFd`]        | [`AsRawFd`]        | [`IntoRawFd`]        | [`FromRawFd`]        |
 //! | [`RawHandle`]    | [`AsRawHandle`]    | [`IntoRawHandle`]    | [`FromRawHandle`]    |
 //! | [`RawSocket`]    | [`AsRawSocket`]    | [`IntoRawSocket`]    | [`FromRawSocket`]    |
-//! | [`RawHandleOrSocket`] | [`AsRawHandleOrSocket`] | [`IntoRawHandleOrSocket`] | *     |
+//! | [`RawHandleOrSocket`] | [`AsRawHandleOrSocket`] | [`IntoRawHandleOrSocket`] | [`FromRawHandleOrSocket`] |
 //! |                  |                    |                      |                      |
 //! | [`UnsafeFile`]   | [`AsUnsafeFile`]   | [`IntoUnsafeFile`]   | [`FromUnsafeFile`]   |
 //! | [`UnsafeSocket`] | [`AsUnsafeSocket`] | [`IntoUnsafeSocket`] | [`FromUnsafeSocket`] |
-//! | [`UnsafeHandle`] | [`AsUnsafeHandle`] | [`IntoUnsafeHandle`] | *                    |
-//!
-//! \* These types do not have `From` traits.
+//! | [`UnsafeHandle`] | [`AsUnsafeHandle`] | [`IntoUnsafeHandle`] | [`FromUnsafeHandle`] |
 //!
 //! The `AsUnsafe*` and `IntoUnsafe*` traits require types to guarantee that
 //! they own the handles that they return. This differs from their `AsRaw*` and
@@ -71,6 +69,7 @@
 //! [`RawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/struct.RawHandleOrSocket.html
 //! [`AsRawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.AsRawHandleOrSocket.html
 //! [`IntoRawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.IntoRawHandleOrSocket.html
+//! [`FromRawHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.FromRawHandleOrSocket.html
 //! [`AsRawReadWriteHandleOrSocket`]: https://docs.rs/unsafe-io/latest/x86_64-pc-windows-msvc/unsafe_io/trait.AsRawReadWriteHandleOrSocket.html
 //! [`AsRawReadWriteFd`]: https://docs.rs/unsafe-io/latest/unsafe_io/trait.AsRawReadWriteFd.html
 //! [`HANDLE`]: https://doc.rust-lang.org/std/os/windows/raw/type.HANDLE.html
@@ -93,14 +92,16 @@ mod unsafe_handle;
 
 pub use owns_raw::OwnsRaw;
 #[cfg(windows)]
-pub use raw_handle_or_socket::{AsRawHandleOrSocket, IntoRawHandleOrSocket, RawHandleOrSocket};
+pub use raw_handle_or_socket::{
+    AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, RawHandleOrSocket,
+};
 #[cfg(not(windows))]
 pub use read_write::AsRawReadWriteFd;
 #[cfg(windows)]
 pub use read_write::AsRawReadWriteHandleOrSocket;
 pub use read_write::AsUnsafeReadWriteHandle;
 pub use unsafe_handle::{
-    AsUnsafeFile, AsUnsafeHandle, AsUnsafeSocket, FromUnsafeFile, FromUnsafeSocket, IntoUnsafeFile,
-    IntoUnsafeHandle, IntoUnsafeSocket, UnsafeFile, UnsafeHandle, UnsafeReadable, UnsafeSocket,
-    UnsafeWriteable, View,
+    AsUnsafeFile, AsUnsafeHandle, AsUnsafeSocket, FromUnsafeFile, FromUnsafeHandle,
+    FromUnsafeSocket, IntoUnsafeFile, IntoUnsafeHandle, IntoUnsafeSocket, UnsafeFile, UnsafeHandle,
+    UnsafeReadable, UnsafeSocket, UnsafeWriteable, View,
 };
