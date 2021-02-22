@@ -19,7 +19,8 @@ use std::{
 #[cfg(windows)]
 use {
     crate::os::windows::{
-        AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, Raw, RawHandleOrSocket,
+        AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, RawEnum,
+        RawHandleOrSocket,
     },
     std::{
         os::windows::io::{
@@ -1307,18 +1308,20 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.read(buf),
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read(buf),
+            RawEnum::Socket(raw_socket) => {
+                unsafe { as_tcp_stream_view(self, raw_socket) }.read(buf)
+            }
         }
     }
 
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => {
+            RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.read_vectored(bufs)
             }
-            Raw::Socket(raw_socket) => {
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_vectored(bufs)
             }
         }
@@ -1328,8 +1331,10 @@ impl Read for UnsafeReadable {
     #[inline]
     fn is_read_vectored(&self) -> bool {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.is_read_vectored(),
-            Raw::Socket(raw_socket) => {
+            RawEnum::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.is_read_vectored()
+            }
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.is_read_vectored()
             }
         }
@@ -1338,8 +1343,10 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read_to_end(buf),
-            Raw::Socket(raw_socket) => {
+            RawEnum::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.read_to_end(buf)
+            }
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_end(buf)
             }
         }
@@ -1348,10 +1355,10 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => {
+            RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.read_to_string(buf)
             }
-            Raw::Socket(raw_socket) => {
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_string(buf)
             }
         }
@@ -1360,8 +1367,10 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read_exact(buf),
-            Raw::Socket(raw_socket) => {
+            RawEnum::Handle(raw_handle) => {
+                unsafe { as_file_view(self, raw_handle) }.read_exact(buf)
+            }
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_exact(buf)
             }
         }
@@ -1416,26 +1425,28 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write(buf),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.write(buf),
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write(buf),
+            RawEnum::Socket(raw_socket) => {
+                unsafe { as_tcp_stream_view(self, raw_socket) }.write(buf)
+            }
         }
     }
 
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.flush(),
-            Raw::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.flush(),
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.flush(),
+            RawEnum::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.flush(),
         }
     }
 
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice]) -> io::Result<usize> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => {
+            RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.write_vectored(bufs)
             }
-            Raw::Socket(raw_socket) => {
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_vectored(bufs)
             }
         }
@@ -1445,10 +1456,10 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn is_write_vectored(&self) -> bool {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => {
+            RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.is_write_vectored()
             }
-            Raw::Socket(raw_socket) => {
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.is_write_vectored()
             }
         }
@@ -1457,8 +1468,8 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_all(buf),
-            Raw::Socket(raw_socket) => {
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_all(buf),
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_all(buf)
             }
         }
@@ -1468,10 +1479,10 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice]) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => {
+            RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.write_all_vectored(bufs)
             }
-            Raw::Socket(raw_socket) => {
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_all_vectored(bufs)
             }
         }
@@ -1480,8 +1491,8 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
         match self.0 .0 {
-            Raw::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_fmt(fmt),
-            Raw::Socket(raw_socket) => {
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_fmt(fmt),
+            RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_fmt(fmt)
             }
         }

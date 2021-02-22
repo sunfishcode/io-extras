@@ -43,7 +43,7 @@ pub use crate::read_write::AsRawReadWriteHandleOrSocket;
 /// [`Write`]: std::io::Write
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
 #[repr(transparent)]
-pub struct RawHandleOrSocket(pub(crate) Raw);
+pub struct RawHandleOrSocket(pub(crate) RawEnum);
 
 /// The enum itself is a private type so that we have the flexibility to change
 /// the representation in the future.
@@ -53,7 +53,7 @@ pub struct RawHandleOrSocket(pub(crate) Raw);
 /// by finding an unused bit in the `RawHandle` and `RawSocket` representations
 /// which we can repurpose as a discriminant.
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
-pub(crate) enum Raw {
+pub(crate) enum RawEnum {
     /// A `RawHandle`.
     Handle(RawHandle),
 
@@ -68,7 +68,7 @@ impl RawHandleOrSocket {
     /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle::from_raw_handle
     #[inline]
     pub fn from_raw_handle(raw_handle: RawHandle) -> Self {
-        Self(Raw::Handle(raw_handle))
+        Self(RawEnum::Handle(raw_handle))
     }
 
     /// Like [`FromRawSocket::from_raw_socket`], but isn't unsafe because it
@@ -77,7 +77,7 @@ impl RawHandleOrSocket {
     /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket::from_raw_socket
     #[inline]
     pub fn from_raw_socket(raw_socket: RawSocket) -> Self {
-        Self(Raw::Socket(raw_socket))
+        Self(RawEnum::Socket(raw_socket))
     }
 
     /// Like [`AsRawHandle::as_raw_handle`], but returns an `Option` so that
@@ -85,8 +85,8 @@ impl RawHandleOrSocket {
     #[inline]
     pub fn as_raw_handle(&self) -> Option<RawHandle> {
         match self.0 {
-            Raw::Handle(raw_handle) => Some(raw_handle),
-            Raw::Socket(_) => None,
+            RawEnum::Handle(raw_handle) => Some(raw_handle),
+            RawEnum::Socket(_) => None,
         }
     }
 
@@ -95,8 +95,8 @@ impl RawHandleOrSocket {
     #[inline]
     pub fn as_raw_socket(&self) -> Option<RawSocket> {
         match self.0 {
-            Raw::Handle(_) => None,
-            Raw::Socket(raw_socket) => Some(raw_socket),
+            RawEnum::Handle(_) => None,
+            RawEnum::Socket(raw_socket) => Some(raw_socket),
         }
     }
 }
