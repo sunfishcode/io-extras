@@ -698,7 +698,7 @@ impl AsRawFd for UnsafeReadable {
 #[cfg(not(windows))]
 impl UnsafeReadable {
     /// Like `AsUnsafeFile::as_file_view`, but `unsafe` because
-    /// `UnsafeReadable` doesn't own its file desctiptor.
+    /// `UnsafeReadable` doesn't own its file descriptor.
     ///
     /// # Safety
     ///
@@ -725,7 +725,7 @@ impl AsRawFd for UnsafeWriteable {
 #[cfg(not(windows))]
 impl UnsafeWriteable {
     /// Like `AsUnsafeFile::as_file_view`, but `unsafe` because
-    /// `UnsafeWriteable` doesn't own its file desctiptor.
+    /// `UnsafeWriteable` doesn't own its file descriptor.
     ///
     /// # Safety
     ///
