@@ -111,7 +111,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     /// Note that `AsUnsafeFile` may be implemented for types which are not
     /// normal files, and which don't support all the methods on `File`.
     #[inline]
-    fn as_file_view(&self) -> View<File> {
+    fn as_file_view(&self) -> View<'_, File> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { File::from_unsafe_file(unsafe_file) };
         View {
@@ -143,7 +143,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     /// pipes, and which don't support all the methods on `PipeReader`.
     #[cfg(feature = "os_pipe")]
     #[inline]
-    fn as_pipe_reader_view(&self) -> View<PipeReader> {
+    fn as_pipe_reader_view(&self) -> View<'_, PipeReader> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { PipeReader::from_unsafe_file(unsafe_file) };
         View {
@@ -176,7 +176,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     /// pipes, and which don't support all the methods on `PipeWriter`.
     #[cfg(feature = "os_pipe")]
     #[inline]
-    fn as_pipe_writer_view(&self) -> View<PipeWriter> {
+    fn as_pipe_writer_view(&self) -> View<'_, PipeWriter> {
         let unsafe_file = self.as_unsafe_file();
         let file = unsafe { PipeWriter::from_unsafe_file(unsafe_file) };
         View {
@@ -272,7 +272,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// Note that `AsUnsafeSocket` may be implemented for types which are not
     /// TCP streams, and which don't support all the methods on `TcpStream`.
     #[inline]
-    fn as_tcp_stream_view(&self) -> View<TcpStream> {
+    fn as_tcp_stream_view(&self) -> View<'_, TcpStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_stream = unsafe { TcpStream::from_unsafe_socket(unsafe_socket) };
         View {
@@ -304,7 +304,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// TCP listeners, and which don't support all the methods on
     /// `TcpListener`.
     #[inline]
-    fn as_tcp_listener_view(&self) -> View<TcpListener> {
+    fn as_tcp_listener_view(&self) -> View<'_, TcpListener> {
         let unsafe_socket = self.as_unsafe_socket();
         let tcp_listener = unsafe { TcpListener::from_unsafe_socket(unsafe_socket) };
         View {
@@ -335,7 +335,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// Note that `AsUnsafeSocket` may be implemented for types which are not
     /// UDP sockets, and which don't support all the methods on `UdpSocket`.
     #[inline]
-    fn as_udp_socket_view(&self) -> View<UdpSocket> {
+    fn as_udp_socket_view(&self) -> View<'_, UdpSocket> {
         let unsafe_socket = self.as_unsafe_socket();
         let udp_socket = unsafe { UdpSocket::from_unsafe_socket(unsafe_socket) };
         View {
@@ -368,7 +368,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// `UnixStream`.
     #[cfg(unix)]
     #[inline]
-    fn as_unix_stream_view(&self) -> View<UnixStream> {
+    fn as_unix_stream_view(&self) -> View<'_, UnixStream> {
         let unsafe_socket = self.as_unsafe_socket();
         let unix_stream = unsafe { UnixStream::from_unsafe_socket(unsafe_socket) };
         View {
@@ -542,7 +542,7 @@ pub struct View<'resource, Target: AsUnsafeHandle> {
     _phantom_data: PhantomData<&'resource ()>,
 }
 
-impl<'resource, Target: AsUnsafeHandle> Deref for View<'resource, Target> {
+impl<Target: AsUnsafeHandle> Deref for View<'_, Target> {
     type Target = Target;
 
     #[inline]
@@ -551,10 +551,17 @@ impl<'resource, Target: AsUnsafeHandle> Deref for View<'resource, Target> {
     }
 }
 
-impl<'resource, Target: AsUnsafeHandle> DerefMut for View<'resource, Target> {
+impl<Target: AsUnsafeHandle> DerefMut for View<'_, Target> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.target
+    }
+}
+
+impl<Target: AsUnsafeHandle + fmt::Debug> fmt::Debug for View<'_, Target> {
+    #[allow(clippy::missing_inline_in_public_items)]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("View").field("target", &*self).finish()
     }
 }
 
@@ -606,7 +613,7 @@ impl UnsafeHandle {
     /// doesn't imply a dereference.
     #[cfg(windows)]
     #[inline]
-    pub fn from_raw_handle(raw_handle: RawHandle) -> Self {
+    pub const fn from_raw_handle(raw_handle: RawHandle) -> Self {
         Self(RawHandleOrSocket::from_raw_handle(raw_handle))
     }
 
@@ -614,7 +621,8 @@ impl UnsafeHandle {
     /// doesn't imply a dereference.
     #[cfg(windows)]
     #[inline]
-    pub fn from_raw_socket(raw_socket: RawSocket) -> Self {
+    #[must_use]
+    pub const fn from_raw_socket(raw_socket: RawSocket) -> Self {
         Self(RawHandleOrSocket::from_raw_socket(raw_socket))
     }
 
@@ -622,7 +630,8 @@ impl UnsafeHandle {
     /// [`FromRawSocket::from_raw_socket`] combined.
     #[cfg(windows)]
     #[inline]
-    pub fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self {
+    #[must_use]
+    pub const fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self {
         Self(raw_handle_or_socket)
     }
 }
@@ -643,7 +652,7 @@ impl UnsafeFile {
     /// Like [`FromRawHandle::from_raw_handle`], but isn't unsafe because it
     /// doesn't imply a dereference.
     #[inline]
-    pub fn from_raw_handle(raw_handle: RawHandle) -> Self {
+    pub const fn from_raw_handle(raw_handle: RawHandle) -> Self {
         Self(raw_handle)
     }
 }
@@ -664,7 +673,8 @@ impl UnsafeSocket {
     /// Like [`FromRawSocket::from_raw_socket`], but isn't unsafe because it
     /// doesn't imply a dereference.
     #[inline]
-    pub fn from_raw_socket(raw_socket: RawSocket) -> Self {
+    #[must_use]
+    pub const fn from_raw_socket(raw_socket: RawSocket) -> Self {
         Self(raw_socket)
     }
 }
@@ -834,7 +844,7 @@ impl UnsafeReadable {
     ///
     /// The contained file descriptor must be valid.
     #[inline]
-    unsafe fn as_file_view(&self) -> View<File> {
+    unsafe fn as_file_view(&self) -> View<'_, File> {
         let raw_fd = self.as_raw_fd();
         let file = File::from_raw_fd(raw_fd);
         View {
@@ -883,7 +893,7 @@ impl UnsafeWriteable {
     ///
     /// The contained file descriptor must be valid.
     #[inline]
-    unsafe fn as_file_view(&self) -> View<File> {
+    unsafe fn as_file_view(&self) -> View<'_, File> {
         let raw_fd = self.as_raw_fd();
         let file = File::from_raw_fd(raw_fd);
         View {
@@ -1277,7 +1287,7 @@ impl Read for UnsafeReadable {
     }
 
     #[inline]
-    fn read_vectored(&mut self, bufs: &mut [IoSliceMut]) -> io::Result<usize> {
+    fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         unsafe { self.as_file_view() }.read_vectored(bufs)
     }
 
@@ -1316,7 +1326,7 @@ impl Read for UnsafeReadable {
     }
 
     #[inline]
-    fn read_vectored(&mut self, bufs: &mut [IoSliceMut]) -> io::Result<usize> {
+    fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.read_vectored(bufs)
@@ -1393,7 +1403,7 @@ impl Write for UnsafeWriteable {
     }
 
     #[inline]
-    fn write_vectored(&mut self, bufs: &[IoSlice]) -> io::Result<usize> {
+    fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         unsafe { self.as_file_view() }.write_vectored(bufs)
     }
 
@@ -1410,12 +1420,12 @@ impl Write for UnsafeWriteable {
 
     #[cfg(write_all_vectored)]
     #[inline]
-    fn write_all_vectored(&mut self, bufs: &mut [IoSlice]) -> io::Result<()> {
+    fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
         unsafe { self.as_file_view() }.write_all_vectored(bufs)
     }
 
     #[inline]
-    fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
+    fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) -> io::Result<()> {
         unsafe { self.as_file_view() }.write_fmt(fmt)
     }
 }
@@ -1441,7 +1451,7 @@ impl Write for UnsafeWriteable {
     }
 
     #[inline]
-    fn write_vectored(&mut self, bufs: &[IoSlice]) -> io::Result<usize> {
+    fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.write_vectored(bufs)
@@ -1477,7 +1487,7 @@ impl Write for UnsafeWriteable {
 
     #[cfg(write_all_vectored)]
     #[inline]
-    fn write_all_vectored(&mut self, bufs: &mut [IoSlice]) -> io::Result<()> {
+    fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => {
                 unsafe { as_file_view(self, raw_handle) }.write_all_vectored(bufs)
@@ -1489,7 +1499,7 @@ impl Write for UnsafeWriteable {
     }
 
     #[inline]
-    fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
+    fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) -> io::Result<()> {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_fmt(fmt),
             RawEnum::Socket(raw_socket) => {
@@ -1508,7 +1518,7 @@ impl Write for UnsafeWriteable {
 /// `raw_handle` must be valid.
 #[cfg(windows)]
 #[inline]
-unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<File> {
+unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<'_, File> {
     View {
         target: ManuallyDrop::new(File::from_raw_handle(raw_handle)),
         _phantom_data: PhantomData,
@@ -1524,7 +1534,7 @@ unsafe fn as_file_view<T>(_t: &T, raw_handle: RawHandle) -> View<File> {
 /// `raw_socket` must be valid.
 #[cfg(windows)]
 #[inline]
-unsafe fn as_tcp_stream_view<T>(_t: &T, raw_socket: RawSocket) -> View<TcpStream> {
+unsafe fn as_tcp_stream_view<T>(_t: &T, raw_socket: RawSocket) -> View<'_, TcpStream> {
     View {
         target: ManuallyDrop::new(TcpStream::from_raw_socket(raw_socket)),
         _phantom_data: PhantomData,
@@ -1534,7 +1544,7 @@ unsafe fn as_tcp_stream_view<T>(_t: &T, raw_socket: RawSocket) -> View<TcpStream
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeHandle {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just print the fd number; don't try to print the path or any
         // information about it, because this information is otherwise
         // unavailable to safe portable Rust code.
@@ -1547,7 +1557,7 @@ impl fmt::Debug for UnsafeHandle {
 #[cfg(windows)]
 impl fmt::Debug for UnsafeHandle {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just print the raw handle or socket; don't try to print the path or
         // any information about it, because this information is otherwise
         // unavailable to safe portable Rust code.
@@ -1560,7 +1570,7 @@ impl fmt::Debug for UnsafeHandle {
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeFile {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeFile")
             .field("raw_fd", &self.0)
@@ -1571,7 +1581,7 @@ impl fmt::Debug for UnsafeFile {
 #[cfg(windows)]
 impl fmt::Debug for UnsafeFile {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw handle.
         f.debug_struct("UnsafeFile")
             .field("raw_handle", &self.0)
@@ -1582,7 +1592,7 @@ impl fmt::Debug for UnsafeFile {
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeSocket {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeSocket")
             .field("raw_fd", &self.0)
@@ -1593,7 +1603,7 @@ impl fmt::Debug for UnsafeSocket {
 #[cfg(windows)]
 impl fmt::Debug for UnsafeSocket {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw socket.
         f.debug_struct("UnsafeSocket")
             .field("raw_socket", &self.0)
@@ -1604,7 +1614,7 @@ impl fmt::Debug for UnsafeSocket {
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeReadable {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeReadable")
             .field("raw_fd", &self.0)
@@ -1615,7 +1625,7 @@ impl fmt::Debug for UnsafeReadable {
 #[cfg(windows)]
 impl fmt::Debug for UnsafeReadable {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw handle or socket.
         f.debug_struct("UnsafeReadable")
             .field("raw_handle_or_socket", &self.0)
@@ -1626,7 +1636,7 @@ impl fmt::Debug for UnsafeReadable {
 #[cfg(not(windows))]
 impl fmt::Debug for UnsafeWriteable {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw fd number.
         f.debug_struct("UnsafeWriteable")
             .field("raw_fd", &self.0)
@@ -1637,7 +1647,7 @@ impl fmt::Debug for UnsafeWriteable {
 #[cfg(windows)]
 impl fmt::Debug for UnsafeWriteable {
     #[allow(clippy::missing_inline_in_public_items)]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // As with `UnsafeHandle`, just print the raw handle or socket.
         f.debug_struct("UnsafeWriteable")
             .field("raw_handle_or_socket", &self.0)

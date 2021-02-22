@@ -31,11 +31,11 @@ pub unsafe trait OwnsRaw {}
 
 // Safety: The following types are all known to own their file descriptors.
 unsafe impl OwnsRaw for Stdin {}
-unsafe impl<'a> OwnsRaw for StdinLock<'a> {}
+unsafe impl OwnsRaw for StdinLock<'_> {}
 unsafe impl OwnsRaw for Stdout {}
-unsafe impl<'a> OwnsRaw for StdoutLock<'a> {}
+unsafe impl OwnsRaw for StdoutLock<'_> {}
 unsafe impl OwnsRaw for Stderr {}
-unsafe impl<'a> OwnsRaw for StderrLock<'a> {}
+unsafe impl OwnsRaw for StderrLock<'_> {}
 unsafe impl OwnsRaw for File {}
 unsafe impl OwnsRaw for ChildStdin {}
 unsafe impl OwnsRaw for ChildStdout {}

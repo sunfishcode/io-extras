@@ -67,7 +67,8 @@ impl RawHandleOrSocket {
     ///
     /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle::from_raw_handle
     #[inline]
-    pub fn from_raw_handle(raw_handle: RawHandle) -> Self {
+    #[must_use]
+    pub const fn from_raw_handle(raw_handle: RawHandle) -> Self {
         Self(RawEnum::Handle(raw_handle))
     }
 
@@ -76,14 +77,16 @@ impl RawHandleOrSocket {
     ///
     /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket::from_raw_socket
     #[inline]
-    pub fn from_raw_socket(raw_socket: RawSocket) -> Self {
+    #[must_use]
+    pub const fn from_raw_socket(raw_socket: RawSocket) -> Self {
         Self(RawEnum::Socket(raw_socket))
     }
 
     /// Like [`AsRawHandle::as_raw_handle`], but returns an `Option` so that
     /// it can return `None` if `self` doesn't contain a `RawHandle`.
     #[inline]
-    pub fn as_raw_handle(&self) -> Option<RawHandle> {
+    #[must_use]
+    pub const fn as_raw_handle(&self) -> Option<RawHandle> {
         match self.0 {
             RawEnum::Handle(raw_handle) => Some(raw_handle),
             RawEnum::Socket(_) => None,
@@ -93,7 +96,8 @@ impl RawHandleOrSocket {
     /// Like [`AsRawSocket::as_raw_socket`], but returns an `Option` so that
     /// it can return `None` if `self` doesn't contain a `RawSocket`.
     #[inline]
-    pub fn as_raw_socket(&self) -> Option<RawSocket> {
+    #[must_use]
+    pub const fn as_raw_socket(&self) -> Option<RawSocket> {
         match self.0 {
             RawEnum::Handle(_) => None,
             RawEnum::Socket(raw_socket) => Some(raw_socket),
@@ -129,6 +133,10 @@ pub trait FromRawHandleOrSocket {
     /// Like [`FromRawHandle::from_raw_handle`] and
     /// [`FromRawSocket::from_raw_socket`] but can be passed either type.
     ///
+    /// # Safety
+    ///
+    /// `raw_handle_or_socket` must be valid and otherwise unowned.
+    ///
     /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle::from_raw_handle
     /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket::from_raw_socket
     unsafe fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self;
@@ -160,7 +168,7 @@ impl AsRawHandleOrSocket for Stdin {
     }
 }
 
-impl<'a> AsRawHandleOrSocket for StdinLock<'a> {
+impl AsRawHandleOrSocket for StdinLock<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
         RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
@@ -174,7 +182,7 @@ impl AsRawHandleOrSocket for Stdout {
     }
 }
 
-impl<'a> AsRawHandleOrSocket for StdoutLock<'a> {
+impl AsRawHandleOrSocket for StdoutLock<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
         RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
@@ -188,7 +196,7 @@ impl AsRawHandleOrSocket for Stderr {
     }
 }
 
-impl<'a> AsRawHandleOrSocket for StderrLock<'a> {
+impl AsRawHandleOrSocket for StderrLock<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
         RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))

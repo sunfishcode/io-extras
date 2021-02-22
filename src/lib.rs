@@ -128,7 +128,55 @@
 //! [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969
 //! [char-device]: https://crates.io/crates/char-device/
 
-#![deny(missing_docs)]
+// This crate is very minimal and doesn't do anything except define types and
+// traits and implement them with trivial inline implementations. As an
+// experiment, let's throw ludicrous amounts of checks at it and see how it
+// goes. As always, exercise discresion: if fixing a warning would make the
+// code worse, disable the warning instead.
+#![deny(
+    future_incompatible,
+    missing_debug_implementations,
+    missing_docs,
+    nonstandard_style,
+    rust_2018_compatibility,
+    rust_2018_idioms,
+    rustdoc,
+    unused,
+    warnings,
+    absolute_paths_not_starting_with_crate,
+    anonymous_parameters,
+    elided_lifetimes_in_paths,
+    explicit_outlives_requirements,
+    invalid_html_tags,
+    keyword_idents,
+    macro_use_extern_crate,
+    meta_variable_misuse,
+    missing_copy_implementations,
+    missing_crate_level_docs,
+    missing_doc_code_examples,
+    non_ascii_idents,
+    pointer_structural_match,
+    private_doc_tests,
+    single_use_lifetimes,
+    trivial_casts,
+    trivial_numeric_casts,
+    unaligned_references,
+    unreachable_pub,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_lifetimes,
+    unused_qualifications,
+    unused_results,
+    variant_size_differences
+)]
+#![deny(
+    clippy::all,
+    clippy::cargo,
+    clippy::nursery,
+    clippy::pedantic,
+    clippy::restriction
+)]
+#![allow(clippy::blanket_clippy_restriction_lints, clippy::implicit_return)]
 #![cfg_attr(can_vector, feature(can_vector))]
 #![cfg_attr(write_all_vectored, feature(write_all_vectored))]
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
