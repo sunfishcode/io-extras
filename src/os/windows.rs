@@ -391,3 +391,35 @@ impl IntoRawHandleOrSocket for PipeWriter {
         RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
     }
 }
+
+#[cfg(feature = "async-std")]
+impl IntoRawHandleOrSocket for async_std::fs::File {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl IntoRawHandleOrSocket for async_std::net::TcpStream {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl IntoRawHandleOrSocket for async_std::net::TcpListener {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "async-std")]
+impl IntoRawHandleOrSocket for async_std::net::UdpSocket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+    }
+}

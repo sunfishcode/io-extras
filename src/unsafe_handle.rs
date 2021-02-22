@@ -22,12 +22,9 @@ use {
         AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, RawEnum,
         RawHandleOrSocket,
     },
-    std::{
-        os::windows::io::{
-            AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, IntoRawSocket,
-            RawHandle, RawSocket,
-        },
-        process::{ChildStderr, ChildStdin, ChildStdout},
+    std::os::windows::io::{
+        AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, IntoRawSocket,
+        RawHandle, RawSocket,
     },
 };
 
@@ -954,6 +951,16 @@ unsafe impl<T: AsRawHandleOrSocket + OwnsRaw> AsUnsafeHandle for T {
     }
 }
 
+// Safety: By requiring `T: OwnsRaw`, we can assume the `AsRawHandleOrSocket`
+// owns its handle or socket.
+#[cfg(windows)]
+unsafe impl<T: IntoRawHandleOrSocket + OwnsRaw> IntoUnsafeHandle for T {
+    #[inline]
+    fn into_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle(self.into_raw_handle_or_socket())
+    }
+}
+
 #[cfg(windows)]
 unsafe impl<T: AsRawHandle + AsUnsafeHandle + OwnsRaw> AsUnsafeFile for T {
     #[inline]
@@ -999,69 +1006,6 @@ impl<T: FromRawSocket + OwnsRaw> FromUnsafeSocket for T {
     #[inline]
     unsafe fn from_unsafe_socket(unsafe_socket: UnsafeSocket) -> Self {
         Self::from_raw_socket(unsafe_socket.0)
-    }
-}
-
-// Safety: `File` owns its handle.
-#[cfg(windows)]
-unsafe impl IntoUnsafeHandle for File {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
-    }
-}
-
-// Safety: `ChildStdin` owns its handle.
-#[cfg(windows)]
-unsafe impl IntoUnsafeHandle for ChildStdin {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
-    }
-}
-
-// Safety: `ChildStdout` owns its handle.
-#[cfg(windows)]
-unsafe impl IntoUnsafeHandle for ChildStdout {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
-    }
-}
-
-// Safety: `ChildStderr` owns its handle.
-#[cfg(windows)]
-unsafe impl IntoUnsafeHandle for ChildStderr {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
-    }
-}
-
-// Safety: `TcpStream` owns its handle.
-#[cfg(windows)]
-unsafe impl IntoUnsafeHandle for TcpStream {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_socket(Self::into_raw_socket(self))
-    }
-}
-
-// Safety: `PipeReader` owns its handle.
-#[cfg(all(windows, feature = "os_pipe"))]
-unsafe impl IntoUnsafeHandle for PipeReader {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
-    }
-}
-
-// Safety: `PipeWriter` owns its handle.
-#[cfg(all(windows, feature = "os_pipe"))]
-unsafe impl IntoUnsafeHandle for PipeWriter {
-    #[inline]
-    fn into_unsafe_handle(self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
