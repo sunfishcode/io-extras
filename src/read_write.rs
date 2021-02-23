@@ -8,9 +8,7 @@
 use crate::os::posish::{AsRawFd, RawFd};
 #[cfg(windows)]
 use crate::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
-#[cfg(doc)]
-use crate::AsUnsafeHandle;
-use crate::{OwnsRaw, UnsafeHandle};
+use crate::{AsUnsafeHandle, OwnsRaw, UnsafeHandle};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::{fs::File, net::TcpStream};
@@ -242,5 +240,33 @@ impl<T: AsRawReadWriteHandleOrSocket> AsRawReadWriteHandleOrSocket for Box<T> {
     #[inline]
     fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
         (**self).as_raw_write_handle_or_socket()
+    }
+}
+
+/// Adapt an `AsUnsafeReadWriteHandle` implementation to implement
+/// `AsUnsafeHandle` with the read handle.
+#[allow(clippy::exhaustive_structs)]
+#[derive(Debug)]
+pub struct ReadHalf<'a, RW: AsUnsafeReadWriteHandle>(pub &'a RW);
+
+// Safety: `ReadHalf` implements `AsUnsafeHandle` if `RW` does.
+unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for ReadHalf<'_, RW> {
+    #[inline]
+    fn as_unsafe_handle(&self) -> UnsafeHandle {
+        self.0.as_unsafe_read_handle()
+    }
+}
+
+/// Adapt an `AsUnsafeReadWriteHandle` implementation to implement
+/// `AsUnsafeHandle` with the write handle.
+#[allow(clippy::exhaustive_structs)]
+#[derive(Debug)]
+pub struct WriteHalf<'a, RW: AsUnsafeReadWriteHandle>(pub &'a RW);
+
+// Safety: `WriteHalf` implements `AsUnsafeHandle` if `RW` does.
+unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for WriteHalf<'_, RW> {
+    #[inline]
+    fn as_unsafe_handle(&self) -> UnsafeHandle {
+        self.0.as_unsafe_write_handle()
     }
 }

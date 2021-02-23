@@ -246,7 +246,7 @@ mod read_write;
 mod unsafe_handle;
 
 pub use owns_raw::OwnsRaw;
-pub use read_write::AsUnsafeReadWriteHandle;
+pub use read_write::{AsUnsafeReadWriteHandle, ReadHalf, WriteHalf};
 pub use unsafe_handle::{
     AsUnsafeFile, AsUnsafeHandle, AsUnsafeSocket, FromUnsafeFile, FromUnsafeHandle,
     FromUnsafeSocket, IntoUnsafeFile, IntoUnsafeHandle, IntoUnsafeSocket, UnsafeFile, UnsafeHandle,
