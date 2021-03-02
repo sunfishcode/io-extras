@@ -14,6 +14,7 @@
 //! [`IntoUnsafeHandle`]: crate::IntoUnsafeHandle
 //! [`FromUnsafeHandle`]: crate::FromUnsafeHandle
 
+use super::windows_stdio::Stdio;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 use std::{
@@ -30,8 +31,10 @@ pub use crate::read_write::AsRawReadWriteHandleOrSocket;
 
 /// A Windows analog for the Posix-ish `AsRawFd` type. Unlike Posix-ish
 /// platforms which have a single type for files and sockets, Windows has
-/// distinct types, `RawHandle` and `RawSocket`; this type behaves like an
-/// enum which can hold either.
+/// distinct types, `RawHandle` and `RawSocket`. And unlike Posix-ish
+/// platforms where text streams are generally UTF-8, the Windows Console
+/// is UTF-16. This type behaves like an enum which can hold either a
+/// handle or a socket, and to which UTF-8 text can be written.
 ///
 /// It's reasonable to worry that this might be trying too hard to make Windows
 /// work like Posix-ish platforms, however in this case, the number of types is
@@ -59,6 +62,10 @@ pub(crate) enum RawEnum {
 
     /// A `RawSocket`.
     Socket(RawSocket),
+
+    /// `Stdin`, `Stdout`, or `Stderr` that might be on a console and might
+    /// need translation from UTF-8 to UTF-16.
+    Stdio(Stdio),
 }
 
 impl RawHandleOrSocket {
@@ -68,7 +75,7 @@ impl RawHandleOrSocket {
     /// [`FromRawHandle::from_raw_handle`]: std::os::windows::io::FromRawHandle::from_raw_handle
     #[inline]
     #[must_use]
-    pub const fn from_raw_handle(raw_handle: RawHandle) -> Self {
+    pub const fn unowned_from_raw_handle(raw_handle: RawHandle) -> Self {
         Self(RawEnum::Handle(raw_handle))
     }
 
@@ -78,7 +85,7 @@ impl RawHandleOrSocket {
     /// [`FromRawSocket::from_raw_socket`]: std::os::windows::io::FromRawSocket::from_raw_socket
     #[inline]
     #[must_use]
-    pub const fn from_raw_socket(raw_socket: RawSocket) -> Self {
+    pub const fn unowned_from_raw_socket(raw_socket: RawSocket) -> Self {
         Self(RawEnum::Socket(raw_socket))
     }
 
@@ -86,10 +93,11 @@ impl RawHandleOrSocket {
     /// it can return `None` if `self` doesn't contain a `RawHandle`.
     #[inline]
     #[must_use]
-    pub const fn as_raw_handle(&self) -> Option<RawHandle> {
+    pub fn as_unowned_raw_handle(&self) -> Option<RawHandle> {
         match self.0 {
             RawEnum::Handle(raw_handle) => Some(raw_handle),
             RawEnum::Socket(_) => None,
+            RawEnum::Stdio(ref stdio) => Some(stdio.as_unowned_raw_handle()),
         }
     }
 
@@ -97,11 +105,53 @@ impl RawHandleOrSocket {
     /// it can return `None` if `self` doesn't contain a `RawSocket`.
     #[inline]
     #[must_use]
-    pub const fn as_raw_socket(&self) -> Option<RawSocket> {
+    pub const fn as_unowned_raw_socket(&self) -> Option<RawSocket> {
         match self.0 {
-            RawEnum::Handle(_) => None,
+            RawEnum::Handle(_) | RawEnum::Stdio(_) => None,
             RawEnum::Socket(raw_socket) => Some(raw_socket),
         }
+    }
+
+    /// Return a `RawHandleOrSocket` representing stdin.
+    ///
+    /// This differs from `unowned_from_raw_handle` on the stdin handle in two
+    /// ways:
+    ///  - It tracks the stdin handle, which may change dynamically via
+    ///    `SetStdHandle`.
+    ///  - When stdin is attached to a console, reads from this handle via
+    ///    `UnsafeReadable` are decoded into UTF-8.
+    #[inline]
+    #[must_use]
+    pub const fn stdin() -> Self {
+        Self(RawEnum::Stdio(Stdio::stdin()))
+    }
+
+    /// Return a `RawHandleOrSocket` representing stdout.
+    ///
+    /// This differs from `unowned_from_raw_handle` on the stdout handle in two
+    /// ways:
+    ///  - It tracks the stdout handle, which may change dynamically via
+    ///    `SetStdHandle`.
+    ///  - When stdout is attached to a console, writes to this handle via
+    ///    `UnsafeWriteable` are encoded from UTF-8.
+    #[inline]
+    #[must_use]
+    pub const fn stdout() -> Self {
+        Self(RawEnum::Stdio(Stdio::stdout()))
+    }
+
+    /// Return a `RawHandleOrSocket` representing stderr.
+    ///
+    /// This differs from `unowned_from_raw_handle` on the stderr handle in two
+    /// ways:
+    ///  - It tracks the stderr handle, which may change dynamically via
+    ///    `SetStdHandle`.
+    ///  - When stderr is attached to a console, writes to this handle via
+    ///    `UnsafeWriteable` are encoded from UTF-8.
+    #[inline]
+    #[must_use]
+    pub const fn stderr() -> Self {
+        Self(RawEnum::Stdio(Stdio::stderr()))
     }
 }
 
@@ -164,91 +214,91 @@ impl AsRawHandleOrSocket for RawHandleOrSocket {
 impl AsRawHandleOrSocket for Stdin {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for StdinLock<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for Stdout {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for StdoutLock<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for Stderr {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for StderrLock<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for File {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for ChildStdin {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for ChildStdout {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for ChildStderr {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl AsRawHandleOrSocket for TcpStream {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
     }
 }
 
 impl AsRawHandleOrSocket for TcpListener {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
     }
 }
 
 impl AsRawHandleOrSocket for UdpSocket {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
     }
 }
 
@@ -256,7 +306,7 @@ impl AsRawHandleOrSocket for UdpSocket {
 impl AsRawHandleOrSocket for async_std::io::Stdin {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -264,7 +314,7 @@ impl AsRawHandleOrSocket for async_std::io::Stdin {
 impl AsRawHandleOrSocket for async_std::io::Stdout {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -272,7 +322,7 @@ impl AsRawHandleOrSocket for async_std::io::Stdout {
 impl AsRawHandleOrSocket for async_std::io::Stderr {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -280,7 +330,7 @@ impl AsRawHandleOrSocket for async_std::io::Stderr {
 impl AsRawHandleOrSocket for async_std::fs::File {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -291,7 +341,7 @@ impl AsRawHandleOrSocket for async_std::fs::File {
 impl AsRawHandleOrSocket for async_std::net::TcpStream {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
     }
 }
 
@@ -299,7 +349,7 @@ impl AsRawHandleOrSocket for async_std::net::TcpStream {
 impl AsRawHandleOrSocket for async_std::net::TcpListener {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
     }
 }
 
@@ -307,7 +357,7 @@ impl AsRawHandleOrSocket for async_std::net::TcpListener {
 impl AsRawHandleOrSocket for async_std::net::UdpSocket {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
     }
 }
 
@@ -315,7 +365,7 @@ impl AsRawHandleOrSocket for async_std::net::UdpSocket {
 impl AsRawHandleOrSocket for PipeReader {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -323,56 +373,56 @@ impl AsRawHandleOrSocket for PipeReader {
 impl AsRawHandleOrSocket for PipeWriter {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::as_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
 impl IntoRawHandleOrSocket for File {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
 impl IntoRawHandleOrSocket for ChildStdin {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
 impl IntoRawHandleOrSocket for ChildStdout {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
 impl IntoRawHandleOrSocket for ChildStderr {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
 impl IntoRawHandleOrSocket for TcpStream {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
 impl IntoRawHandleOrSocket for TcpListener {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
 impl IntoRawHandleOrSocket for UdpSocket {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
@@ -380,7 +430,7 @@ impl IntoRawHandleOrSocket for UdpSocket {
 impl IntoRawHandleOrSocket for PipeReader {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
@@ -388,7 +438,7 @@ impl IntoRawHandleOrSocket for PipeReader {
 impl IntoRawHandleOrSocket for PipeWriter {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
@@ -396,7 +446,7 @@ impl IntoRawHandleOrSocket for PipeWriter {
 impl IntoRawHandleOrSocket for async_std::fs::File {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(Self::into_raw_handle(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
     }
 }
 
@@ -404,7 +454,7 @@ impl IntoRawHandleOrSocket for async_std::fs::File {
 impl IntoRawHandleOrSocket for async_std::net::TcpStream {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
@@ -412,7 +462,7 @@ impl IntoRawHandleOrSocket for async_std::net::TcpStream {
 impl IntoRawHandleOrSocket for async_std::net::TcpListener {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
@@ -420,6 +470,6 @@ impl IntoRawHandleOrSocket for async_std::net::TcpListener {
 impl IntoRawHandleOrSocket for async_std::net::UdpSocket {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(Self::into_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }

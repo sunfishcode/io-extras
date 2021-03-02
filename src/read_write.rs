@@ -65,12 +65,12 @@ pub trait AsRawReadWriteHandleOrSocket {
 impl<T: AsRawReadWriteFd + OwnsRaw> AsUnsafeReadWriteHandle for T {
     #[inline]
     fn as_unsafe_read_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_fd(self.as_raw_read_fd())
+        UnsafeHandle::unowned_from_raw_fd(self.as_raw_read_fd())
     }
 
     #[inline]
     fn as_unsafe_write_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_fd(self.as_raw_write_fd())
+        UnsafeHandle::unowned_from_raw_fd(self.as_raw_write_fd())
     }
 }
 
@@ -78,12 +78,12 @@ impl<T: AsRawReadWriteFd + OwnsRaw> AsUnsafeReadWriteHandle for T {
 impl<T: AsRawReadWriteHandleOrSocket + OwnsRaw> AsUnsafeReadWriteHandle for T {
     #[inline]
     fn as_unsafe_read_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle_or_socket(self.as_raw_read_handle_or_socket())
+        UnsafeHandle::unowned_from_raw_handle_or_socket(self.as_raw_read_handle_or_socket())
     }
 
     #[inline]
     fn as_unsafe_write_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::from_raw_handle_or_socket(self.as_raw_write_handle_or_socket())
+        UnsafeHandle::unowned_from_raw_handle_or_socket(self.as_raw_write_handle_or_socket())
     }
 }
 

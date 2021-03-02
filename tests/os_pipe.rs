@@ -62,7 +62,7 @@ fn os_pipe_write() -> io::Result<()> {
                     output
                         .as_unsafe_handle()
                         .as_raw_handle_or_socket()
-                        .as_raw_handle()
+                        .as_unowned_raw_handle()
                         .unwrap(),
                 )
             }),
@@ -154,7 +154,7 @@ fn os_pipe_read() -> io::Result<()> {
                 stream
                     .as_unsafe_handle()
                     .as_raw_handle_or_socket()
-                    .as_raw_handle()
+                    .as_unowned_raw_handle()
                     .unwrap(),
             )
         })

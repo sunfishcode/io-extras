@@ -68,7 +68,7 @@ fn main() -> io::Result<()> {
                 stdout
                     .as_unsafe_handle()
                     .as_raw_handle_or_socket()
-                    .as_raw_handle()
+                    .as_unowned_raw_handle()
                     .unwrap(),
             )
         }),

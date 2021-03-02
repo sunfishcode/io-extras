@@ -58,7 +58,7 @@ fn tcp_stream_write() -> io::Result<()> {
                     stream
                         .as_unsafe_socket()
                         .as_raw_handle_or_socket()
-                        .as_raw_socket()
+                        .as_unowned_raw_socket()
                         .unwrap(),
                 )
             }),
@@ -153,7 +153,7 @@ fn tcp_stream_read() -> io::Result<()> {
                 stream
                     .as_unsafe_socket()
                     .as_raw_handle_or_socket()
-                    .as_raw_socket()
+                    .as_unowned_raw_socket()
                     .unwrap(),
             )
         })

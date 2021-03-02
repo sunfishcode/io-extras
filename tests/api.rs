@@ -2,6 +2,8 @@
 //! or more desireable than regular hello world in any practical way. It just
 //! demonstrates the API of this crate.
 
+#![cfg_attr(target_os = "wasi", feature(wasi_ext))]
+
 use std::io::{stderr, stdout};
 #[cfg(not(windows))]
 use unsafe_io::os::posish::{AsRawFd, AsRawReadWriteFd, RawFd};

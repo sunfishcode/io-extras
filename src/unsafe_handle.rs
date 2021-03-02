@@ -586,7 +586,7 @@ impl UnsafeHandle {
     #[cfg(not(windows))]
     #[inline]
     #[must_use]
-    pub const fn from_raw_fd(raw_fd: RawFd) -> Self {
+    pub const fn unowned_from_raw_fd(raw_fd: RawFd) -> Self {
         Self(raw_fd)
     }
 
@@ -594,8 +594,8 @@ impl UnsafeHandle {
     /// doesn't imply a dereference.
     #[cfg(windows)]
     #[inline]
-    pub const fn from_raw_handle(raw_handle: RawHandle) -> Self {
-        Self(RawHandleOrSocket::from_raw_handle(raw_handle))
+    pub const fn unowned_from_raw_handle(raw_handle: RawHandle) -> Self {
+        Self(RawHandleOrSocket::unowned_from_raw_handle(raw_handle))
     }
 
     /// Like [`FromRawSocket::from_raw_socket`], but isn't unsafe because it
@@ -603,8 +603,8 @@ impl UnsafeHandle {
     #[cfg(windows)]
     #[inline]
     #[must_use]
-    pub const fn from_raw_socket(raw_socket: RawSocket) -> Self {
-        Self(RawHandleOrSocket::from_raw_socket(raw_socket))
+    pub const fn unowned_from_raw_socket(raw_socket: RawSocket) -> Self {
+        Self(RawHandleOrSocket::unowned_from_raw_socket(raw_socket))
     }
 
     /// Like [`FromRawHandle::from_raw_handle`] and
@@ -613,50 +613,148 @@ impl UnsafeHandle {
     #[cfg(windows)]
     #[inline]
     #[must_use]
-    pub const fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self {
+    pub const fn unowned_from_raw_handle_or_socket(
+        raw_handle_or_socket: RawHandleOrSocket,
+    ) -> Self {
         Self(raw_handle_or_socket)
     }
 }
 
 #[cfg(not(windows))]
 impl UnsafeFile {
+    /// Like [`AsUnsafeHandle::as_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn as_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_fd(self.0)
+    }
+
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_fd(self.0)
+    }
+
+    /// Like [`AsRawFd::as_raw_fd`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn as_unowned_raw_fd(self) -> RawFd {
+        self.0
+    }
+
+    /// Like [`IntoRawFd::into_raw_fd`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn into_unowned_raw_fd(self) -> RawFd {
+        self.0
+    }
+
     /// Like [`FromRawFd::from_raw_fd`], but isn't unsafe because it doesn't
     /// imply a dereference.
     #[inline]
     #[must_use]
-    pub const fn from_raw_fd(raw_fd: RawFd) -> Self {
+    pub const fn unowned_from_raw_fd(raw_fd: RawFd) -> Self {
         Self(raw_fd)
     }
 }
 
 #[cfg(windows)]
 impl UnsafeFile {
+    /// Like [`AsUnsafeHandle::as_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn as_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_handle(self.0)
+    }
+
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_handle(self.0)
+    }
+
+    /// Like [`AsRawHandle::as_raw_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn as_unowned_raw_handle(self) -> RawHandle {
+        self.0
+    }
+
+    /// Like [`IntoRawHandle::into_raw_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn into_unowned_raw_handle(self) -> RawHandle {
+        self.0
+    }
+
     /// Like [`FromRawHandle::from_raw_handle`], but isn't unsafe because it
     /// doesn't imply a dereference.
     #[inline]
-    pub const fn from_raw_handle(raw_handle: RawHandle) -> Self {
+    pub const fn unowned_from_raw_handle(raw_handle: RawHandle) -> Self {
         Self(raw_handle)
     }
 }
 
 #[cfg(not(windows))]
 impl UnsafeSocket {
+    /// Like [`AsUnsafeHandle::as_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn as_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_fd(self.0)
+    }
+
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_fd(self.0)
+    }
+
     /// Like [`FromRawFd::from_raw_fd`], but isn't unsafe because it doesn't
     /// imply a dereference.
     #[inline]
     #[must_use]
-    pub const fn from_raw_fd(raw_fd: RawFd) -> Self {
+    pub const fn unowned_from_raw_fd(raw_fd: RawFd) -> Self {
         Self(raw_fd)
     }
 }
 
 #[cfg(windows)]
 impl UnsafeSocket {
+    /// Like [`AsUnsafeHandle::as_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn as_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_socket(self.0)
+    }
+
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
+    /// doesn't imply a dereference.
+    #[inline]
+    #[must_use]
+    pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
+        UnsafeHandle::unowned_from_raw_socket(self.0)
+    }
+
     /// Like [`FromRawSocket::from_raw_socket`], but isn't unsafe because it
     /// doesn't imply a dereference.
     #[inline]
     #[must_use]
-    pub const fn from_raw_socket(raw_socket: RawSocket) -> Self {
+    pub const fn unowned_from_raw_socket(raw_socket: RawSocket) -> Self {
         Self(raw_socket)
     }
 }
@@ -1105,7 +1203,7 @@ impl FromRawHandleOrSocket for UnsafeWriteable {
 impl AsRawHandleOrSocket for UnsafeFile {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(self.0)
+        RawHandleOrSocket::unowned_from_raw_handle(self.0)
     }
 }
 
@@ -1115,7 +1213,7 @@ impl AsRawHandleOrSocket for UnsafeFile {
 impl IntoRawHandleOrSocket for UnsafeFile {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_handle(self.0)
+        RawHandleOrSocket::unowned_from_raw_handle(self.0)
     }
 }
 
@@ -1155,7 +1253,7 @@ impl FromRawHandle for UnsafeFile {
 impl AsRawHandleOrSocket for UnsafeSocket {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(self.0)
+        RawHandleOrSocket::unowned_from_raw_socket(self.0)
     }
 }
 
@@ -1165,7 +1263,7 @@ impl AsRawHandleOrSocket for UnsafeSocket {
 impl IntoRawHandleOrSocket for UnsafeSocket {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::from_raw_socket(self.0)
+        RawHandleOrSocket::unowned_from_raw_socket(self.0)
     }
 }
 
@@ -1245,6 +1343,7 @@ impl Read for UnsafeReadable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read(buf)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.read(buf),
         }
     }
 
@@ -1257,6 +1356,7 @@ impl Read for UnsafeReadable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_vectored(bufs)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.read_vectored(bufs),
         }
     }
 
@@ -1270,6 +1370,7 @@ impl Read for UnsafeReadable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.is_read_vectored()
             }
+            RawEnum::Stdio(ref stdio) => stdio.is_read_vectored(),
         }
     }
 
@@ -1282,6 +1383,7 @@ impl Read for UnsafeReadable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_end(buf)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.read_to_end(buf),
         }
     }
 
@@ -1294,6 +1396,7 @@ impl Read for UnsafeReadable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_string(buf)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.read_to_string(buf),
         }
     }
 
@@ -1306,6 +1409,7 @@ impl Read for UnsafeReadable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.read_exact(buf)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.read_exact(buf),
         }
     }
 }
@@ -1362,6 +1466,7 @@ impl Write for UnsafeWriteable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write(buf)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.write(buf),
         }
     }
 
@@ -1370,6 +1475,7 @@ impl Write for UnsafeWriteable {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.flush(),
             RawEnum::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.flush(),
+            RawEnum::Stdio(ref mut stdio) => stdio.flush(),
         }
     }
 
@@ -1382,6 +1488,7 @@ impl Write for UnsafeWriteable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_vectored(bufs)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.write_vectored(bufs),
         }
     }
 
@@ -1395,6 +1502,7 @@ impl Write for UnsafeWriteable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.is_write_vectored()
             }
+            RawEnum::Stdio(ref stdio) => stdio.is_write_vectored(),
         }
     }
 
@@ -1405,6 +1513,7 @@ impl Write for UnsafeWriteable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_all(buf)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.write_all(buf),
         }
     }
 
@@ -1418,6 +1527,7 @@ impl Write for UnsafeWriteable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_all_vectored(bufs)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.write_all_vectored(bufs),
         }
     }
 
@@ -1428,6 +1538,7 @@ impl Write for UnsafeWriteable {
             RawEnum::Socket(raw_socket) => {
                 unsafe { as_tcp_stream_view(self, raw_socket) }.write_fmt(fmt)
             }
+            RawEnum::Stdio(ref mut stdio) => stdio.write_fmt(fmt),
         }
     }
 }
