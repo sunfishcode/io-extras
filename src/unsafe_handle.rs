@@ -705,6 +705,13 @@ impl UnsafeFile {
     }
 }
 
+/// The Windows [`HANDLE`] type may be sent between threads (despite
+/// containing a `*mut void`, which in general isn't `Send`).
+///
+/// [`HANDLE`]: std::os::windows::raw::HANDLE
+#[cfg(windows)]
+unsafe impl Send for UnsafeFile {}
+
 #[cfg(not(windows))]
 impl UnsafeSocket {
     /// Like [`AsUnsafeHandle::as_unsafe_handle`], but isn't unsafe because it
