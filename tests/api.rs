@@ -77,3 +77,31 @@ fn read_write() {
             .eq(std::io::stdout().as_unsafe_handle())
     });
 }
+
+struct Stream {}
+impl Stream {
+    fn use_socket<Socketlike: unsafe_io::AsUnsafeSocket>(_socketlike: &mut Socketlike) {}
+
+    fn use_file<Filelike: unsafe_io::AsUnsafeFile>(_filelike: &mut Filelike) {}
+
+    fn use_handle<IUH: unsafe_io::AsUnsafeHandle>(_iuh: &mut IUH) {}
+
+    fn from_socket<Socketlike: unsafe_io::IntoUnsafeSocket>(_socketlike: Socketlike) {}
+
+    fn from_file<Filelike: unsafe_io::IntoUnsafeFile>(_filelike: Filelike) {}
+
+    fn from_handle<IUH: unsafe_io::IntoUnsafeHandle>(_iuh: IUH) {}
+}
+
+#[test]
+fn likes() {
+    let _ = Stream::use_socket(&mut std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    let _ = Stream::use_file(&mut std::fs::File::open("Cargo.toml").unwrap());
+    let _ = Stream::use_handle(&mut std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    let _ = Stream::use_handle(&mut std::fs::File::open("Cargo.toml").unwrap());
+
+    let _ = Stream::from_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    let _ = Stream::from_file(std::fs::File::open("Cargo.toml").unwrap());
+    let _ = Stream::from_handle(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    let _ = Stream::from_handle(std::fs::File::open("Cargo.toml").unwrap());
+}

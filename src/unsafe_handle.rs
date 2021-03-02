@@ -1091,7 +1091,7 @@ unsafe impl<T: IntoRawHandle + IntoUnsafeHandle + OwnsRaw> IntoUnsafeFile for T 
 }
 
 #[cfg(windows)]
-unsafe impl<T: IntoRawSocket + IntoUnsafeSocket + OwnsRaw> IntoUnsafeSocket for T {
+unsafe impl<T: IntoRawSocket + IntoUnsafeHandle + OwnsRaw> IntoUnsafeSocket for T {
     #[inline]
     fn into_unsafe_socket(self) -> UnsafeSocket {
         UnsafeSocket(IntoRawSocket::into_raw_socket(self))
