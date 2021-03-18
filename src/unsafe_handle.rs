@@ -402,9 +402,9 @@ pub trait FromUnsafeSocket {
 /// A non-owning unsafe I/O handle.
 ///
 /// On Posix-ish platforms this is just a [`RawFd`]. On Windows it is a minimal
-/// abstraction over [`RawHandle`] and [`RawSocket`]. Similar to Rust raw
-/// pointers, it is considered safe to construct these, but unsafe to do any
-/// I/O with them (effectively dereferencing them).
+/// abstraction over [`RawHandle`], [`RawSocket`], and stdio device identifiers.
+/// Similar to Rust raw pointers, it is considered safe to construct these, but
+/// unsafe to do any I/O with them (effectively dereferencing them).
 ///
 /// [`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
 /// [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
