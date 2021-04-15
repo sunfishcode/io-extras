@@ -16,7 +16,7 @@ use std::{
 /// The `AsRaw*` and `IntoRaw*` traits by themselves are not sufficient to
 /// describe the ownership of the file descriptor or handle, as they aren't
 /// unsafe to implement. See the discussion in [rust-lang/rust#76969] for
-/// additional background. The `UnsafeHandle` type provided by this crate
+/// additional background. The [`UnsafeHandle`] type provided by this crate
 /// serves as an implementation of [this suggestion].
 ///
 /// `OwnsRaw` is a trait that types can implement to declare that they do
@@ -24,6 +24,7 @@ use std::{
 ///
 /// [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969
 /// [this suggestion]: https://github.com/rust-lang/rust/pull/76969#issuecomment-696275470
+/// [`UnsafeHandle`]: crate::UnsafeHandle
 ///
 /// # Safety
 ///
