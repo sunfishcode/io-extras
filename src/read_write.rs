@@ -270,3 +270,29 @@ unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for WriteHalf<'_, RW> {
         self.0.as_unsafe_write_handle()
     }
 }
+
+#[cfg(all(not(windows), feature = "socket2"))]
+impl AsRawReadWriteFd for socket2::Socket {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(windows, feature = "socket2"))]
+impl AsRawReadWriteHandleOrSocket for socket2::Socket {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
