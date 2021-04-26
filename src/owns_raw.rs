@@ -51,6 +51,8 @@ unsafe impl OwnsRaw for UdpSocket {}
 unsafe impl OwnsRaw for PipeReader {}
 #[cfg(feature = "os_pipe")]
 unsafe impl OwnsRaw for PipeWriter {}
+#[cfg(feature = "socket2")]
+unsafe impl OwnsRaw for socket2::Socket {}
 #[cfg(unix)]
 unsafe impl OwnsRaw for UnixStream {}
 #[cfg(unix)]

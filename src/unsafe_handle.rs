@@ -140,8 +140,8 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
         View::new(file)
     }
 
-    /// Like `as_file_view`, but returns a value which is not explicitly tied
-    /// to the lifetime of `self`.
+    /// Like `as_pipe_reader_view`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
     ///
     /// # Safety
     ///
@@ -167,7 +167,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
         View::new(file)
     }
 
-    /// Like `as_file_view`, but returns a value which is not explicitly tied
+    /// Like `as_pipe_writer_view`, but returns a value which is not explicitly tied
     /// to the lifetime of `self`.
     ///
     /// # Safety
@@ -347,6 +347,34 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
         let unsafe_socket = self.as_unsafe_socket();
         let unix_stream = UnixStream::from_unsafe_socket(unsafe_socket);
         View::new(unix_stream)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&socket2::Socket` or `&mut socket2::Socket`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// TCP streams, and which don't support all the methods on
+    /// `socket2::Socket`.
+    #[cfg(feature = "socket2")]
+    #[inline]
+    fn as_socket_view(&self) -> View<'_, socket2::Socket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { socket2::Socket::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_socket_view`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "socket2")]
+    #[inline]
+    unsafe fn as_unscoped_socket_view(&self) -> View<'static, socket2::Socket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = socket2::Socket::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
     }
 
     /// Test whether `self.as_unsafe_socket().as_unsafe_handle()` is equal to

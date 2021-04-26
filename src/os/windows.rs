@@ -377,6 +377,14 @@ impl AsRawHandleOrSocket for PipeWriter {
     }
 }
 
+#[cfg(feature = "socket2")]
+impl AsRawHandleOrSocket for socket2::Socket {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
 impl IntoRawHandleOrSocket for File {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
@@ -439,6 +447,14 @@ impl IntoRawHandleOrSocket for PipeWriter {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
         RawHandleOrSocket::unowned_from_raw_handle(Self::into_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "socket2")]
+impl IntoRawHandleOrSocket for socket2::Socket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
     }
 }
 
