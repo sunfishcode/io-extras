@@ -385,6 +385,62 @@ impl AsRawHandleOrSocket for socket2::Socket {
     }
 }
 
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::TcpStream {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::TcpListener {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::TcpSocket {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::UdpSocket {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::UnixDatagram {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::UnixListener {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl AsRawHandleOrSocket for mio::net::UnixStream {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
 impl IntoRawHandleOrSocket for File {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
@@ -452,6 +508,62 @@ impl IntoRawHandleOrSocket for PipeWriter {
 
 #[cfg(feature = "socket2")]
 impl IntoRawHandleOrSocket for socket2::Socket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::TcpStream {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::TcpListener {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::TcpSocket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::UdpSocket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::UnixDatagram {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::UnixListener {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "use_mio_net")]
+impl IntoRawHandleOrSocket for mio::net::UnixStream {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
         RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))

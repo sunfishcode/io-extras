@@ -296,3 +296,107 @@ impl AsRawReadWriteHandleOrSocket for socket2::Socket {
         self.as_raw_handle_or_socket()
     }
 }
+
+#[cfg(all(not(windows), feature = "use_mio_net"))]
+impl AsRawReadWriteFd for mio::net::TcpListener {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(windows, feature = "use_mio_net"))]
+impl AsRawReadWriteHandleOrSocket for mio::net::TcpListener {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(not(windows), feature = "use_mio_net"))]
+impl AsRawReadWriteFd for mio::net::TcpStream {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(windows, feature = "use_mio_net"))]
+impl AsRawReadWriteHandleOrSocket for mio::net::TcpStream {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(not(windows), feature = "use_mio_net"))]
+impl AsRawReadWriteFd for mio::net::TcpSocket {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(windows, feature = "use_mio_net"))]
+impl AsRawReadWriteHandleOrSocket for mio::net::TcpSocket {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(not(windows), feature = "use_mio_net"))]
+impl AsRawReadWriteFd for mio::net::UdpSocket {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(windows, feature = "use_mio_net"))]
+impl AsRawReadWriteHandleOrSocket for mio::net::UdpSocket {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}

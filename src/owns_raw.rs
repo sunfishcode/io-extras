@@ -53,6 +53,24 @@ unsafe impl OwnsRaw for PipeReader {}
 unsafe impl OwnsRaw for PipeWriter {}
 #[cfg(feature = "socket2")]
 unsafe impl OwnsRaw for socket2::Socket {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::TcpStream {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::TcpListener {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::TcpSocket {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::UdpSocket {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::UnixDatagram {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::UnixListener {}
+#[cfg(feature = "use_mio_net")]
+unsafe impl OwnsRaw for mio::net::UnixStream {}
+#[cfg(all(unix, feature = "use_mio_os_ext"))]
+unsafe impl OwnsRaw for mio::unix::pipe::Receiver {}
+#[cfg(all(unix, feature = "use_mio_os_ext"))]
+unsafe impl OwnsRaw for mio::unix::pipe::Sender {}
 #[cfg(unix)]
 unsafe impl OwnsRaw for UnixStream {}
 #[cfg(unix)]

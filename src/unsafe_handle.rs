@@ -167,8 +167,8 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
         View::new(file)
     }
 
-    /// Like `as_pipe_writer_view`, but returns a value which is not explicitly tied
-    /// to the lifetime of `self`.
+    /// Like `as_pipe_writer_view`, but returns a value which is not explicitly
+    /// tied to the lifetime of `self`.
     ///
     /// # Safety
     ///
@@ -178,6 +178,62 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     unsafe fn as_unscoped_pipe_writer_view(&self) -> View<'static, PipeWriter> {
         let unsafe_file = self.as_unsafe_file();
         let file = PipeWriter::from_unsafe_file(unsafe_file);
+        View::new(file)
+    }
+
+    /// Utility for returning a value which dereferences to a `&Receiver` or
+    /// `&mut Receiver`.
+    ///
+    /// Note that `AsUnsafeFile` may be implemented for types which are not
+    /// pipes, and which don't support all the methods on `Receiver`.
+    #[cfg(feature = "use_mio_os_ext")]
+    #[inline]
+    fn as_mio_pipe_receiver(&self) -> View<'_, mio::unix::pipe::Receiver> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = unsafe { mio::unix::pipe::Receiver::from_unsafe_file(unsafe_file) };
+        View::new(file)
+    }
+
+    /// Like `as_mio_pipe_receiver_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "use_mio_os_ext")]
+    #[inline]
+    unsafe fn as_unscoped_mio_pipe_receiver_view(
+        &self,
+    ) -> View<'static, mio::unix::pipe::Receiver> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = mio::unix::pipe::Receiver::from_unsafe_file(unsafe_file);
+        View::new(file)
+    }
+
+    /// Utility for returning a value which dereferences to a `&Sender` or
+    /// `&mut Sender`.
+    ///
+    /// Note that `AsUnsafeFile` may be implemented for types which are not
+    /// pipes, and which don't support all the methods on `Sender`.
+    #[cfg(feature = "use_mio_os_ext")]
+    #[inline]
+    fn as_mio_pipe_sender_view(&self) -> View<'_, mio::unix::pipe::Sender> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = unsafe { mio::unix::pipe::Sender::from_unsafe_file(unsafe_file) };
+        View::new(file)
+    }
+
+    /// Like `as_mio_pipe_sender_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "use_mio_os_ext")]
+    #[inline]
+    unsafe fn as_unscoped_mio_pipe_sender_view(&self) -> View<'static, mio::unix::pipe::Sender> {
+        let unsafe_file = self.as_unsafe_file();
+        let file = mio::unix::pipe::Sender::from_unsafe_file(unsafe_file);
         View::new(file)
     }
 
@@ -353,27 +409,222 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// `&socket2::Socket` or `&mut socket2::Socket`.
     ///
     /// Note that `AsUnsafeSocket` may be implemented for types which are not
-    /// TCP streams, and which don't support all the methods on
-    /// `socket2::Socket`.
+    /// sockets, and which don't support all the methods on `socket2::Socket`.
     #[cfg(feature = "socket2")]
     #[inline]
-    fn as_socket_view(&self) -> View<'_, socket2::Socket> {
+    fn as_socket2_socket_view(&self) -> View<'_, socket2::Socket> {
         let unsafe_socket = self.as_unsafe_socket();
         let socket = unsafe { socket2::Socket::from_unsafe_socket(unsafe_socket) };
         View::new(socket)
     }
 
-    /// Like `as_socket_view`, but returns a value which is not explicitly
-    /// tied to the lifetime of `self`.
+    /// Like `as_socket2_socket_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
     ///
     /// # Safety
     ///
     /// Callers must manually ensure that the view doesn't outlive `self`.
     #[cfg(feature = "socket2")]
     #[inline]
-    unsafe fn as_unscoped_socket_view(&self) -> View<'static, socket2::Socket> {
+    unsafe fn as_unscoped_socket2_socket_view(&self) -> View<'static, socket2::Socket> {
         let unsafe_socket = self.as_unsafe_socket();
         let socket = socket2::Socket::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::TcpListener` or `&mut mio::net::TcpListener`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// TCP listeners, and which don't support all the methods on
+    /// `mio::net::TcpListener`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    fn as_mio_tcp_listener_view(&self) -> View<'_, mio::net::TcpListener> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::TcpListener::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_tcp_listener_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    unsafe fn as_unscoped_mio_tcp_listener_view(&self) -> View<'static, mio::net::TcpListener> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::TcpListener::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::TcpSocket` or `&mut mio::net::TcpSocket`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// TCP sockets, and which don't support all the methods on
+    /// `mio::net::TcpSocket`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    fn as_mio_tcp_socket_view(&self) -> View<'_, mio::net::TcpSocket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::TcpSocket::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_tcp_socket_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    unsafe fn as_unscoped_mio_tcp_socket_view(&self) -> View<'static, mio::net::TcpSocket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::TcpSocket::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::TcpStream` or `&mut mio::net::TcpStream`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// TCP streams, and which don't support all the methods on
+    /// `mio::net::TcpStream`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    fn as_mio_tcp_stream_view(&self) -> View<'_, mio::net::TcpStream> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::TcpStream::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_tcp_stream_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    unsafe fn as_unscoped_mio_tcp_stream_view(&self) -> View<'static, mio::net::TcpStream> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::TcpStream::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::UdpSocket` or `&mut mio::net::UdpSocket`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// UDP sockets, and which don't support all the methods on
+    /// `mio::net::UdpSocket`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    fn as_mio_udp_socket_view(&self) -> View<'_, mio::net::UdpSocket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::UdpSocket::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_udp_socket_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(feature = "use_mio_net")]
+    #[inline]
+    unsafe fn as_unscoped_mio_udp_socket_view(&self) -> View<'static, mio::net::UdpSocket> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::UdpSocket::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::UnixDatagram` or `&mut mio::net::UnixDatagram`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// Unix datagram sockets, and which don't support all the methods on
+    /// `mio::net::UnixDatagram`.
+    #[cfg(all(unix, feature = "use_mio_net"))]
+    #[inline]
+    fn as_mio_unix_datagram_view(&self) -> View<'_, mio::net::UnixDatagram> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::UnixDatagram::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_unix_datagram_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(all(unix, feature = "use_mio_net"))]
+    #[inline]
+    unsafe fn as_unscoped_mio_unix_datagram_view(&self) -> View<'static, mio::net::UnixDatagram> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::UnixDatagram::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::UnixListener` or `&mut mio::net::UnixListener`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// Unix listner sockets, and which don't support all the methods on
+    /// `mio::net::UnixListener`.
+    #[cfg(all(unix, feature = "use_mio_net"))]
+    #[inline]
+    fn as_mio_unix_listener_view(&self) -> View<'_, mio::net::UnixListener> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::UnixListener::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_unix_listener_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(all(unix, feature = "use_mio_net"))]
+    #[inline]
+    unsafe fn as_unscoped_mio_unix_listener_view(&self) -> View<'static, mio::net::UnixListener> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::UnixListener::from_unsafe_socket(unsafe_socket);
+        View::new(socket)
+    }
+
+    /// Utility for returning a value which dereferences to a
+    /// `&mio::net::UnixStream` or `&mut mio::net::UnixStream`.
+    ///
+    /// Note that `AsUnsafeSocket` may be implemented for types which are not
+    /// Unix stream sockets, and which don't support all the methods on
+    /// `mio::net::UnixStream`.
+    #[cfg(all(unix, feature = "use_mio_net"))]
+    #[inline]
+    fn as_mio_unix_stream_view(&self) -> View<'_, mio::net::UnixStream> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = unsafe { mio::net::UnixStream::from_unsafe_socket(unsafe_socket) };
+        View::new(socket)
+    }
+
+    /// Like `as_mio_unix_stream_stream_view`, but returns a value which is not
+    /// explicitly tied to the lifetime of `self`.
+    ///
+    /// # Safety
+    ///
+    /// Callers must manually ensure that the view doesn't outlive `self`.
+    #[cfg(all(unix, feature = "use_mio_net"))]
+    #[inline]
+    unsafe fn as_unscoped_mio_unix_stream_view(&self) -> View<'static, mio::net::UnixStream> {
+        let unsafe_socket = self.as_unsafe_socket();
+        let socket = mio::net::UnixStream::from_unsafe_socket(unsafe_socket);
         View::new(socket)
     }
 
