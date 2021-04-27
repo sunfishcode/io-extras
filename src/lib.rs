@@ -199,7 +199,7 @@
     nonstandard_style,
     rust_2018_compatibility,
     rust_2018_idioms,
-    rustdoc,
+    rustdoc::all,
     unused,
     warnings,
     absolute_paths_not_starting_with_crate,

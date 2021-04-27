@@ -103,7 +103,7 @@ fn is_console(handle: RawHandle) -> bool {
     // mode). This will only detect Windows Console, not other terminals connected to a pipe like
     // MSYS. Which is exactly what we need, as only Windows Console needs a conversion to UTF-16.
     let mut mode = 0;
-    unsafe { GetConsoleMode(handle, &mut mode) != 0 }
+    unsafe { GetConsoleMode(handle, &mut mode) != 0_i32 }
 }
 
 fn write(handle_id: DWORD, data: &[u8]) -> io::Result<usize> {
@@ -186,7 +186,7 @@ fn write_u16s(handle: RawHandle, data: &[u16]) -> io::Result<usize> {
             &mut written,
             ptr::null_mut(),
         )
-    } == 0
+    } == 0_i32
     {
         return Err(io::Error::last_os_error());
     }
@@ -286,7 +286,7 @@ fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
             &mut amount,
             &mut input_control,
         )
-    } == 0
+    } == 0_i32
     {
         return Err(io::Error::last_os_error());
     }
