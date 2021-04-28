@@ -186,7 +186,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     ///
     /// Note that `AsUnsafeFile` may be implemented for types which are not
     /// pipes, and which don't support all the methods on `Receiver`.
-    #[cfg(feature = "use_mio_os_ext")]
+    #[cfg(all(unix, feature = "use_mio_os_ext"))]
     #[inline]
     fn as_mio_pipe_receiver(&self) -> View<'_, mio::unix::pipe::Receiver> {
         let unsafe_file = self.as_unsafe_file();
@@ -200,7 +200,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     /// # Safety
     ///
     /// Callers must manually ensure that the view doesn't outlive `self`.
-    #[cfg(feature = "use_mio_os_ext")]
+    #[cfg(all(unix, feature = "use_mio_os_ext"))]
     #[inline]
     unsafe fn as_unscoped_mio_pipe_receiver_view(
         &self,
@@ -215,7 +215,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     ///
     /// Note that `AsUnsafeFile` may be implemented for types which are not
     /// pipes, and which don't support all the methods on `Sender`.
-    #[cfg(feature = "use_mio_os_ext")]
+    #[cfg(all(unix, feature = "use_mio_os_ext"))]
     #[inline]
     fn as_mio_pipe_sender_view(&self) -> View<'_, mio::unix::pipe::Sender> {
         let unsafe_file = self.as_unsafe_file();
@@ -229,7 +229,7 @@ pub unsafe trait AsUnsafeFile: AsUnsafeHandle {
     /// # Safety
     ///
     /// Callers must manually ensure that the view doesn't outlive `self`.
-    #[cfg(feature = "use_mio_os_ext")]
+    #[cfg(all(unix, feature = "use_mio_os_ext"))]
     #[inline]
     unsafe fn as_unscoped_mio_pipe_sender_view(&self) -> View<'static, mio::unix::pipe::Sender> {
         let unsafe_file = self.as_unsafe_file();
