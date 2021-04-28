@@ -61,11 +61,11 @@ unsafe impl OwnsRaw for mio::net::TcpListener {}
 unsafe impl OwnsRaw for mio::net::TcpSocket {}
 #[cfg(feature = "use_mio_net")]
 unsafe impl OwnsRaw for mio::net::UdpSocket {}
-#[cfg(feature = "use_mio_net")]
+#[cfg(all(unix, feature = "use_mio_net"))]
 unsafe impl OwnsRaw for mio::net::UnixDatagram {}
-#[cfg(feature = "use_mio_net")]
+#[cfg(all(unix, feature = "use_mio_net"))]
 unsafe impl OwnsRaw for mio::net::UnixListener {}
-#[cfg(feature = "use_mio_net")]
+#[cfg(all(unix, feature = "use_mio_net"))]
 unsafe impl OwnsRaw for mio::net::UnixStream {}
 #[cfg(all(unix, feature = "use_mio_os_ext"))]
 unsafe impl OwnsRaw for mio::unix::pipe::Receiver {}
