@@ -2,12 +2,11 @@
 //!
 //! In table form, the main types and traits provided by this crate are:
 //!
-//! | Resource | Posix-ish type | Windows type          || Platform-independent types           |
-//! | -------- | -------------- | --------------------- || ------------------------------------ |
-//! | File     | [`RawFd`]      | [`RawHandle`]         || [`UnsafeHandle`] or [`UnsafeFile`]   |
-//! | Pipe     | [`RawFd`]      | [`RawHandle`]         || [`UnsafeHandle`] or [`UnsafeFile`]   |
-//! | Socket   | [`RawFd`]      | [`RawSocket`]         || [`UnsafeHandle`] or [`UnsafeSocket`] |
-//! | Any      | [`RawFd`]      | [`RawHandleOrSocket`] || [`UnsafeHandle`]                     |
+//! | Resource  | Posix-ish type | Windows type          || Platform-independent types           |
+//! | --------- | -------------- | --------------------- || ------------------------------------ |
+//! | File/Pipe | [`RawFd`]      | [`RawHandle`]         || [`UnsafeHandle`] or [`UnsafeFile`]   |
+//! | Socket    | [`RawFd`]      | [`RawSocket`]         || [`UnsafeHandle`] or [`UnsafeSocket`] |
+//! | Any       | [`RawFd`]      | [`RawHandleOrSocket`] || [`UnsafeHandle`]                     |
 //!
 //! and the main traits are:
 //!
