@@ -92,6 +92,8 @@
 //! let unsafe_handle = file.as_unsafe_handle();
 //! ```
 //!
+//! ---
+//!
 //! Many types implement `AsUnsafeHandle`, however very few types implement
 //! `FromUnsafeHandle`. Most types implement only `FromUnsafeFile` or
 //! `FromUnsafeSocket` instead. For an example that extracts a handle and
@@ -110,6 +112,8 @@
 //! // Construct a new file with the handle.
 //! let file = unsafe { std::fs::File::from_unsafe_file(unsafe_file) };
 //! ```
+//!
+//! ---
 //!
 //! To implement the [`AsUnsafeHandle`] trait for a type, implement the
 //! [`AsRawFd`] trait for Posix-ish platforms and the [`AsRawHandleOrSocket`]
