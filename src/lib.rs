@@ -1,6 +1,6 @@
 //! Non-owning unsafe I/O
 //!
-//! In table form, the main types provided by this crate are:
+//! In table form, the main types are:
 //!
 //! | Resource  | Posix-ish type | Windows type          || Platform-independent types           |
 //! | --------- | -------------- | --------------------- || ------------------------------------ |
