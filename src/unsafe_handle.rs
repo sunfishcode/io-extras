@@ -90,9 +90,9 @@ pub trait FromUnsafeHandle {
 
 /// A trait for types which contain an unsafe file and can expose it.
 ///
-/// A type implementing `AsUnsafeFile` guarantees that the return value
-/// from `as_unsafe_file` on an instance of the type is a copy of a handle
-/// which is owned.
+/// A type implementing `AsUnsafeFile` guarantees that the return value from
+/// `as_unsafe_file` on an instance of the type is a copy of a handle which is
+/// owned.
 ///
 /// # Safety
 ///
@@ -576,7 +576,7 @@ pub unsafe trait AsUnsafeSocket: AsUnsafeHandle {
     /// `&mio::net::UnixListener` or `&mut mio::net::UnixListener`.
     ///
     /// Note that `AsUnsafeSocket` may be implemented for types which are not
-    /// Unix listner sockets, and which don't support all the methods on
+    /// Unix listener sockets, and which don't support all the methods on
     /// `mio::net::UnixListener`.
     #[cfg(all(unix, feature = "use_mio_net"))]
     #[inline]

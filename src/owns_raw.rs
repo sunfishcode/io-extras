@@ -19,8 +19,8 @@ use std::{
 /// additional background. The [`UnsafeHandle`] type provided by this crate
 /// serves as an implementation of [this suggestion].
 ///
-/// `OwnsRaw` is a trait that types can implement to declare that they do
-/// own their file descriptors or handles.
+/// `OwnsRaw` is a trait that types can implement to declare that they do own
+/// their file descriptors or handles.
 ///
 /// [rust-lang/rust#76969]: https://github.com/rust-lang/rust/issues/76969
 /// [this suggestion]: https://github.com/rust-lang/rust/pull/76969#issuecomment-696275470
@@ -28,8 +28,8 @@ use std::{
 ///
 /// # Safety
 ///
-/// Types implementing `OwnsRaw` must own the file desctiptors or handles
-/// they return in their `AsRaw*` and `IntoRaw*` implementations.
+/// Types implementing `OwnsRaw` must own the file descriptors or handles they
+/// return in their `AsRaw*` and `IntoRaw*` implementations.
 pub unsafe trait OwnsRaw {}
 
 // Safety: The following types are all known to own their file descriptors or

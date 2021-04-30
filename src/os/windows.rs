@@ -3,7 +3,7 @@
 //! provide minimal Windows analogs for the Posix-ish `RawFd` type and
 //! accompanying `AsRawFd`, `IntoRawFd`, and `FromRawFd` traits.
 //!
-//! These types are only defined on Windows and do not requre implementors to
+//! These types are only defined on Windows and do not require implementors to
 //! assert that they own their resources. See [`UnsafeHandle`] and
 //! accompanying [`AsUnsafeHandle`], [`IntoRawHandle`], and
 //! [`FromUnsafeHandle`] traits for platform-independent interfaces which do
