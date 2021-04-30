@@ -1,6 +1,6 @@
 //! Non-owning unsafe I/O
 //!
-//! In table form, the main types are:
+//! The main types are:
 //!
 //! | Resource  | Posix-ish type | Windows type          || Platform-independent types           |
 //! | --------- | -------------- | --------------------- || ------------------------------------ |
