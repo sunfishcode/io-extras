@@ -8,6 +8,7 @@ license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
 keywords = ["api", "io", "stream"]
 categories = ["os", "rust-patterns"]
 repository = "https://github.com/sunfishcode/unsafe-io"
+exclude = ["/.github"]
 
 [build-dependencies]
 rustc_version = "0.3.3"
