@@ -300,7 +300,7 @@ fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
 #[allow(unused)]
 fn utf16_to_utf8(utf16: &[u16], utf8: &mut [u8]) -> io::Result<usize> {
     let mut written = 0;
-    for chr in decode_utf16(utf16.iter().cloned()) {
+    for chr in decode_utf16(utf16.iter().copied()) {
         match chr {
             Ok(chr) => {
                 let _ = chr.encode_utf8(&mut utf8[written..]);
