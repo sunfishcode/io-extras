@@ -421,7 +421,7 @@ impl AsRawHandleOrSocket for tokio::net::UdpSocket {
 impl AsRawHandleOrSocket for tokio::process::ChildStdin {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -429,7 +429,7 @@ impl AsRawHandleOrSocket for tokio::process::ChildStdin {
 impl AsRawHandleOrSocket for tokio::process::ChildStdout {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
@@ -437,7 +437,7 @@ impl AsRawHandleOrSocket for tokio::process::ChildStdout {
 impl AsRawHandleOrSocket for tokio::process::ChildStderr {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
     }
 }
 
