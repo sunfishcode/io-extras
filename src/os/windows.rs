@@ -361,6 +361,86 @@ impl AsRawHandleOrSocket for async_std::net::UdpSocket {
     }
 }
 
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::io::Stdin {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::io::Stdout {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::io::Stderr {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::fs::File {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_handle(Self::as_raw_handle(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::net::TcpStream {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::net::TcpListener {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::net::UdpSocket {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::process::ChildStdin {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::process::ChildStdout {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl AsRawHandleOrSocket for tokio::process::ChildStderr {
+    #[inline]
+    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
+        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
+    }
+}
+
 #[cfg(feature = "os_pipe")]
 impl AsRawHandleOrSocket for PipeReader {
     #[inline]

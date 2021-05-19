@@ -99,3 +99,29 @@ unsafe impl OwnsRaw for async_std::os::unix::net::UnixStream {}
 unsafe impl OwnsRaw for async_std::os::unix::net::UnixListener {}
 #[cfg(all(feature = "async-std", unix))]
 unsafe impl OwnsRaw for async_std::os::unix::net::UnixDatagram {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::io::Stdin {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::io::Stdout {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::io::Stderr {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::fs::File {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::net::TcpStream {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::net::TcpListener {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::net::UdpSocket {}
+#[cfg(all(feature = "tokio", unix))]
+unsafe impl OwnsRaw for tokio::net::UnixStream {}
+#[cfg(all(feature = "tokio", unix))]
+unsafe impl OwnsRaw for tokio::net::UnixListener {}
+#[cfg(all(feature = "tokio", unix))]
+unsafe impl OwnsRaw for tokio::net::UnixDatagram {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::process::ChildStdin {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::process::ChildStdout {}
+#[cfg(feature = "tokio")]
+unsafe impl OwnsRaw for tokio::process::ChildStderr {}

@@ -217,6 +217,71 @@ impl AsRawReadWriteFd for async_std::os::unix::net::UnixStream {
     }
 }
 
+#[cfg(all(feature = "tokio", not(windows)))]
+impl AsRawReadWriteFd for tokio::fs::File {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(feature = "tokio", windows))]
+impl AsRawReadWriteHandleOrSocket for tokio::fs::File {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(feature = "tokio", not(windows)))]
+impl AsRawReadWriteFd for tokio::net::TcpStream {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(all(feature = "tokio", windows))]
+impl AsRawReadWriteHandleOrSocket for tokio::net::TcpStream {
+    #[inline]
+    fn as_raw_read_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_handle_or_socket(&self) -> RawHandleOrSocket {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(all(feature = "tokio", unix))]
+impl AsRawReadWriteFd for tokio::net::UnixStream {
+    #[inline]
+    fn as_raw_read_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_fd(&self) -> RawFd {
+        self.as_raw_fd()
+    }
+}
+
 #[cfg(not(windows))]
 impl<T: AsRawReadWriteFd> AsRawReadWriteFd for Box<T> {
     #[inline]

@@ -19,6 +19,8 @@ rustc_version = "0.3.3"
 # Enable the "unstable" feature so that we can implement `OwnsRaw` for
 # `process::ChildStdin` etc.
 async-std = { version = "1.9.0", features = ["unstable"], optional = true }
+# Optionally depend on tokio to implement traits for its types.
+tokio = { version = "1.6.0", features = ["io-std", "fs", "net", "process"], optional = true }
 # Optionally depend on os_pipe to implement traits for its types.
 os_pipe = { version = "0.9.2", optional = true }
 # Optionally depend on socket2 to implement traits for its types.
