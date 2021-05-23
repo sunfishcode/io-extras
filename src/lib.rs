@@ -195,6 +195,8 @@
 // experiment, let's throw ludicrous amounts of checks at it and see how it
 // goes. As always, exercise discretion: if fixing a warning would make the
 // code worse, disable the warning instead.
+//
+// TODO: Re-add rustdoc::all once we don't need Rust 1.51 support.
 #![deny(
     future_incompatible,
     missing_debug_implementations,
@@ -202,7 +204,6 @@
     nonstandard_style,
     rust_2018_compatibility,
     rust_2018_idioms,
-    rustdoc::all,
     unused,
     warnings,
     absolute_paths_not_starting_with_crate,
