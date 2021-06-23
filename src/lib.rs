@@ -36,6 +36,10 @@
 //!
 //! # Ownership Guarantees
 //!
+//! *Update*: The approach to ownership in this crate is expected to be
+//! superceded by the [io-lifetimes] crate, which provides a much simpler and
+//! safer API.
+//!
 //! The `AsUnsafe*` and `IntoUnsafe*` trait functions return non-owning handles,
 //! however these traits do require types that implement them to guarantee that
 //! they own the handles. This differs from their `AsRaw*` and `IntoRaw*`
@@ -189,6 +193,7 @@
 //! [the `os_pipe` feature]: https://docs.rs/crate/unsafe-io/latest/features#os_pipe
 //! [`unix`]: https://doc.rust-lang.org/std/os/unix/net/struct.UnixStream.html
 //! [view]: View
+//! [io-lifetimes]: https://crates.io/crates/io-lifetimes
 
 // This crate is very minimal and doesn't do anything except define types and
 // traits and implement them with trivial inline implementations. As an
