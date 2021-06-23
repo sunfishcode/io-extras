@@ -28,14 +28,40 @@ pub type BorrowedGrip<'a> = BorrowedHandleOrSocket<'a>;
 pub type OwnedGrip = OwnedHandleOrSocket;
 
 /// Portability abstraction over `AsFd` and `AsHandleOrSocket`.
-pub trait AsGrip<'a> {
+#[cfg(not(windows))]
+pub trait AsGrip<'a>: AsFd<'a> {
+    /// Extracts the grip.
+    fn as_grip(self) -> BorrowedGrip<'a>;
+}
+
+/// Portability abstraction over `AsFd` and `AsHandleOrSocket`.
+#[cfg(windows)]
+pub trait AsGrip<'a>: AsHandleOrSocket<'a> {
     /// Extracts the grip.
     fn as_grip(self) -> BorrowedGrip<'a>;
 }
 
 /// Portability abstraction over `AsReadWriteFd` and
 /// `AsReadWriteHandleOrSocket`.
-pub trait AsReadWriteGrip<'a> {
+#[cfg(not(windows))]
+pub trait AsReadWriteGrip<'a>: AsReadWriteFd<'a> {
+    /// Extracts the grip for reading.
+    ///
+    /// Like [`AsGrip::as_grip`], but returns the
+    /// reading grip.
+    fn as_read_grip(self) -> BorrowedGrip<'a>;
+
+    /// Extracts the grip for writing.
+    ///
+    /// Like [`AsGrip::as_grip`], but returns the
+    /// writing grip.
+    fn as_write_grip(self) -> BorrowedGrip<'a>;
+}
+
+/// Portability abstraction over `AsReadWriteFd` and
+/// `AsReadWriteHandleOrSocket`.
+#[cfg(windows)]
+pub trait AsReadWriteGrip<'a>: AsReadWriteHandleOrSocket<'a> {
     /// Extracts the grip for reading.
     ///
     /// Like [`AsGrip::as_grip`], but returns the
@@ -51,14 +77,32 @@ pub trait AsReadWriteGrip<'a> {
 
 /// Portability abstraction over `IntoFd` and
 /// `IntoHandleOrSocket`.
-pub trait IntoGrip {
+#[cfg(not(windows))]
+pub trait IntoGrip: IntoFd {
+    /// Consume `self` and convert into an `OwnedGrip`.
+    fn into_grip(self) -> OwnedGrip;
+}
+
+/// Portability abstraction over `IntoFd` and
+/// `IntoHandleOrSocket`.
+#[cfg(windows)]
+pub trait IntoGrip: IntoHandleOrSocket {
     /// Consume `self` and convert into an `OwnedGrip`.
     fn into_grip(self) -> OwnedGrip;
 }
 
 /// Portability abstraction over `FromFd` and
 /// `FromHandleOrSocket`.
-pub trait FromGrip {
+#[cfg(not(windows))]
+pub trait FromGrip: FromFd {
+    /// Consume an `OwnedGrip` and convert into a `Self`.
+    fn from_grip(owned_grip: OwnedGrip) -> Self;
+}
+
+/// Portability abstraction over `FromFd` and
+/// `FromHandleOrSocket`.
+#[cfg(windows)]
+pub trait FromGrip: FromHandleOrSocket {
     /// Consume an `OwnedGrip` and convert into a `Self`.
     fn from_grip(owned_grip: OwnedGrip) -> Self;
 }
