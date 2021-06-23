@@ -14,6 +14,7 @@ exclude = ["/.github"]
 rustc_version = "0.3.3"
 
 [dependencies]
+io-lifetimes = "0.1.1"
 # Optionally depend on async-std to implement traits for its types.
 #
 # Enable the "unstable" feature so that we can implement `OwnsRaw` for
@@ -39,8 +40,12 @@ winapi = { version = "0.3.9", features = [
 ] }
 
 [features]
-use_mio_net = ["mio", "mio/net"]
-use_mio_os_ext = ["mio", "mio/os-ext"]
+use_mio_net = ["mio", "mio/net", "io-lifetimes/mio"]
+use_mio_os_ext = ["mio", "mio/os-ext", "io-lifetimes/mio"]
+use_async_std = ["async-std", "io-lifetimes/async-std"]
+use_tokio = ["tokio", "io-lifetimes/tokio"]
+use_socket2 = ["socket2", "io-lifetimes/socket2"]
+use_os_pipe = ["os_pipe", "io-lifetimes/os_pipe"]
 
 [badges]
 maintenance = { status = "actively-developed" }

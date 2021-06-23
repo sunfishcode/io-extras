@@ -14,7 +14,6 @@
 //! [`IntoUnsafeHandle`]: crate::IntoUnsafeHandle
 //! [`FromUnsafeHandle`]: crate::FromUnsafeHandle
 
-use super::windows_stdio::Stdio;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 use std::{
@@ -26,8 +25,15 @@ use std::{
     },
     process::{ChildStderr, ChildStdin, ChildStdout},
 };
+use stdio::Stdio;
 
-pub use crate::read_write::AsRawReadWriteHandleOrSocket;
+mod stdio;
+mod traits;
+mod types;
+
+pub use crate::read_write::{AsRawReadWriteHandleOrSocket, AsReadWriteHandleOrSocket};
+pub use traits::{AsHandleOrSocket, FromHandleOrSocket, IntoHandleOrSocket};
+pub use types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
 
 /// A Windows analog for the Posix-ish `AsRawFd` type. Unlike Posix-ish
 /// platforms which have a single type for files and sockets, Windows has
