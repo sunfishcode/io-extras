@@ -46,7 +46,7 @@ pub trait FromHandleOrSocket {
     ///
     /// [`FromHandle::from_handle`]: io_lifetimes::FromHandle::from_handle
     /// [`FromSocket::from_socket`]: io_lifetimes::FromSocket::from_socket
-    fn from_raw_handle_or_socket(handle_or_socket: OwnedHandleOrSocket) -> Self;
+    fn from_handle_or_socket(handle_or_socket: OwnedHandleOrSocket) -> Self;
 }
 
 impl<'a> AsHandleOrSocket<'a> for &'a OwnedHandleOrSocket {

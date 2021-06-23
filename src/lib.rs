@@ -245,10 +245,12 @@
 #![cfg_attr(write_all_vectored, feature(write_all_vectored))]
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
+mod grip;
 mod owns_raw;
 mod read_write;
 mod unsafe_handle;
 
+pub use grip::{AsGrip, AsReadWriteGrip, BorrowedGrip, FromGrip, IntoGrip, OwnedGrip};
 pub use owns_raw::OwnsRaw;
 pub use read_write::{AsUnsafeReadWriteHandle, ReadHalf, WriteHalf};
 pub use unsafe_handle::{
