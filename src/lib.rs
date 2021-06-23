@@ -255,7 +255,10 @@ mod owns_raw;
 mod read_write;
 mod unsafe_handle;
 
-pub use grip::{AsGrip, AsReadWriteGrip, BorrowedGrip, FromGrip, IntoGrip, OwnedGrip};
+pub use grip::{
+    AsGrip, AsRawGrip, AsRawReadWriteGrip, AsReadWriteGrip, BorrowedGrip, FromGrip, FromRawGrip,
+    IntoGrip, IntoRawGrip, OwnedGrip, RawGrip,
+};
 pub use owns_raw::OwnsRaw;
 pub use read_write::{AsUnsafeReadWriteHandle, ReadHalf, WriteHalf};
 pub use unsafe_handle::{

@@ -4,12 +4,13 @@
 
 #[cfg(windows)]
 use crate::os::windows::{
-    AsHandleOrSocket, AsReadWriteHandleOrSocket, BorrowedHandleOrSocket, FromHandleOrSocket,
-    IntoHandleOrSocket, OwnedHandleOrSocket,
+    AsHandleOrSocket, AsRawHandleOrSocket, AsRawReadWriteHandleOrSocket, AsReadWriteHandleOrSocket,
+    BorrowedHandleOrSocket, FromHandleOrSocket, FromRawHandleOrSocket, IntoHandleOrSocket,
+    IntoRawHandleOrSocket, OwnedHandleOrSocket, RawHandleOrSocket,
 };
 #[cfg(not(windows))]
 use {
-    crate::os::posish::AsReadWriteFd,
+    crate::os::posish::{AsRawFd, AsRawReadWriteFd, AsReadWriteFd, FromRawFd, IntoRawFd, RawFd},
     io_lifetimes::{AsFd, BorrowedFd, FromFd, IntoFd, OwnedFd},
 };
 
@@ -178,5 +179,167 @@ impl<T: FromHandleOrSocket> FromGrip for T {
     #[inline]
     fn from_grip(owned_grip: OwnedGrip) -> Self {
         Self::from_handle_or_socket(owned_grip)
+    }
+}
+
+/// Portability abstraction over `RawFd` and `RawHandleOrSocket`.
+#[cfg(not(windows))]
+pub type RawGrip = RawFd;
+
+/// Portability abstraction over `RawFd` and `RawHandleOrSocket`.
+#[cfg(windows)]
+pub type RawGrip = RawHandleOrSocket;
+
+/// Portability abstraction over `AsFd` and `AsHandleOrSocket`.
+#[cfg(not(windows))]
+pub trait AsRawGrip: AsRawFd {
+    /// Extracts the raw grip.
+    fn as_raw_grip(self) -> RawGrip;
+}
+
+/// Portability abstraction over `AsFd` and `AsHandleOrSocket`.
+#[cfg(windows)]
+pub trait AsRawGrip: AsRawHandleOrSocket {
+    /// Extracts the raw grip.
+    fn as_raw_grip(self) -> RawGrip;
+}
+
+/// Portability abstraction over `AsReadWriteFd` and
+/// `AsReadWriteHandleOrSocket`.
+#[cfg(not(windows))]
+pub trait AsRawReadWriteGrip: AsRawReadWriteFd {
+    /// Extracts the grip for reading.
+    ///
+    /// Like [`AsRawGrip::as_raw_grip`], but returns the
+    /// raw reading grip.
+    fn as_raw_read_grip(self) -> RawGrip;
+
+    /// Extracts the grip for writing.
+    ///
+    /// Like [`AsRawGrip::as_raw_grip`], but returns the
+    /// raw writing grip.
+    fn as_raw_write_grip(self) -> RawGrip;
+}
+
+/// Portability abstraction over `AsReadWriteFd` and
+/// `AsReadWriteHandleOrSocket`.
+#[cfg(windows)]
+pub trait AsRawReadWriteGrip: AsRawReadWriteHandleOrSocket {
+    /// Extracts the grip for reading.
+    ///
+    /// Like [`AsRawGrip::as_raw_grip`], but returns the
+    /// raw reading grip.
+    fn as_raw_read_grip(self) -> RawGrip;
+
+    /// Extracts the grip for writing.
+    ///
+    /// Like [`AsRawGrip::as_raw_grip`], but returns the
+    /// raw writing grip.
+    fn as_raw_write_grip(self) -> RawGrip;
+}
+
+/// Portability abstraction over `IntoFd` and
+/// `IntoHandleOrSocket`.
+#[cfg(not(windows))]
+pub trait IntoRawGrip: IntoRawFd {
+    /// Consume `self` and convert into an `RawGrip`.
+    fn into_raw_grip(self) -> RawGrip;
+}
+
+/// Portability abstraction over `IntoFd` and
+/// `IntoHandleOrSocket`.
+#[cfg(windows)]
+pub trait IntoRawGrip: IntoRawHandleOrSocket {
+    /// Consume `self` and convert into an `RawGrip`.
+    fn into_raw_grip(self) -> RawGrip;
+}
+
+/// Portability abstraction over `FromFd` and
+/// `FromHandleOrSocket`.
+#[cfg(not(windows))]
+pub trait FromRawGrip: FromRawFd {
+    /// Consume an `RawGrip` and convert into a `Self`.
+    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self;
+}
+
+/// Portability abstraction over `FromFd` and
+/// `FromHandleOrSocket`.
+#[cfg(windows)]
+pub trait FromRawGrip: FromRawHandleOrSocket {
+    /// Consume an `RawGrip` and convert into a `Self`.
+    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self;
+}
+
+#[cfg(not(windows))]
+impl<T: AsRawFd> AsRawGrip for T {
+    #[inline]
+    fn as_raw_grip(self) -> RawGrip {
+        self.as_raw_fd()
+    }
+}
+
+#[cfg(windows)]
+impl<T: AsRawHandleOrSocket> AsRawGrip for T {
+    #[inline]
+    fn as_raw_grip(self) -> RawGrip {
+        self.as_raw_handle_or_socket()
+    }
+}
+
+#[cfg(not(windows))]
+impl<T: AsRawReadWriteFd> AsRawReadWriteGrip for T {
+    #[inline]
+    fn as_raw_read_grip(self) -> RawGrip {
+        self.as_raw_read_fd()
+    }
+
+    #[inline]
+    fn as_raw_write_grip(self) -> RawGrip {
+        self.as_raw_write_fd()
+    }
+}
+
+#[cfg(windows)]
+impl<T: AsRawReadWriteHandleOrSocket> AsRawReadWriteGrip for T {
+    #[inline]
+    fn as_raw_read_grip(self) -> RawGrip {
+        self.as_raw_read_handle_or_socket()
+    }
+
+    #[inline]
+    fn as_raw_write_grip(self) -> RawGrip {
+        self.as_raw_write_handle_or_socket()
+    }
+}
+
+#[cfg(not(windows))]
+impl<T: IntoRawFd> IntoRawGrip for T {
+    #[inline]
+    fn into_raw_grip(self) -> RawGrip {
+        self.into_raw_fd()
+    }
+}
+
+#[cfg(windows)]
+impl<T: IntoRawHandleOrSocket> IntoRawGrip for T {
+    #[inline]
+    fn into_raw_grip(self) -> RawGrip {
+        self.into_raw_handle_or_socket()
+    }
+}
+
+#[cfg(not(windows))]
+impl<T: FromRawFd> FromRawGrip for T {
+    #[inline]
+    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self {
+        Self::from_raw_fd(owned_grip)
+    }
+}
+
+#[cfg(windows)]
+impl<T: FromRawHandleOrSocket> FromRawGrip for T {
+    #[inline]
+    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self {
+        Self::from_raw_handle_or_socket(owned_grip)
     }
 }
