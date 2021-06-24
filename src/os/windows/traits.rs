@@ -1,7 +1,9 @@
 //! `HandleOrSocket` variants of `{As,Into}{Handle,Socket}`.
 
-use super::types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
-use super::AsRawHandleOrSocket;
+use super::{
+    types::{BorrowedHandleOrSocket, OwnedHandleOrSocket},
+    AsRawHandleOrSocket,
+};
 use io_lifetimes::{AsHandle, AsSocket, IntoHandle, IntoSocket};
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
@@ -14,10 +16,10 @@ use std::{
 
 /// Like [`AsHandle`] and [`AsSocket`], but implementable by types which
 /// can implement either one.
-pub trait AsHandleOrSocket<'a> {
+pub trait AsHandleOrSocket {
     /// Like [`AsHandle::as_handle`] and [`AsSocket::as_socket`]
     /// but can return either type.
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a>;
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_>;
 }
 
 /// Like [`IntoHandle`] and [`IntoSocket`], but implementable by types
@@ -49,141 +51,141 @@ pub trait FromHandleOrSocket {
     fn from_handle_or_socket(handle_or_socket: OwnedHandleOrSocket) -> Self;
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a OwnedHandleOrSocket {
+impl AsHandleOrSocket for OwnedHandleOrSocket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         unsafe {
             BorrowedHandleOrSocket::borrow_raw_handle_or_socket(self.as_raw_handle_or_socket())
         }
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for BorrowedHandleOrSocket<'a> {
+impl AsHandleOrSocket for BorrowedHandleOrSocket<'_> {
     #[inline]
-    fn as_handle_or_socket(self) -> Self {
-        self
+    fn as_handle_or_socket(&self) -> Self {
+        *self
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a Stdin {
+impl AsHandleOrSocket for Stdin {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a StdinLock<'_> {
+impl AsHandleOrSocket for StdinLock<'_> {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a Stdout {
+impl AsHandleOrSocket for Stdout {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a StdoutLock<'_> {
+impl AsHandleOrSocket for StdoutLock<'_> {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a Stderr {
+impl AsHandleOrSocket for Stderr {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a StderrLock<'_> {
+impl AsHandleOrSocket for StderrLock<'_> {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a File {
+impl AsHandleOrSocket for File {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a ChildStdin {
+impl AsHandleOrSocket for ChildStdin {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a ChildStdout {
+impl AsHandleOrSocket for ChildStdout {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a ChildStderr {
+impl AsHandleOrSocket for ChildStderr {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a TcpStream {
+impl AsHandleOrSocket for TcpStream {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a TcpListener {
+impl AsHandleOrSocket for TcpListener {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
-impl<'a> AsHandleOrSocket<'a> for &'a UdpSocket {
+impl AsHandleOrSocket for UdpSocket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::io::Stdin {
+impl AsHandleOrSocket for async_std::io::Stdin {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::io::Stdout {
+impl AsHandleOrSocket for async_std::io::Stdout {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::io::Stderr {
+impl AsHandleOrSocket for async_std::io::Stderr {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::fs::File {
+impl AsHandleOrSocket for async_std::fs::File {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
@@ -192,161 +194,161 @@ impl<'a> AsHandleOrSocket<'a> for &'a async_std::fs::File {
 // `AsFd` or `AsHandle`.
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::net::TcpStream {
+impl AsHandleOrSocket for async_std::net::TcpStream {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::net::TcpListener {
+impl AsHandleOrSocket for async_std::net::TcpListener {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "async-std")]
-impl<'a> AsHandleOrSocket<'a> for &'a async_std::net::UdpSocket {
+impl AsHandleOrSocket for async_std::net::UdpSocket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::io::Stdin {
+impl AsHandleOrSocket for tokio::io::Stdin {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::io::Stdout {
+impl AsHandleOrSocket for tokio::io::Stdout {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::io::Stderr {
+impl AsHandleOrSocket for tokio::io::Stderr {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::fs::File {
+impl AsHandleOrSocket for tokio::fs::File {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::net::TcpStream {
+impl AsHandleOrSocket for tokio::net::TcpStream {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::net::TcpListener {
+impl AsHandleOrSocket for tokio::net::TcpListener {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::net::UdpSocket {
+impl AsHandleOrSocket for tokio::net::UdpSocket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::process::ChildStdin {
+impl AsHandleOrSocket for tokio::process::ChildStdin {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::process::ChildStdout {
+impl AsHandleOrSocket for tokio::process::ChildStdout {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "tokio")]
-impl<'a> AsHandleOrSocket<'a> for &'a tokio::process::ChildStderr {
+impl AsHandleOrSocket for tokio::process::ChildStderr {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "os_pipe")]
-impl<'a> AsHandleOrSocket<'a> for &'a PipeReader {
+impl AsHandleOrSocket for PipeReader {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "os_pipe")]
-impl<'a> AsHandleOrSocket<'a> for &'a PipeWriter {
+impl AsHandleOrSocket for PipeWriter {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
     }
 }
 
 #[cfg(feature = "socket2")]
-impl<'a> AsHandleOrSocket<'a> for &'a socket2::Socket {
+impl AsHandleOrSocket for socket2::Socket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "use_mio_net")]
-impl<'a> AsHandleOrSocket<'a> for &'a mio::net::TcpStream {
+impl AsHandleOrSocket for mio::net::TcpStream {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "use_mio_net")]
-impl<'a> AsHandleOrSocket<'a> for &'a mio::net::TcpListener {
+impl AsHandleOrSocket for mio::net::TcpListener {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "use_mio_net")]
-impl<'a> AsHandleOrSocket<'a> for &'a mio::net::TcpSocket {
+impl AsHandleOrSocket for mio::net::TcpSocket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }
 
 #[cfg(feature = "use_mio_net")]
-impl<'a> AsHandleOrSocket<'a> for &'a mio::net::UdpSocket {
+impl AsHandleOrSocket for mio::net::UdpSocket {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
     }
 }

@@ -3,9 +3,11 @@
 
 use super::{AsRawHandleOrSocket, RawEnum, RawHandleOrSocket};
 use io_lifetimes::{BorrowedHandle, BorrowedSocket, OwnedHandle, OwnedSocket};
-use std::fmt;
-use std::marker::PhantomData;
-use std::os::windows::io::{AsRawHandle, AsRawSocket, RawSocket};
+use std::{
+    fmt,
+    marker::PhantomData,
+    os::windows::io::{AsRawHandle, AsRawSocket, RawSocket},
+};
 use winapi::um::winsock2::INVALID_SOCKET;
 
 /// `HandleOrSocket` variant of io-lifetimes' `BorrowedHandle`/`BorrowedSocket`.

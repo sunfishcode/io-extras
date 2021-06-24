@@ -52,16 +52,16 @@ pub trait AsRawReadWriteFd {
 ///
 /// For types that only have one, both functions return the same value.
 #[cfg(not(windows))]
-pub trait AsReadWriteFd<'f> {
+pub trait AsReadWriteFd {
     /// Extracts the file descriptor for reading.
     ///
     /// Like [`AsFd::as_fd`], but returns the reading file descriptor.
-    fn as_read_fd(self) -> BorrowedFd<'f>;
+    fn as_read_fd(&self) -> BorrowedFd<'_>;
 
     /// Extracts the file descriptor for writing.
     ///
     /// Like [`AsFd::as_fd`], but returns the writing file descriptor.
-    fn as_write_fd(self) -> BorrowedFd<'f>;
+    fn as_write_fd(&self) -> BorrowedFd<'_>;
 }
 
 /// Like [`AsRawHandleOrSocket`], but for types which may have one or two
@@ -88,18 +88,18 @@ pub trait AsRawReadWriteHandleOrSocket {
 ///
 /// For types that only have one, both functions return the same value.
 #[cfg(windows)]
-pub trait AsReadWriteHandleOrSocket<'a> {
+pub trait AsReadWriteHandleOrSocket {
     /// Extracts the handle or socket for reading.
     ///
     /// Like [`AsHandleOrSocket::as_handle_or_socket`], but returns the
     /// reading handle.
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a>;
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_>;
 
     /// Extracts the handle or socket for writing.
     ///
     /// Like [`AsHandleOrSocket::as_handle_or_socket`], but returns the
     /// writing handle.
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a>;
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_>;
 }
 
 #[cfg(not(windows))]
@@ -142,14 +142,14 @@ impl AsRawReadWriteFd for File {
 }
 
 #[cfg(not(windows))]
-impl<'f> AsReadWriteFd<'f> for &'f File {
+impl AsReadWriteFd for File {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -168,14 +168,14 @@ impl AsRawReadWriteHandleOrSocket for File {
 }
 
 #[cfg(windows)]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a File {
+impl AsReadWriteHandleOrSocket for File {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -194,14 +194,14 @@ impl AsRawReadWriteFd for TcpStream {
 }
 
 #[cfg(not(windows))]
-impl<'f> AsReadWriteFd<'f> for &'f TcpStream {
+impl AsReadWriteFd for TcpStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -220,14 +220,14 @@ impl AsRawReadWriteHandleOrSocket for TcpStream {
 }
 
 #[cfg(windows)]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a TcpStream {
+impl AsReadWriteHandleOrSocket for TcpStream {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -246,14 +246,14 @@ impl AsRawReadWriteFd for UnixStream {
 }
 
 #[cfg(unix)]
-impl<'f> AsReadWriteFd<'f> for &'f UnixStream {
+impl AsReadWriteFd for UnixStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -272,14 +272,14 @@ impl AsRawReadWriteFd for async_std::fs::File {
 }
 
 #[cfg(all(feature = "async-std", not(windows)))]
-impl<'f> AsReadWriteFd<'f> for &'f async_std::fs::File {
+impl AsReadWriteFd for async_std::fs::File {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -298,14 +298,14 @@ impl AsRawReadWriteHandleOrSocket for async_std::fs::File {
 }
 
 #[cfg(all(feature = "async-std", windows))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a async_std::fs::File {
+impl AsReadWriteHandleOrSocket for async_std::fs::File {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -324,14 +324,14 @@ impl AsRawReadWriteFd for async_std::net::TcpStream {
 }
 
 #[cfg(all(feature = "async-std", not(windows)))]
-impl<'f> AsReadWriteFd<'f> for &'f async_std::net::TcpStream {
+impl AsReadWriteFd for async_std::net::TcpStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -350,14 +350,14 @@ impl AsRawReadWriteHandleOrSocket for async_std::net::TcpStream {
 }
 
 #[cfg(all(feature = "async-std", windows))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a async_std::net::TcpStream {
+impl AsReadWriteHandleOrSocket for async_std::net::TcpStream {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -376,14 +376,14 @@ impl AsRawReadWriteFd for async_std::os::unix::net::UnixStream {
 }
 
 #[cfg(all(feature = "async-std", unix))]
-impl<'f> AsReadWriteFd<'f> for &'f async_std::os::unix::net::UnixStream {
+impl AsReadWriteFd for async_std::os::unix::net::UnixStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -402,14 +402,14 @@ impl AsRawReadWriteFd for tokio::fs::File {
 }
 
 #[cfg(all(feature = "tokio", not(windows)))]
-impl<'f> AsReadWriteFd<'f> for &'f tokio::fs::File {
+impl AsReadWriteFd for tokio::fs::File {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -428,14 +428,14 @@ impl AsRawReadWriteHandleOrSocket for tokio::fs::File {
 }
 
 #[cfg(all(feature = "tokio", windows))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a tokio::fs::File {
+impl AsReadWriteHandleOrSocket for tokio::fs::File {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -454,27 +454,27 @@ impl AsRawReadWriteFd for tokio::net::TcpStream {
 }
 
 #[cfg(all(feature = "tokio", not(windows)))]
-impl<'f> AsReadWriteFd<'f> for &'f tokio::net::TcpStream {
+impl AsReadWriteFd for tokio::net::TcpStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
 
 #[cfg(all(feature = "tokio", windows))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a tokio::net::TcpStream {
+impl AsReadWriteHandleOrSocket for tokio::net::TcpStream {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -493,14 +493,14 @@ impl AsRawReadWriteFd for tokio::net::UnixStream {
 }
 
 #[cfg(all(feature = "tokio", unix))]
-impl<'f> AsReadWriteFd<'f> for &'f tokio::net::UnixStream {
+impl AsReadWriteFd for tokio::net::UnixStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -519,17 +519,14 @@ impl<T: AsRawReadWriteFd> AsRawReadWriteFd for Box<T> {
 }
 
 #[cfg(not(windows))]
-impl<'f, T> AsReadWriteFd<'f> for &'f Box<T>
-where
-    &'f T: AsReadWriteFd<'f>,
-{
+impl<T: AsReadWriteFd> AsReadWriteFd for Box<T> {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         (**self).as_read_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         (**self).as_write_fd()
     }
 }
@@ -548,17 +545,14 @@ impl<T: AsRawReadWriteHandleOrSocket> AsRawReadWriteHandleOrSocket for Box<T> {
 }
 
 #[cfg(windows)]
-impl<'a, T> AsReadWriteHandleOrSocket<'a> for &'a Box<T>
-where
-    &'a T: AsReadWriteHandleOrSocket<'a>,
-{
+impl<T: AsReadWriteHandleOrSocket> AsReadWriteHandleOrSocket for Box<T> {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         (**self).as_read_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         (**self).as_write_handle_or_socket()
     }
 }
@@ -577,14 +571,14 @@ impl AsRawReadWriteFd for socket2::Socket {
 }
 
 #[cfg(all(not(windows), feature = "socket2"))]
-impl<'f> AsReadWriteFd<'f> for &'f socket2::Socket {
+impl AsReadWriteFd for socket2::Socket {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -603,14 +597,14 @@ impl AsRawReadWriteHandleOrSocket for socket2::Socket {
 }
 
 #[cfg(all(windows, feature = "socket2"))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a socket2::Socket {
+impl AsReadWriteHandleOrSocket for socket2::Socket {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -629,14 +623,14 @@ impl AsRawReadWriteFd for mio::net::TcpListener {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-impl<'f> AsReadWriteFd<'f> for &'f mio::net::TcpListener {
+impl AsReadWriteFd for mio::net::TcpListener {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -655,14 +649,14 @@ impl AsRawReadWriteHandleOrSocket for mio::net::TcpListener {
 }
 
 #[cfg(all(windows, feature = "use_mio_net"))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a mio::net::TcpListener {
+impl AsReadWriteHandleOrSocket for mio::net::TcpListener {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -681,14 +675,14 @@ impl AsRawReadWriteFd for mio::net::TcpStream {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-impl<'f> AsReadWriteFd<'f> for &'f mio::net::TcpStream {
+impl AsReadWriteFd for mio::net::TcpStream {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -707,14 +701,14 @@ impl AsRawReadWriteHandleOrSocket for mio::net::TcpStream {
 }
 
 #[cfg(all(windows, feature = "use_mio_net"))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a mio::net::TcpStream {
+impl AsReadWriteHandleOrSocket for mio::net::TcpStream {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -733,14 +727,14 @@ impl AsRawReadWriteFd for mio::net::TcpSocket {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-impl<'f> AsReadWriteFd<'f> for &'f mio::net::TcpSocket {
+impl AsReadWriteFd for mio::net::TcpSocket {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -759,14 +753,14 @@ impl AsRawReadWriteHandleOrSocket for mio::net::TcpSocket {
 }
 
 #[cfg(all(windows, feature = "use_mio_net"))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a mio::net::TcpSocket {
+impl AsReadWriteHandleOrSocket for mio::net::TcpSocket {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -785,14 +779,14 @@ impl AsRawReadWriteFd for mio::net::UdpSocket {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-impl<'f> AsReadWriteFd<'f> for &'f mio::net::UdpSocket {
+impl AsReadWriteFd for mio::net::UdpSocket {
     #[inline]
-    fn as_read_fd(self) -> BorrowedFd<'f> {
+    fn as_read_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 
     #[inline]
-    fn as_write_fd(self) -> BorrowedFd<'f> {
+    fn as_write_fd(&self) -> BorrowedFd<'_> {
         self.as_fd()
     }
 }
@@ -811,14 +805,14 @@ impl AsRawReadWriteHandleOrSocket for mio::net::UdpSocket {
 }
 
 #[cfg(all(windows, feature = "use_mio_net"))]
-impl<'a> AsReadWriteHandleOrSocket<'a> for &'a mio::net::UdpSocket {
+impl AsReadWriteHandleOrSocket for mio::net::UdpSocket {
     #[inline]
-    fn as_read_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 
     #[inline]
-    fn as_write_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.as_handle_or_socket()
     }
 }
@@ -826,7 +820,7 @@ impl<'a> AsReadWriteHandleOrSocket<'a> for &'a mio::net::UdpSocket {
 /// Adapt an `AsUnsafeReadWriteHandle` implementation to implement
 /// `AsUnsafeHandle` with the read handle.
 #[allow(clippy::exhaustive_structs)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct ReadHalf<'a, RW>(pub &'a RW);
 
 // Safety: `ReadHalf` implements `AsUnsafeHandle` if `RW` does.
@@ -838,23 +832,17 @@ unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for ReadHalf<'_, RW> {
 }
 
 #[cfg(not(windows))]
-impl<'a, RW> AsFd<'a> for ReadHalf<'a, RW>
-where
-    &'a RW: AsReadWriteFd<'a>,
-{
+impl<RW: AsReadWriteFd> AsFd for ReadHalf<'_, RW> {
     #[inline]
-    fn as_fd(self) -> BorrowedFd<'a> {
+    fn as_fd(&self) -> BorrowedFd<'_> {
         self.0.as_read_fd()
     }
 }
 
 #[cfg(windows)]
-impl<'a, RW> AsHandleOrSocket<'a> for ReadHalf<'a, RW>
-where
-    &'a RW: AsReadWriteHandleOrSocket<'a>,
-{
+impl<RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for ReadHalf<'_, RW> {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.0.as_read_handle_or_socket()
     }
 }
@@ -862,7 +850,7 @@ where
 /// Adapt an `AsUnsafeReadWriteHandle` implementation to implement
 /// `AsUnsafeHandle` with the write handle.
 #[allow(clippy::exhaustive_structs)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct WriteHalf<'a, RW>(pub &'a RW);
 
 // Safety: `WriteHalf` implements `AsUnsafeHandle` if `RW` does.
@@ -874,23 +862,17 @@ unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for WriteHalf<'_, RW> {
 }
 
 #[cfg(not(windows))]
-impl<'a, RW> AsFd<'a> for WriteHalf<'a, RW>
-where
-    &'a RW: AsReadWriteFd<'a>,
-{
+impl<RW: AsReadWriteFd> AsFd for WriteHalf<'_, RW> {
     #[inline]
-    fn as_fd(self) -> BorrowedFd<'a> {
+    fn as_fd(&self) -> BorrowedFd<'_> {
         self.0.as_write_fd()
     }
 }
 
 #[cfg(windows)]
-impl<'a, RW> AsHandleOrSocket<'a> for WriteHalf<'a, RW>
-where
-    &'a RW: AsReadWriteHandleOrSocket<'a>,
-{
+impl<RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for WriteHalf<'_, RW> {
     #[inline]
-    fn as_handle_or_socket(self) -> BorrowedHandleOrSocket<'a> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         self.0.as_write_handle_or_socket()
     }
 }
