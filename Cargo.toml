@@ -11,7 +11,7 @@ repository = "https://github.com/sunfishcode/unsafe-io"
 exclude = ["/.github"]
 
 [build-dependencies]
-rustc_version = "0.3.3"
+rustc_version = "0.4.0"
 
 [dependencies]
 io-lifetimes = "0.2.0"
