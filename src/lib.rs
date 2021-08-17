@@ -215,15 +215,15 @@
     anonymous_parameters,
     elided_lifetimes_in_paths,
     explicit_outlives_requirements,
-    invalid_html_tags,
+    rustdoc::invalid_html_tags,
     keyword_idents,
     macro_use_extern_crate,
     meta_variable_misuse,
     missing_copy_implementations,
-    missing_crate_level_docs,
+    rustdoc::missing_crate_level_docs,
     non_ascii_idents,
     pointer_structural_match,
-    private_doc_tests,
+    rustdoc::private_doc_tests,
     single_use_lifetimes,
     trivial_casts,
     trivial_numeric_casts,
@@ -237,7 +237,7 @@
     unused_results,
     variant_size_differences
 )]
-#![allow(missing_doc_code_examples)]
+#![allow(rustdoc::missing_doc_code_examples)]
 #![deny(
     clippy::all,
     clippy::cargo,
