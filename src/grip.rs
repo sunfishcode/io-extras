@@ -259,7 +259,11 @@ pub trait IntoRawGrip: IntoRawHandleOrSocket {
 #[cfg(not(windows))]
 pub trait FromRawGrip: FromRawFd {
     /// Consume an `RawGrip` and convert into a `Self`.
-    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self;
+    ///
+    /// # Safety
+    ///
+    /// `raw_grip` must be a suitable grip for assuming ownership.
+    unsafe fn from_raw_grip(raw_grip: RawGrip) -> Self;
 }
 
 /// Portability abstraction over `FromFd` and
@@ -267,7 +271,11 @@ pub trait FromRawGrip: FromRawFd {
 #[cfg(windows)]
 pub trait FromRawGrip: FromRawHandleOrSocket {
     /// Consume an `RawGrip` and convert into a `Self`.
-    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self;
+    ///
+    /// # Safety
+    ///
+    /// `raw_grip` must be a suitable grip for assuming ownership.
+    unsafe fn from_raw_grip(raw_grip: RawGrip) -> Self;
 }
 
 #[cfg(not(windows))]
@@ -331,15 +339,15 @@ impl<T: IntoRawHandleOrSocket> IntoRawGrip for T {
 #[cfg(not(windows))]
 impl<T: FromRawFd> FromRawGrip for T {
     #[inline]
-    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self {
-        Self::from_raw_fd(owned_grip)
+    unsafe fn from_raw_grip(raw_grip: RawGrip) -> Self {
+        Self::from_raw_fd(raw_grip)
     }
 }
 
 #[cfg(windows)]
 impl<T: FromRawHandleOrSocket> FromRawGrip for T {
     #[inline]
-    unsafe fn from_raw_grip(owned_grip: RawGrip) -> Self {
-        Self::from_raw_handle_or_socket(owned_grip)
+    unsafe fn from_raw_grip(raw_grip: RawGrip) -> Self {
+        Self::from_raw_handle_or_socket(raw_grip)
     }
 }
