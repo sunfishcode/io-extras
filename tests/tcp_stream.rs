@@ -2,12 +2,10 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
-use std::{
-    io::{self, Read, Write},
-    mem::ManuallyDrop,
-    net::{TcpListener, TcpStream},
-    thread,
-};
+use std::io::{self, Read, Write};
+use std::mem::ManuallyDrop;
+use std::net::{TcpListener, TcpStream};
+use std::thread;
 #[cfg(not(windows))]
 use unsafe_io::os::rsix::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeHandle, AsUnsafeSocket, FromUnsafeSocket};

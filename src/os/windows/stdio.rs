@@ -1,5 +1,5 @@
-//! This file is derived from Rust's library/std/src/sys/windows/stdio.rs at revision
-//! 8e863eb59a10fb0900d7377524a0dc7bf44b9ae3.
+//! This file is derived from Rust's library/std/src/sys/windows/stdio.rs at
+//! revision 8e863eb59a10fb0900d7377524a0dc7bf44b9ae3.
 
 #![allow(
     clippy::missing_docs_in_private_items,
@@ -17,33 +17,27 @@
 )]
 
 use crate::UnsafeFile;
-use std::{
-    char::decode_utf16,
-    cmp,
-    convert::TryInto,
-    io::{self, Read, Write},
-    os::{raw::c_void, windows::io::RawHandle},
-    ptr, str,
-    sync::atomic::{AtomicU16, Ordering::SeqCst},
-};
-use winapi::{
-    shared::{
-        minwindef::{DWORD, ULONG},
-        winerror::ERROR_INVALID_HANDLE,
-    },
-    um::{
-        consoleapi::{GetConsoleMode, ReadConsoleW, WriteConsoleW},
-        handleapi::INVALID_HANDLE_VALUE,
-        processenv::GetStdHandle,
-        winbase::{STD_ERROR_HANDLE, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE},
-        wincon::CONSOLE_READCONSOLE_CONTROL,
-    },
-};
+use std::char::decode_utf16;
+use std::convert::TryInto;
+use std::io::{self, Read, Write};
+use std::os::raw::c_void;
+use std::os::windows::io::RawHandle;
+use std::sync::atomic::AtomicU16;
+use std::sync::atomic::Ordering::SeqCst;
+use std::{cmp, ptr, str};
+use winapi::shared::minwindef::{DWORD, ULONG};
+use winapi::shared::winerror::ERROR_INVALID_HANDLE;
+use winapi::um::consoleapi::{GetConsoleMode, ReadConsoleW, WriteConsoleW};
+use winapi::um::handleapi::INVALID_HANDLE_VALUE;
+use winapi::um::processenv::GetStdHandle;
+use winapi::um::winbase::{STD_ERROR_HANDLE, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
+use winapi::um::wincon::CONSOLE_READCONSOLE_CONTROL;
 
 static SURROGATE: AtomicU16 = AtomicU16::new(0);
 
-// Don't cache handles but get them fresh for every read/write. This allows us to track changes to
-// the value over time (such as if a process calls `SetStdHandle` while it's running). See #40490.
+// Don't cache handles but get them fresh for every read/write. This allows us
+// to track changes to the value over time (such as if a process calls
+// `SetStdHandle` while it's running). See #40490.
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
 pub(crate) struct Stdio {
     id: DWORD,
@@ -77,13 +71,15 @@ impl Stdio {
     }
 }
 
-// Apparently Windows doesn't handle large reads on stdin or writes to stdout/stderr well (see
-// #13304 for details).
+// Apparently Windows doesn't handle large reads on stdin or writes to
+// stdout/stderr well (see #13304 for details).
 //
-// From MSDN (2011): "The storage for this buffer is allocated from a shared heap for the
-// process that is 64 KB in size. The maximum size of the buffer will depend on heap usage."
+// From MSDN (2011): "The storage for this buffer is allocated from a shared
+// heap for the process that is 64 KB in size. The maximum size of the buffer
+// will depend on heap usage."
 //
-// We choose the cap at 8 KiB because libuv does the same, and it seems to be acceptable so far.
+// We choose the cap at 8 KiB because libuv does the same, and it seems to be
+// acceptable so far.
 const MAX_BUFFER_SIZE: usize = 8192;
 
 #[allow(clippy::as_conversions)]
@@ -99,9 +95,10 @@ fn get_handle(handle_id: DWORD) -> io::Result<RawHandle> {
 }
 
 fn is_console(handle: RawHandle) -> bool {
-    // `GetConsoleMode` will return false (0) if this is a pipe (we don't care about the reported
-    // mode). This will only detect Windows Console, not other terminals connected to a pipe like
-    // MSYS. Which is exactly what we need, as only Windows Console needs a conversion to UTF-16.
+    // `GetConsoleMode` will return false (0) if this is a pipe (we don't care
+    // about the reported mode). This will only detect Windows Console, not
+    // other terminals connected to a pipe like MSYS. Which is exactly what we
+    // need, as only Windows Console needs a conversion to UTF-16.
     let mut mode = 0;
     unsafe { GetConsoleMode(handle, &mut mode) != 0_i32 }
 }
@@ -113,11 +110,13 @@ fn write(handle_id: DWORD, data: &[u8]) -> io::Result<usize> {
         return unsafe { handle.as_unowned_unsafe_handle().as_writeable() }.write(data);
     }
 
-    // As the console is meant for presenting text, we assume bytes of `data` come from a string
-    // and are encoded as UTF-8, which needs to be encoded as UTF-16.
+    // As the console is meant for presenting text, we assume bytes of `data` come
+    // from a string and are encoded as UTF-8, which needs to be encoded as
+    // UTF-16.
     //
     // If the data is not valid UTF-8 we write out as many bytes as are valid.
-    // Only when there are no valid bytes (which will happen on the next call), return an error.
+    // Only when there are no valid bytes (which will happen on the next call),
+    // return an error.
     let len = cmp::min(data.len(), MAX_BUFFER_SIZE / 2);
     let utf8 = match str::from_utf8(&data[..len]) {
         Ok(s) => s,
@@ -143,11 +142,12 @@ fn write(handle_id: DWORD, data: &[u8]) -> io::Result<usize> {
     if written == utf16.len() {
         Ok(utf8.len())
     } else {
-        // Make sure we didn't end up writing only half of a surrogate pair (even though the chance
-        // is tiny). Because it is not possible for user code to re-slice `data` in such a way that
-        // a missing surrogate can be produced (and also because of the UTF-8 validation above),
-        // write the missing surrogate out now.
-        // Buffering it would mean we have to lie about the number of bytes written.
+        // Make sure we didn't end up writing only half of a surrogate pair (even
+        // though the chance is tiny). Because it is not possible for user code
+        // to re-slice `data` in such a way that a missing surrogate can be
+        // produced (and also because of the UTF-8 validation above), write the
+        // missing surrogate out now. Buffering it would mean we have to lie
+        // about the number of bytes written.
         let first_char_remaining = utf16[written];
         if (0xDCEE..=0xDFFF).contains(&first_char_remaining) {
             // low surrogate
@@ -213,9 +213,9 @@ impl Read for Stdio {
         }
 
         let mut utf16_buf = [0_u16; MAX_BUFFER_SIZE / 2];
-        // In the worst case, an UTF-8 string can take 3 bytes for every `u16` of an UTF-16. So
-        // we can read at most a third of `buf.len()` chars and uphold the guarantee no data gets
-        // lost.
+        // In the worst case, an UTF-8 string can take 3 bytes for every `u16` of an
+        // UTF-16. So we can read at most a third of `buf.len()` chars and
+        // uphold the guarantee no data gets lost.
         let amount = cmp::min(buf.len() / 3, utf16_buf.len());
         let read = read_u16s_fixup_surrogates(handle, &mut utf16_buf, amount)?;
 
@@ -223,9 +223,10 @@ impl Read for Stdio {
     }
 }
 
-// We assume that if the last `u16` is an unpaired surrogate they got sliced apart by our
-// buffer size, and keep it around for the next read hoping to put them together.
-// This is a best effort, and may not work if we are not the only reader on Stdio.
+// We assume that if the last `u16` is an unpaired surrogate they got sliced
+// apart by our buffer size, and keep it around for the next read hoping to put
+// them together. This is a best effort, and may not work if we are not the
+// only reader on Stdio.
 fn read_u16s_fixup_surrogates(
     handle: RawHandle,
     buf: &mut [u16],
@@ -239,9 +240,9 @@ fn read_u16s_fixup_surrogates(
         buf[0] = s;
         start = 1;
         if amount == 1 {
-            // Special case: `Stdio::read` guarantees we can always read at least one new `u16`
-            // and combine it with an unpaired surrogate, because the UTF-8 buffer is at least
-            // 4 bytes.
+            // Special case: `Stdio::read` guarantees we can always read at least one new
+            // `u16` and combine it with an unpaired surrogate, because the
+            // UTF-8 buffer is at least 4 bytes.
             amount = 2;
         }
     }
@@ -260,9 +261,9 @@ fn read_u16s_fixup_surrogates(
 
 #[allow(clippy::as_conversions)]
 fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
-    // Configure the `pInputControl` parameter to not only return on `\r\n` but also Ctrl-Z, the
-    // traditional DOS method to indicate end of character stream / user input (SUB).
-    // See #38274 and https://stackoverflow.com/questions/43836040/win-api-readconsole.
+    // Configure the `pInputControl` parameter to not only return on `\r\n` but
+    // also Ctrl-Z, the traditional DOS method to indicate end of character
+    // stream / user input (SUB). See #38274 and https://stackoverflow.com/questions/43836040/win-api-readconsole.
     const CTRL_Z: u16 = 0x1A;
     const CTRL_Z_MASK: ULONG = 1 << CTRL_Z;
     let mut input_control = CONSOLE_READCONSOLE_CONTROL {

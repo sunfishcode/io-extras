@@ -4,10 +4,8 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
-use std::{
-    io::{self, stdout, Write},
-    mem::ManuallyDrop,
-};
+use std::io::{self, stdout, Write};
+use std::mem::ManuallyDrop;
 #[cfg(not(windows))]
 use unsafe_io::os::rsix::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};

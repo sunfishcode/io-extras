@@ -5,17 +5,15 @@ use crate::os::rsix::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
+use std::fmt;
+use std::fs::File;
+use std::io::{self, IoSlice, IoSliceMut, Read, Write};
+use std::marker::PhantomData;
+use std::mem::ManuallyDrop;
+use std::net::{TcpListener, TcpStream, UdpSocket};
+use std::ops::{Deref, DerefMut};
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
-use std::{
-    fmt,
-    fs::File,
-    io::{self, IoSlice, IoSliceMut, Read, Write},
-    marker::PhantomData,
-    mem::ManuallyDrop,
-    net::{TcpListener, TcpStream, UdpSocket},
-    ops::{Deref, DerefMut},
-};
 #[cfg(windows)]
 use {
     crate::os::windows::{
@@ -681,9 +679,10 @@ pub trait FromUnsafeSocket {
 /// A non-owning unsafe I/O handle.
 ///
 /// On Posix-ish platforms this is just a [`RawFd`]. On Windows it is a minimal
-/// abstraction over [`RawHandle`], [`RawSocket`], and stdio device identifiers.
-/// Similar to Rust raw pointers, it is considered safe to construct these, but
-/// unsafe to do any I/O with them (effectively dereferencing them).
+/// abstraction over [`RawHandle`], [`RawSocket`], and stdio device
+/// identifiers. Similar to Rust raw pointers, it is considered safe to
+/// construct these, but unsafe to do any I/O with them (effectively
+/// dereferencing them).
 ///
 /// [`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
 /// [`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
@@ -909,8 +908,8 @@ impl UnsafeFile {
         UnsafeHandle::unowned_from_raw_fd(self.0)
     }
 
-    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
-    /// doesn't imply a dereference.
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because
+    /// it doesn't imply a dereference.
     #[inline]
     #[must_use]
     pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
@@ -952,8 +951,8 @@ impl UnsafeFile {
         UnsafeHandle::unowned_from_raw_handle(self.0)
     }
 
-    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
-    /// doesn't imply a dereference.
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because
+    /// it doesn't imply a dereference.
     #[inline]
     #[must_use]
     pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
@@ -1001,8 +1000,8 @@ impl UnsafeSocket {
         UnsafeHandle::unowned_from_raw_fd(self.0)
     }
 
-    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
-    /// doesn't imply a dereference.
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because
+    /// it doesn't imply a dereference.
     #[inline]
     #[must_use]
     pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {
@@ -1028,8 +1027,8 @@ impl UnsafeSocket {
         UnsafeHandle::unowned_from_raw_socket(self.0)
     }
 
-    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because it
-    /// doesn't imply a dereference.
+    /// Like [`IntoUnsafeHandle::into_unsafe_handle`], but isn't unsafe because
+    /// it doesn't imply a dereference.
     #[inline]
     #[must_use]
     pub const fn into_unowned_unsafe_handle(self) -> UnsafeHandle {

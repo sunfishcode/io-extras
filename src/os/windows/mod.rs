@@ -16,15 +16,13 @@
 
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
-use std::{
-    fs::File,
-    io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock},
-    net::{TcpListener, TcpStream, UdpSocket},
-    os::windows::io::{
-        AsRawHandle, AsRawSocket, IntoRawHandle, IntoRawSocket, RawHandle, RawSocket,
-    },
-    process::{ChildStderr, ChildStdin, ChildStdout},
+use std::fs::File;
+use std::io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock};
+use std::net::{TcpListener, TcpStream, UdpSocket};
+use std::os::windows::io::{
+    AsRawHandle, AsRawSocket, IntoRawHandle, IntoRawSocket, RawHandle, RawSocket,
 };
+use std::process::{ChildStderr, ChildStdin, ChildStdout};
 use stdio::Stdio;
 
 mod stdio;

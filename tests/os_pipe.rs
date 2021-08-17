@@ -4,11 +4,9 @@
 #![cfg(all(not(target_os = "wasi"), feature = "os_pipe"))]
 
 use os_pipe::{pipe, PipeReader};
-use std::{
-    io::{self, Read, Write},
-    mem::ManuallyDrop,
-    thread,
-};
+use std::io::{self, Read, Write};
+use std::mem::ManuallyDrop;
+use std::thread;
 #[cfg(not(windows))]
 use unsafe_io::os::rsix::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};

@@ -3,28 +3,29 @@
 
 use super::{AsRawHandleOrSocket, RawEnum, RawHandleOrSocket};
 use io_lifetimes::{BorrowedHandle, BorrowedSocket, OwnedHandle, OwnedSocket};
-use std::{
-    fmt,
-    marker::PhantomData,
-    os::windows::io::{AsRawHandle, AsRawSocket, RawSocket},
-};
+use std::fmt;
+use std::marker::PhantomData;
+use std::os::windows::io::{AsRawHandle, AsRawSocket, RawSocket};
 use winapi::um::winsock2::INVALID_SOCKET;
 
-/// `HandleOrSocket` variant of io-lifetimes' `BorrowedHandle`/`BorrowedSocket`.
+/// `HandleOrSocket` variant of io-lifetimes'
+/// `BorrowedHandle`/`BorrowedSocket`.
 #[derive(Copy, Clone)]
 pub struct BorrowedHandleOrSocket<'a> {
     raw: RawHandleOrSocket,
     _phantom: PhantomData<&'a OwnedHandleOrSocket>,
 }
 
-/// `HandleOrSocket` variant of io-lifetimes' `BorrowedHandle`/`BorrowedSocket`.
+/// `HandleOrSocket` variant of io-lifetimes'
+/// `BorrowedHandle`/`BorrowedSocket`.
 #[allow(missing_copy_implementations)]
 pub struct OwnedHandleOrSocket {
     raw: RawHandleOrSocket,
 }
 
 impl<'a> BorrowedHandleOrSocket<'a> {
-    /// Return a `BorrowedHandleOrSocket` holding the given raw handle or socket.
+    /// Return a `BorrowedHandleOrSocket` holding the given raw handle or
+    /// socket.
     ///
     /// # Safety
     ///

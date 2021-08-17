@@ -1,18 +1,14 @@
 //! `HandleOrSocket` variants of `{As,Into}{Handle,Socket}`.
 
-use super::{
-    types::{BorrowedHandleOrSocket, OwnedHandleOrSocket},
-    AsRawHandleOrSocket,
-};
+use super::types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
+use super::AsRawHandleOrSocket;
 use io_lifetimes::{AsHandle, AsSocket, IntoHandle, IntoSocket};
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
-use std::{
-    fs::File,
-    io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock},
-    net::{TcpListener, TcpStream, UdpSocket},
-    process::{ChildStderr, ChildStdin, ChildStdout},
-};
+use std::fs::File;
+use std::io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock};
+use std::net::{TcpListener, TcpStream, UdpSocket};
+use std::process::{ChildStderr, ChildStdin, ChildStdout};
 
 /// Like [`AsHandle`] and [`AsSocket`], but implementable by types which
 /// can implement either one.

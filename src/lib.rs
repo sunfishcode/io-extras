@@ -40,13 +40,13 @@
 //! superceded by the [io-lifetimes] crate, which provides a much simpler and
 //! safer API.
 //!
-//! The `AsUnsafe*` and `IntoUnsafe*` trait functions return non-owning handles,
-//! however these traits do require types that implement them to guarantee that
-//! they own the handles. This differs from their `AsRaw*` and `IntoRaw*`
-//! counterparts, which do not require such a guarantee. This crate defines an
-//! [`OwnsRaw`] trait which is unsafe to implement and which allows types to
-//! declare that they own the handles they hold, allowing them to opt into the
-//! blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
+//! The `AsUnsafe*` and `IntoUnsafe*` trait functions return non-owning
+//! handles, however these traits do require types that implement them to
+//! guarantee that they own the handles. This differs from their `AsRaw*` and
+//! `IntoRaw*` counterparts, which do not require such a guarantee. This crate
+//! defines an [`OwnsRaw`] trait which is unsafe to implement and which allows
+//! types to declare that they own the handles they hold, allowing them to opt
+//! into the blanket `AsUnsafe*` and `IntoUnsafe*` implementations. See
 //! [rust-lang/rust#76969] for further background.
 //!
 //! # Additional Utilities

@@ -9,9 +9,10 @@ use crate::os::windows::{
     AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket, RawHandleOrSocket,
 };
 use crate::{AsUnsafeHandle, OwnsRaw, UnsafeHandle};
+use std::fs::File;
+use std::net::TcpStream;
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
-use std::{fs::File, net::TcpStream};
 #[cfg(not(windows))]
 use {
     crate::os::rsix::{AsRawFd, RawFd},

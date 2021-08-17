@@ -2,14 +2,12 @@
 
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
+use std::fs::File;
+use std::io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock};
+use std::net::{TcpListener, TcpStream, UdpSocket};
 #[cfg(unix)]
 use std::os::unix::net::{UnixDatagram, UnixListener, UnixStream};
-use std::{
-    fs::File,
-    io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock},
-    net::{TcpListener, TcpStream, UdpSocket},
-    process::{ChildStderr, ChildStdin, ChildStdout},
-};
+use std::process::{ChildStderr, ChildStdin, ChildStdout};
 
 /// Assert that a type owns its raw file descriptor or handle.
 ///
