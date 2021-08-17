@@ -14,7 +14,8 @@ exclude = ["/.github"]
 rustc_version = "0.4.0"
 
 [dependencies]
-io-lifetimes = "0.2.0"
+io-lifetimes = { version = "0.2.2", default-features = false }
+
 # Optionally depend on async-std to implement traits for its types.
 #
 # Enable the "unstable" feature so that we can implement `OwnsRaw` for
