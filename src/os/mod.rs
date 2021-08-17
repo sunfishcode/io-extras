@@ -1,6 +1,6 @@
 //! OS-specific functionality.
 
 #[cfg(not(windows))]
-pub mod posish;
+pub mod rsix;
 #[cfg(windows)]
 pub mod windows;

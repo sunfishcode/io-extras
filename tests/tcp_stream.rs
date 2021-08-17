@@ -9,7 +9,7 @@ use std::{
     thread,
 };
 #[cfg(not(windows))]
-use unsafe_io::os::posish::{AsRawFd, FromRawFd};
+use unsafe_io::os::rsix::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeHandle, AsUnsafeSocket, FromUnsafeSocket};
 #[cfg(windows)]
 use {std::os::windows::io::FromRawSocket, unsafe_io::os::windows::AsRawHandleOrSocket};

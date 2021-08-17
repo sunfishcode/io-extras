@@ -6,7 +6,7 @@
 
 use std::io::{stderr, stdout};
 #[cfg(not(windows))]
-use unsafe_io::os::posish::{AsRawFd, AsRawReadWriteFd, RawFd};
+use unsafe_io::os::rsix::{AsRawFd, AsRawReadWriteFd, RawFd};
 #[cfg(windows)]
 use unsafe_io::os::windows::{
     AsRawHandleOrSocket, AsRawReadWriteHandleOrSocket, RawHandleOrSocket,

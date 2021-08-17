@@ -125,7 +125,7 @@
 //!
 //! ```rust
 //! #[cfg(not(windows))]
-//! use unsafe_io::os::posish::{AsRawFd, RawFd};
+//! use unsafe_io::os::rsix::{AsRawFd, RawFd};
 //! #[cfg(windows)]
 //! use unsafe_io::os::windows::{AsRawHandleOrSocket, RawHandleOrSocket};
 //! use unsafe_io::OwnsRaw;
