@@ -14,7 +14,7 @@ exclude = ["/.github"]
 rustc_version = "0.4.0"
 
 [dependencies]
-io-lifetimes = { version = "0.2.2", default-features = false }
+io-lifetimes = { version = "0.3.0", default-features = false }
 
 # Optionally depend on async-std to implement traits for its types.
 #
