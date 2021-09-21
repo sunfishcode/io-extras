@@ -201,6 +201,9 @@
 // goes. As always, exercise discretion: if fixing a warning would make the
 // code worse, disable the warning instead.
 //
+
+// TODO shouldn't need this once we don't need Rust 1.51 support.
+#![allow(renamed_and_removed_lints)]
 // TODO: Re-add rustdoc::all once we don't need Rust 1.51 support.
 #![deny(
     future_incompatible,
@@ -215,15 +218,12 @@
     anonymous_parameters,
     elided_lifetimes_in_paths,
     explicit_outlives_requirements,
-    rustdoc::invalid_html_tags,
     keyword_idents,
     macro_use_extern_crate,
     meta_variable_misuse,
     missing_copy_implementations,
-    rustdoc::missing_crate_level_docs,
     non_ascii_idents,
     pointer_structural_match,
-    rustdoc::private_doc_tests,
     single_use_lifetimes,
     trivial_casts,
     trivial_numeric_casts,
@@ -237,7 +237,11 @@
     unused_results,
     variant_size_differences
 )]
-#![allow(rustdoc::missing_doc_code_examples)]
+// rustdoc lints.
+// TODO use rustdoc::lint when we don't need Rust 1.51 support.
+#![deny(invalid_html_tags, missing_crate_level_docs, private_doc_tests)]
+// TODO use rustdoc::lint when we don't need Rust 1.51 support.
+#![allow(missing_doc_code_examples)]
 #![deny(
     clippy::all,
     clippy::cargo,
