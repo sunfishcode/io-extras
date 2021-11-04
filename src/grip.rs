@@ -10,7 +10,7 @@ use crate::os::windows::{
 };
 #[cfg(not(windows))]
 use {
-    crate::os::rsix::{AsRawFd, AsRawReadWriteFd, AsReadWriteFd, FromRawFd, IntoRawFd, RawFd},
+    crate::os::rustix::{AsRawFd, AsRawReadWriteFd, AsReadWriteFd, FromRawFd, IntoRawFd, RawFd},
     io_lifetimes::{AsFd, BorrowedFd, FromFd, IntoFd, OwnedFd},
 };
 

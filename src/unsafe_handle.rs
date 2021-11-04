@@ -1,7 +1,7 @@
 //! The [`UnsafeHandle`] type and supporting types and traits.
 
 #[cfg(not(windows))]
-use crate::os::rsix::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
+use crate::os::rustix::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use crate::OwnsRaw;
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};

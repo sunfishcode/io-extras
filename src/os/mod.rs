@@ -1,6 +1,6 @@
 //! OS-specific functionality.
 
 #[cfg(not(windows))]
-pub mod rsix;
+pub mod rustix;
 #[cfg(windows)]
 pub mod windows;

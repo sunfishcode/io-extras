@@ -15,7 +15,7 @@ use std::net::TcpStream;
 use std::os::unix::net::UnixStream;
 #[cfg(not(windows))]
 use {
-    crate::os::rsix::{AsRawFd, RawFd},
+    crate::os::rustix::{AsRawFd, RawFd},
     io_lifetimes::{AsFd, BorrowedFd},
 };
 

@@ -7,7 +7,7 @@
 use std::io::{self, stdout, Write};
 use std::mem::ManuallyDrop;
 #[cfg(not(windows))]
-use unsafe_io::os::rsix::{AsRawFd, FromRawFd};
+use unsafe_io::os::rustix::{AsRawFd, FromRawFd};
 use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
 #[cfg(windows)]
 use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrSocket};
