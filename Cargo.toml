@@ -47,6 +47,3 @@ use_async_std = ["async-std", "io-lifetimes/async-std"]
 use_tokio = ["tokio", "io-lifetimes/tokio"]
 use_socket2 = ["socket2", "io-lifetimes/socket2"]
 use_os_pipe = ["os_pipe", "io-lifetimes/os_pipe"]
-
-[badges]
-maintenance = { status = "actively-developed" }
