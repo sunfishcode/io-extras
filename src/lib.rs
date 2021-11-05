@@ -238,8 +238,8 @@
     variant_size_differences
 )]
 // rustdoc lints.
-// TODO use rustdoc::lint when we don't need Rust 1.51 support.
-#![deny(invalid_html_tags, missing_crate_level_docs, private_doc_tests)]
+// TODO use rustdoc::lint and add invalid_html_tags when we don't need Rust 1.48 support.
+#![deny(missing_crate_level_docs, private_doc_tests)]
 // TODO use rustdoc::lint when we don't need Rust 1.51 support.
 #![allow(missing_doc_code_examples)]
 #![deny(
