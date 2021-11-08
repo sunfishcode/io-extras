@@ -261,15 +261,11 @@ mod read_write;
 mod unsafe_handle;
 
 pub use grip::{
-    AsGrip, AsRawGrip, AsRawReadWriteGrip, AsReadWriteGrip, BorrowedGrip, FromGrip, FromRawGrip,
-    IntoGrip, IntoRawGrip, OwnedGrip, RawGrip,
+    borrow_raw_grip, AsGrip, AsRawGrip, AsRawReadWriteGrip, AsReadWriteGrip, BorrowedGrip,
+    FromGrip, FromRawGrip, IntoGrip, IntoRawGrip, OwnedGrip, RawGrip,
 };
 pub use owns_raw::OwnsRaw;
-pub use read_write::{AsUnsafeReadWriteHandle, ReadHalf, WriteHalf};
-pub use unsafe_handle::{
-    AsUnsafeFile, AsUnsafeHandle, AsUnsafeSocket, FromUnsafeFile, FromUnsafeHandle,
-    FromUnsafeSocket, IntoUnsafeFile, IntoUnsafeHandle, IntoUnsafeSocket, UnsafeFile, UnsafeHandle,
-    UnsafeReadable, UnsafeSocket, UnsafeWriteable, View,
-};
+pub use read_write::{ReadHalf, WriteHalf};
+pub use unsafe_handle::{UnsafeReadable, UnsafeWriteable};
 
 pub mod os;

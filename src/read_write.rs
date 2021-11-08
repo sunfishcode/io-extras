@@ -1,14 +1,7 @@
-//! This defines [`AsUnsafeReadWriteHandle`], and supporting utilities, which
-//! is similar to [`AsUnsafeHandle`] except that instead of just having one
-//! `as_unsafe_handle` function, it has separate `as_unsafe_read_handle` and
-//! `as_unsafe_write_handle` functions, so that it can be implemented by
-//! types which contain two handles, one for reading and one for writing.
-
 #[cfg(windows)]
 use crate::os::windows::{
     AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket, RawHandleOrSocket,
 };
-use crate::{AsUnsafeHandle, OwnsRaw, UnsafeHandle};
 use std::fs::File;
 use std::net::TcpStream;
 #[cfg(unix)]
@@ -18,18 +11,6 @@ use {
     crate::os::rustix::{AsRawFd, RawFd},
     io_lifetimes::{AsFd, BorrowedFd},
 };
-
-/// Like [`AsUnsafeHandle`], but for types which may have one or two handles,
-/// for reading and writing.
-///
-/// For types that only have one, both functions return the same value.
-pub trait AsUnsafeReadWriteHandle {
-    /// Extracts the unsafe handle for reading.
-    fn as_unsafe_read_handle(&self) -> UnsafeHandle;
-
-    /// Extracts the unsafe handle for writing.
-    fn as_unsafe_write_handle(&self) -> UnsafeHandle;
-}
 
 /// Like [`AsRawFd`], but for types which may have one or two file descriptors,
 /// for reading and writing.
@@ -101,32 +82,6 @@ pub trait AsReadWriteHandleOrSocket {
     /// Like [`AsHandleOrSocket::as_handle_or_socket`], but returns the
     /// writing handle.
     fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_>;
-}
-
-#[cfg(not(windows))]
-impl<T: AsRawReadWriteFd + OwnsRaw> AsUnsafeReadWriteHandle for T {
-    #[inline]
-    fn as_unsafe_read_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::unowned_from_raw_fd(self.as_raw_read_fd())
-    }
-
-    #[inline]
-    fn as_unsafe_write_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::unowned_from_raw_fd(self.as_raw_write_fd())
-    }
-}
-
-#[cfg(windows)]
-impl<T: AsRawReadWriteHandleOrSocket + OwnsRaw> AsUnsafeReadWriteHandle for T {
-    #[inline]
-    fn as_unsafe_read_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::unowned_from_raw_handle_or_socket(self.as_raw_read_handle_or_socket())
-    }
-
-    #[inline]
-    fn as_unsafe_write_handle(&self) -> UnsafeHandle {
-        UnsafeHandle::unowned_from_raw_handle_or_socket(self.as_raw_write_handle_or_socket())
-    }
 }
 
 #[cfg(not(windows))]
@@ -818,19 +773,11 @@ impl AsReadWriteHandleOrSocket for mio::net::UdpSocket {
     }
 }
 
-/// Adapt an `AsUnsafeReadWriteHandle` implementation to implement
-/// `AsUnsafeHandle` with the read handle.
+/// Adapt an `AsReadWriteGrip` implementation to implement
+/// `AsGrip` with the read handle.
 #[allow(clippy::exhaustive_structs)]
 #[derive(Debug, Copy, Clone)]
 pub struct ReadHalf<'a, RW>(pub &'a RW);
-
-// Safety: `ReadHalf` implements `AsUnsafeHandle` if `RW` does.
-unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for ReadHalf<'_, RW> {
-    #[inline]
-    fn as_unsafe_handle(&self) -> UnsafeHandle {
-        self.0.as_unsafe_read_handle()
-    }
-}
 
 #[cfg(not(windows))]
 impl<RW: AsReadWriteFd> AsFd for ReadHalf<'_, RW> {
@@ -848,19 +795,11 @@ impl<RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for ReadHalf<'_, RW> {
     }
 }
 
-/// Adapt an `AsUnsafeReadWriteHandle` implementation to implement
-/// `AsUnsafeHandle` with the write handle.
+/// Adapt an `AsReadWriteGrip` implementation to implement
+/// `AsGrip` with the write handle.
 #[allow(clippy::exhaustive_structs)]
 #[derive(Debug, Copy, Clone)]
 pub struct WriteHalf<'a, RW>(pub &'a RW);
-
-// Safety: `WriteHalf` implements `AsUnsafeHandle` if `RW` does.
-unsafe impl<RW: AsUnsafeReadWriteHandle> AsUnsafeHandle for WriteHalf<'_, RW> {
-    #[inline]
-    fn as_unsafe_handle(&self) -> UnsafeHandle {
-        self.0.as_unsafe_write_handle()
-    }
-}
 
 #[cfg(not(windows))]
 impl<RW: AsReadWriteFd> AsFd for WriteHalf<'_, RW> {

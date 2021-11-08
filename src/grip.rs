@@ -351,3 +351,17 @@ impl<T: FromRawHandleOrSocket> FromRawGrip for T {
         Self::from_raw_handle_or_socket(raw_grip)
     }
 }
+
+/// Portability abstraction over `BorrowedFd::from_raw_fd` and
+/// `BorrowedHandleOrSocket::from_raw_handle_or_socket`.
+#[cfg(not(windows))]
+pub unsafe fn borrow_raw_grip<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
+    BorrowedFd::borrow_raw_fd(grip)
+}
+
+/// Portability abstraction over `BorrowedFd::from_raw_fd` and
+/// `BorrowedHandleOrSocket::from_raw_handle_or_socket`.
+#[cfg(windows)]
+pub unsafe fn borrow_raw_grip<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
+    BorrowedHandleOrSocket::borrow_raw_handle_or_socket(grip)
+}
