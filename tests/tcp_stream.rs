@@ -2,15 +2,12 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
+use io_lifetimes::AsSocketlike;
 use std::io::{self, Read, Write};
-use std::mem::ManuallyDrop;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
-#[cfg(not(windows))]
-use unsafe_io::os::rustix::{AsRawFd, FromRawFd};
-use unsafe_io::{AsUnsafeHandle, AsUnsafeSocket, FromUnsafeSocket};
-#[cfg(windows)]
-use {std::os::windows::io::FromRawSocket, unsafe_io::os::windows::AsRawHandleOrSocket};
+use unsafe_io::grip::{AsRawGrip, FromRawGrip};
+use unsafe_io::raw::{RawReadable, RawWriteable};
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
@@ -21,46 +18,16 @@ fn tcp_stream_write() -> io::Result<()> {
     let _t = thread::spawn(move || -> io::Result<()> {
         let stream = TcpStream::connect(addr)?;
 
-        // Obtain an `UnsafeWriteable` and use it to write.
+        // Obtain an `RawWriteable` and use it to write.
         writeln!(
-            unsafe { stream.as_unsafe_handle().as_writeable() },
-            "Write via UnsafeWriteable"
+            unsafe { RawWriteable::from_raw_grip(stream.as_raw_grip()) },
+            "Write via RawWriteable"
         )?;
 
-        // Obtain an `UnsafeSocket` and use it to construct a temporary manually-drop
-        // `TcpStream` to write.
-        writeln!(stream.as_tcp_stream_view(), "Write via as_tcp_stream_view")?;
-
-        // Similar, but do it manually.
+        // Obtain a `SocketlikeView` and use it to write.
         writeln!(
-            ManuallyDrop::new(unsafe {
-                std::net::TcpStream::from_unsafe_socket(stream.as_unsafe_socket())
-            }),
-            "Write via unsafe socket"
-        )?;
-
-        // Similar, but use the Posix-ish-specific type.
-        #[cfg(not(windows))]
-        writeln!(
-            ManuallyDrop::new(unsafe {
-                std::net::TcpStream::from_raw_fd(stream.as_unsafe_handle().as_raw_fd())
-            }),
-            "Write via raw fd"
-        )?;
-
-        // Similar, but use the Windows-specific type.
-        #[cfg(windows)]
-        writeln!(
-            ManuallyDrop::new(unsafe {
-                std::net::TcpStream::from_raw_socket(
-                    stream
-                        .as_unsafe_socket()
-                        .as_raw_handle_or_socket()
-                        .as_unowned_raw_socket()
-                        .unwrap(),
-                )
-            }),
-            "Write via raw socket"
+            stream.as_socketlike_view::<TcpStream>(),
+            "Write via SocketlikeView"
         )?;
 
         Ok(())
@@ -70,22 +37,10 @@ fn tcp_stream_write() -> io::Result<()> {
     let mut buf = String::new();
     stream.read_to_string(&mut buf)?;
 
-    #[cfg(not(windows))]
     assert_eq!(
         buf,
-        "Write via UnsafeWriteable\n\
-                Write via as_tcp_stream_view\n\
-                Write via unsafe socket\n\
-                Write via raw fd\n"
-    );
-
-    #[cfg(windows)]
-    assert_eq!(
-        buf,
-        "Write via UnsafeWriteable\n\
-                Write via as_tcp_stream_view\n\
-                Write via unsafe socket\n\
-                Write via raw socket\n"
+        "Write via RawWriteable\n\
+                Write via SocketlikeView\n"
     );
 
     Ok(())
@@ -107,57 +62,19 @@ fn accept() -> io::Result<TcpStream> {
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
 fn tcp_stream_read() -> io::Result<()> {
-    // Obtain an `UnsafeReadable` and use it to read.
+    // Obtain an `RawReadable` and use it to read.
     let stream = accept()?;
     let mut buf = String::new();
-    unsafe { stream.as_unsafe_handle().as_readable() }.read_to_string(&mut buf)?;
+    unsafe { RawReadable::from_raw_grip(stream.as_raw_grip()) }.read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
 
-    // Obtain an `UnsafeSocket` and use it to construct a temporary manually-drop
-    // `TcpStream` to read.
+    // Obtain a `FilelikeView` and use it to read.
     let stream = accept()?;
     let mut buf = String::new();
-    stream.as_tcp_stream_view().read_to_string(&mut buf)?;
-    assert_eq!(buf, "hello, world");
-
-    // Similar, but do it manually.
-    let stream = accept()?;
-    let mut buf = String::new();
-    ManuallyDrop::new(unsafe {
-        std::net::TcpStream::from_unsafe_socket(stream.as_unsafe_socket())
-    })
-    .read_to_string(&mut buf)?;
-    assert_eq!(buf, "hello, world");
-
-    // Similar, but use the Posix-ish-specific type.
-    #[cfg(not(windows))]
-    {
-        let stream = accept()?;
-        let mut buf = String::new();
-        ManuallyDrop::new(unsafe {
-            std::net::TcpStream::from_raw_fd(stream.as_unsafe_handle().as_raw_fd())
-        })
+    stream
+        .as_socketlike_view::<TcpStream>()
         .read_to_string(&mut buf)?;
-        assert_eq!(buf, "hello, world");
-    }
-
-    // Similar, but use the Windows-specific type.
-    #[cfg(windows)]
-    {
-        let stream = accept()?;
-        let mut buf = String::new();
-        ManuallyDrop::new(unsafe {
-            std::net::TcpStream::from_raw_socket(
-                stream
-                    .as_unsafe_socket()
-                    .as_raw_handle_or_socket()
-                    .as_unowned_raw_socket()
-                    .unwrap(),
-            )
-        })
-        .read_to_string(&mut buf)?;
-        assert_eq!(buf, "hello, world");
-    }
+    assert_eq!(buf, "hello, world");
 
     Ok(())
 }

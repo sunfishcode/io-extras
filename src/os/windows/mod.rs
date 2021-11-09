@@ -14,7 +14,7 @@
 //! [`IntoUnsafeHandle`]: crate::IntoUnsafeHandle
 //! [`FromUnsafeHandle`]: crate::FromUnsafeHandle
 
-#[cfg(feature = "os_pipe")]
+#[cfg(any(test, feature = "os_pipe"))]
 use os_pipe::{PipeReader, PipeWriter};
 use std::fs::File;
 use std::io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock};
@@ -123,7 +123,7 @@ impl RawHandleOrSocket {
     ///  - It tracks the stdin handle, which may change dynamically via
     ///    `SetStdHandle`.
     ///  - When stdin is attached to a console, reads from this handle via
-    ///    `UnsafeReadable` are decoded into UTF-8.
+    ///    `RawReadable` are decoded into UTF-8.
     #[inline]
     #[must_use]
     pub const fn stdin() -> Self {
@@ -137,7 +137,7 @@ impl RawHandleOrSocket {
     ///  - It tracks the stdout handle, which may change dynamically via
     ///    `SetStdHandle`.
     ///  - When stdout is attached to a console, writes to this handle via
-    ///    `UnsafeWriteable` are encoded from UTF-8.
+    ///    `RawWriteable` are encoded from UTF-8.
     #[inline]
     #[must_use]
     pub const fn stdout() -> Self {
@@ -151,7 +151,7 @@ impl RawHandleOrSocket {
     ///  - It tracks the stderr handle, which may change dynamically via
     ///    `SetStdHandle`.
     ///  - When stderr is attached to a console, writes to this handle via
-    ///    `UnsafeWriteable` are encoded from UTF-8.
+    ///    `RawWriteable` are encoded from UTF-8.
     #[inline]
     #[must_use]
     pub const fn stderr() -> Self {
@@ -445,7 +445,7 @@ impl AsRawHandleOrSocket for tokio::process::ChildStderr {
     }
 }
 
-#[cfg(feature = "os_pipe")]
+#[cfg(any(test, feature = "os_pipe"))]
 impl AsRawHandleOrSocket for PipeReader {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
@@ -453,7 +453,7 @@ impl AsRawHandleOrSocket for PipeReader {
     }
 }
 
-#[cfg(feature = "os_pipe")]
+#[cfg(any(test, feature = "os_pipe"))]
 impl AsRawHandleOrSocket for PipeWriter {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {

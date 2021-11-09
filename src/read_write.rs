@@ -1,3 +1,5 @@
+//! Traits for working with types that may have up to two I/O objects.
+
 #[cfg(windows)]
 use crate::os::windows::{
     AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket, RawHandleOrSocket,
@@ -777,7 +779,15 @@ impl AsReadWriteHandleOrSocket for mio::net::UdpSocket {
 /// `AsGrip` with the read handle.
 #[allow(clippy::exhaustive_structs)]
 #[derive(Debug, Copy, Clone)]
-pub struct ReadHalf<'a, RW>(pub &'a RW);
+pub struct ReadHalf<'a, RW>(&'a RW);
+
+impl<'a, RW> ReadHalf<'a, RW> {
+    /// Returns a new instance of `Self`.
+    #[inline]
+    pub fn new(rw: &'a RW) -> Self {
+        Self(rw)
+    }
+}
 
 #[cfg(not(windows))]
 impl<RW: AsReadWriteFd> AsFd for ReadHalf<'_, RW> {
@@ -799,7 +809,15 @@ impl<RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for ReadHalf<'_, RW> {
 /// `AsGrip` with the write handle.
 #[allow(clippy::exhaustive_structs)]
 #[derive(Debug, Copy, Clone)]
-pub struct WriteHalf<'a, RW>(pub &'a RW);
+pub struct WriteHalf<'a, RW>(&'a RW);
+
+impl<'a, RW> WriteHalf<'a, RW> {
+    /// Returns a new instance of `Self`.
+    #[inline]
+    pub fn new(rw: &'a RW) -> Self {
+        Self(rw)
+    }
+}
 
 #[cfg(not(windows))]
 impl<RW: AsReadWriteFd> AsFd for WriteHalf<'_, RW> {

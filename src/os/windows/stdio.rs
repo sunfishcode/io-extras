@@ -16,12 +16,12 @@
     clippy::match_same_arms
 )]
 
-use crate::UnsafeFile;
+use crate::raw::{RawReadable, RawWriteable};
 use std::char::decode_utf16;
 use std::convert::TryInto;
 use std::io::{self, Read, Write};
 use std::os::raw::c_void;
-use std::os::windows::io::RawHandle;
+use std::os::windows::io::{FromRawHandle, RawHandle};
 use std::sync::atomic::AtomicU16;
 use std::sync::atomic::Ordering::SeqCst;
 use std::{cmp, ptr, str};
@@ -106,8 +106,7 @@ fn is_console(handle: RawHandle) -> bool {
 fn write(handle_id: DWORD, data: &[u8]) -> io::Result<usize> {
     let handle = get_handle(handle_id)?;
     if !is_console(handle) {
-        let handle = UnsafeFile::unowned_from_raw_handle(handle);
-        return unsafe { handle.as_unowned_unsafe_handle().as_writeable() }.write(data);
+        return unsafe { RawWriteable::from_raw_handle(handle) }.write(data);
     }
 
     // As the console is meant for presenting text, we assume bytes of `data` come
@@ -197,8 +196,7 @@ impl Read for Stdio {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         let handle = get_handle(self.id)?;
         if !is_console(handle) {
-            let handle = UnsafeFile::unowned_from_raw_handle(handle);
-            return unsafe { handle.as_unowned_unsafe_handle().as_readable() }.read(buf);
+            return unsafe { RawReadable::from_raw_handle(handle) }.read(buf);
         }
 
         if buf.is_empty() {

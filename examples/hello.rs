@@ -4,74 +4,23 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
+use io_lifetimes::AsFilelike;
 use std::io::{self, stdout, Write};
-use std::mem::ManuallyDrop;
-#[cfg(not(windows))]
-use unsafe_io::os::rustix::{AsRawFd, FromRawFd};
-use unsafe_io::{AsUnsafeFile, AsUnsafeHandle, FromUnsafeFile};
-#[cfg(windows)]
-use {std::os::windows::io::FromRawHandle, unsafe_io::os::windows::AsRawHandleOrSocket};
+use unsafe_io::grip::{AsRawGrip, FromRawGrip};
+use unsafe_io::raw::RawWriteable;
 
 fn main() -> io::Result<()> {
     let stdout = stdout();
     let stdout = stdout.lock();
 
-    // Obtain an `UnsafeWriteable` and use it to write.
+    // Obtain an `RawWriteable` and use it to write.
     writeln!(
-        unsafe { stdout.as_unsafe_handle().as_writeable() },
+        unsafe { RawWriteable::from_raw_grip(stdout.as_raw_grip()) },
         "hello, world"
     )?;
 
-    // Obtain an `UnsafeFile` and use it to construct a temporary manually-drop
-    // `File` to write.
-    writeln!(stdout.as_file_view(), "hello, world")?;
-
-    // Similar, but do it manually.
-    writeln!(
-        ManuallyDrop::new(unsafe { std::fs::File::from_unsafe_file(stdout.as_unsafe_file()) }),
-        "hello, world"
-    )?;
-
-    // Similar, but gratuitously pass stdout through `from_filelike`.
-    writeln!(
-        ManuallyDrop::new(std::fs::File::from_filelike(unsafe {
-            std::fs::File::from_unsafe_file(stdout.as_unsafe_file())
-        })),
-        "hello, world"
-    )?;
-
-    // Similar, but even more gratuitously pass stdout through `as_file_view`
-    // and `from_filelike`.
-    writeln!(
-        ManuallyDrop::new(std::fs::File::from_filelike(unsafe {
-            std::fs::File::from_unsafe_file(stdout.as_file_view().as_unsafe_file())
-        })),
-        "hello, world"
-    )?;
-
-    // Similar, but use the Posix-ish-specific type.
-    #[cfg(not(windows))]
-    writeln!(
-        ManuallyDrop::new(unsafe {
-            std::fs::File::from_raw_fd(stdout.as_unsafe_handle().as_raw_fd())
-        }),
-        "hello, world"
-    )?;
-
-    // Similar, but use the Windows-specific type.
-    #[cfg(windows)]
-    writeln!(
-        ManuallyDrop::new(unsafe {
-            std::fs::File::from_raw_handle(
-                stdout
-                    .as_unsafe_handle()
-                    .as_raw_handle_or_socket()
-                    .as_unowned_raw_handle()
-                    .unwrap(),
-            )
-        }),
-        "hello, world"
-    )?;
+    // Obtain a `FilelikeView` and use it to write.
+    writeln!(stdout.as_filelike_view::<std::fs::File>(), "hello, world")?;
 
     Ok(())
 }

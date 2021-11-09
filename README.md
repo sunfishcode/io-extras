@@ -2,7 +2,7 @@
   <h1><code>unsafe-io</code></h1>
 
   <p>
-    <strong>Non-owning unsafe I/O</strong>
+    <strong>File/socket handle/descriptor utilities</strong>
   </p>
 
   <p>
@@ -12,36 +12,18 @@
   </p>
 </div>
 
-Have you ever found yourself writing essentially the same code twice, once for
-[`RawFd`] for Posix-ish platforms and once for [`RawHandle`] or [`RawSocket`]
-for Windows platforms? This crate abstracts over those platform differences.
+This crate has evolved a lot and no longer is really about "unsafe I/O".
+Right now it holds a few miscellaneous utilities related to I/O:
 
-Being non-owning, these handles operate much like raw pointers in Rust. They
-are considered safe to construct, but unsafe to use in any way that depends on
-the resource they point to.
+ - `HandleOrSocket` types and traits for Windows, which abstract over Windows
+   `*Handle*` and their corresponding Windows `*Socket*` types and traits.
 
-This library is meant to be a building block for higher-level libraries, such
-as the [io-streams] crate.
+ - `Grip` types and traits, which abstract over the aforementioned Windows
+   `HandleOrSocket` types and traits and their corresponding non-Windows `Fd`
+   types and traits.
 
-## Brief Overview
+ - `RawReadable` and `RawWritable`, which adapt a raw `Fd`/`Handle` to
+   implement the `Read` and `Write` traits, respectively.
 
-The central type of this library is [`UnsafeHandle`]. On Posix-ish platforms
-it just contains a [`RawFd`]. On Windows, it contains an enum of either a
-`RawHandle` (for files and pipes), a `RawSocket` (for sockets), or a stdio
-handle (for stdin, stdout, stderr), allowing it to abstract over different
-types of I/O in a similar manner.
-
-[`UnsafeFile`] and [`UnsafeSocket`] are similar non-owning types, but which
-only contain one type, instead of an enum, which allow them to be used in
-contexts that only support one type.
-
-The [crate documentation] has a complete overview and examples.
-
-[`RawFd`]: https://doc.rust-lang.org/std/os/unix/io/type.RawFd.html
-[`RawHandle`]: https://doc.rust-lang.org/std/os/windows/io/type.RawHandle.html
-[`RawSocket`]: https://doc.rust-lang.org/std/os/windows/io/type.RawSocket.html
-[io-streams]: https://github.com/sunfishcode/io-streams/
-[`UnsafeHandle`]: https://docs.rs/unsafe-io/latest/unsafe_io/struct.UnsafeHandle.html
-[`UnsafeFile`]: https://docs.rs/unsafe-io/latest/unsafe_io/struct.UnsafeFile.html
-[`UnsafeSocket`]: https://docs.rs/unsafe-io/latest/unsafe_io/struct.UnsafeSocket.html
-[crate documentation]: https://docs.rs/unsafe-io/latest/unsafe_io/
+ - `ReadWrite` traits, and supporting types, which provide abstractions over
+   types with one or two I/O resources, for reading and for writing.

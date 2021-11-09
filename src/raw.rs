@@ -1,9 +1,10 @@
+//! `RawReadable` and `RawWriteable`.
+
 use crate::grip::RawGrip;
 #[cfg(not(windows))]
 use crate::os::rustix::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
+use io_lifetimes::raw::RawFilelike;
 use io_lifetimes::views::FilelikeView;
-#[cfg(feature = "os_pipe")]
-use os_pipe::{PipeReader, PipeWriter};
 use std::fmt;
 use std::fs::File;
 use std::io::{self, IoSlice, IoSliceMut, Read, Write};
@@ -13,11 +14,10 @@ use {
         AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, RawEnum,
         RawHandleOrSocket,
     },
+    io_lifetimes::raw::RawSocketlike,
+    io_lifetimes::views::SocketlikeView,
     std::net::TcpStream,
-    std::os::windows::io::{
-        AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, IntoRawSocket,
-        RawHandle, RawSocket,
-    },
+    std::os::windows::io::{FromRawHandle, RawHandle},
 };
 
 /// A non-owning unsafe I/O handle that implements [`Read`]. `Read` functions
@@ -32,7 +32,7 @@ use {
 /// [`File`], and from a socket-like handle as if it were a [`TcpStream`].
 #[derive(Copy, Clone)]
 #[repr(transparent)]
-pub struct UnsafeReadable(RawGrip);
+pub struct RawReadable(RawGrip);
 
 /// A non-owning unsafe I/O handle that implements [`Write`]. `Write` functions
 /// considered are safe, so this type requires `unsafe` to construct.
@@ -46,56 +46,56 @@ pub struct UnsafeReadable(RawGrip);
 /// [`File`], and to a socket-like handle as if it were a [`TcpStream`].
 #[derive(Copy, Clone)]
 #[repr(transparent)]
-pub struct UnsafeWriteable(RawGrip);
+pub struct RawWriteable(RawGrip);
 
-/// `UnsafeReadable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(not(windows))]
-impl AsRawFd for UnsafeReadable {
+impl AsRawFd for RawReadable {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
         self.0
     }
 }
 
-/// `UnsafeReadable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(not(windows))]
-impl IntoRawFd for UnsafeReadable {
+impl IntoRawFd for RawReadable {
     #[inline]
     fn into_raw_fd(self) -> RawFd {
         self.0
     }
 }
 
-/// `UnsafeReadable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(not(windows))]
-impl FromRawFd for UnsafeReadable {
+impl FromRawFd for RawReadable {
     #[inline]
     unsafe fn from_raw_fd(raw_fd: RawFd) -> Self {
         Self(raw_fd)
     }
 }
 
-/// `UnsafeWriteable` doesn't own its handle.
+/// `RawWriteable` doesn't own its handle.
 #[cfg(not(windows))]
-impl AsRawFd for UnsafeWriteable {
+impl AsRawFd for RawWriteable {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
         self.0
     }
 }
 
-/// `UnsafeWriteable` doesn't own its handle.
+/// `RawWriteable` doesn't own its handle.
 #[cfg(not(windows))]
-impl IntoRawFd for UnsafeWriteable {
+impl IntoRawFd for RawWriteable {
     #[inline]
     fn into_raw_fd(self) -> RawFd {
         self.0
     }
 }
 
-/// `UnsafeWriteable` doesn't own its handle.
+/// `RawWriteable` doesn't own its handle.
 #[cfg(not(windows))]
-impl FromRawFd for UnsafeWriteable {
+impl FromRawFd for RawWriteable {
     #[inline]
     unsafe fn from_raw_fd(raw_fd: RawFd) -> Self {
         Self(raw_fd)
@@ -104,78 +104,96 @@ impl FromRawFd for UnsafeWriteable {
 
 // Windows implementations.
 
-/// `UnsafeReadable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(windows)]
-impl AsRawHandleOrSocket for UnsafeReadable {
+impl AsRawHandleOrSocket for RawReadable {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
         self.0
     }
 }
 
-/// `UnsafeReadable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(windows)]
-impl IntoRawHandleOrSocket for UnsafeReadable {
+impl IntoRawHandleOrSocket for RawReadable {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
         self.0
     }
 }
 
-/// `UnsafeReadable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(windows)]
-impl FromRawHandleOrSocket for UnsafeReadable {
+impl FromRawHandleOrSocket for RawReadable {
     #[inline]
     unsafe fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self {
         Self(raw_handle_or_socket)
     }
 }
 
-/// `UnsafeWriteable` doesn't own its handle.
+/// `RawReadable` doesn't own its handle.
 #[cfg(windows)]
-impl AsRawHandleOrSocket for UnsafeWriteable {
+impl FromRawHandle for RawReadable {
+    #[inline]
+    unsafe fn from_raw_handle(raw_handle: RawHandle) -> Self {
+        Self(RawHandleOrSocket::unowned_from_raw_handle(raw_handle))
+    }
+}
+
+/// `RawWriteable` doesn't own its handle.
+#[cfg(windows)]
+impl AsRawHandleOrSocket for RawWriteable {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
         self.0
     }
 }
 
-/// `UnsafeWriteable` doesn't own its handle.
+/// `RawWriteable` doesn't own its handle.
 #[cfg(windows)]
-impl IntoRawHandleOrSocket for UnsafeWriteable {
+impl IntoRawHandleOrSocket for RawWriteable {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
         self.0
     }
 }
 
-/// `UnsafeWriteable` doesn't own its handle.
+/// `RawWriteable` doesn't own its handle.
 #[cfg(windows)]
-impl FromRawHandleOrSocket for UnsafeWriteable {
+impl FromRawHandleOrSocket for RawWriteable {
     #[inline]
     unsafe fn from_raw_handle_or_socket(raw_handle_or_socket: RawHandleOrSocket) -> Self {
         Self(raw_handle_or_socket)
+    }
+}
+
+/// `RawWriteable` doesn't own its handle.
+#[cfg(windows)]
+impl FromRawHandle for RawWriteable {
+    #[inline]
+    unsafe fn from_raw_handle(raw_handle: RawHandle) -> Self {
+        Self(RawHandleOrSocket::unowned_from_raw_handle(raw_handle))
     }
 }
 
 #[inline]
-unsafe fn as_file_view<'a>(file: RawFd) -> FilelikeView<'a, File> {
+unsafe fn as_file_view<'a>(file: RawFilelike) -> FilelikeView<'a, File> {
     FilelikeView::<'a>::view_raw(file)
 }
 
 #[cfg(windows)]
 #[inline]
-unsafe fn as_socket_view<'a>(socket: RawSocket) -> SocketlikeView<'a, TcpStream> {
+unsafe fn as_socket_view<'a>(socket: RawSocketlike) -> SocketlikeView<'a, TcpStream> {
     SocketlikeView::<'a>::view_raw(socket)
 }
 
 #[cfg(not(windows))]
-impl Read for UnsafeReadable {
+impl Read for RawReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         // Safety: The caller of `as_readable()`, which is unsafe, is expected
         // to ensure that the underlying resource outlives this
-        // `UnsafeReadable`.
+        // `RawReadable`.
         unsafe { as_file_view(self.0) }.read(buf)
     }
 
@@ -207,14 +225,12 @@ impl Read for UnsafeReadable {
 }
 
 #[cfg(windows)]
-impl Read for UnsafeReadable {
+impl Read for RawReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.read(buf),
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.read(buf)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read(buf),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.read(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.read(buf),
         }
     }
@@ -222,11 +238,9 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.read_vectored(bufs)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_vectored(bufs),
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.read_vectored(bufs)
+                unsafe { as_socket_view(raw_socket) }.read_vectored(bufs)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.read_vectored(bufs),
         }
@@ -236,12 +250,8 @@ impl Read for UnsafeReadable {
     #[inline]
     fn is_read_vectored(&self) -> bool {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.is_read_vectored()
-            }
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.is_read_vectored()
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.is_read_vectored(),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.is_read_vectored(),
             RawEnum::Stdio(ref stdio) => stdio.is_read_vectored(),
         }
     }
@@ -249,12 +259,8 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.read_to_end(buf)
-            }
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_end(buf)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_to_end(buf),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.read_to_end(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.read_to_end(buf),
         }
     }
@@ -262,11 +268,9 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.read_to_string(buf)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_to_string(buf),
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.read_to_string(buf)
+                unsafe { as_socket_view(raw_socket) }.read_to_string(buf)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.read_to_string(buf),
         }
@@ -275,24 +279,20 @@ impl Read for UnsafeReadable {
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.read_exact(buf)
-            }
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.read_exact(buf)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_exact(buf),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.read_exact(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.read_exact(buf),
         }
     }
 }
 
 #[cfg(not(windows))]
-impl Write for UnsafeWriteable {
+impl Write for RawWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         // Safety: The caller of `as_writeable()`, which is unsafe, is expected
         // to ensure that the underlying resource outlives this
-        // `UnsafeReadable`.
+        // `RawReadable`.
         unsafe { as_file_view(self.0) }.write(buf)
     }
 
@@ -330,14 +330,12 @@ impl Write for UnsafeWriteable {
 }
 
 #[cfg(windows)]
-impl Write for UnsafeWriteable {
+impl Write for RawWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write(buf),
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.write(buf)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write(buf),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.write(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.write(buf),
         }
     }
@@ -345,8 +343,8 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.flush(),
-            RawEnum::Socket(raw_socket) => unsafe { as_tcp_stream_view(self, raw_socket) }.flush(),
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.flush(),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.flush(),
             RawEnum::Stdio(ref mut stdio) => stdio.flush(),
         }
     }
@@ -354,11 +352,9 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.write_vectored(bufs)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write_vectored(bufs),
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.write_vectored(bufs)
+                unsafe { as_socket_view(raw_socket) }.write_vectored(bufs)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.write_vectored(bufs),
         }
@@ -368,11 +364,9 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn is_write_vectored(&self) -> bool {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.is_write_vectored()
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.is_write_vectored(),
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.is_write_vectored()
+                unsafe { as_socket_view(raw_socket) }.is_write_vectored()
             }
             RawEnum::Stdio(ref stdio) => stdio.is_write_vectored(),
         }
@@ -381,10 +375,8 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_all(buf),
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.write_all(buf)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write_all(buf),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.write_all(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.write_all(buf),
         }
     }
@@ -394,10 +386,10 @@ impl Write for UnsafeWriteable {
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(self, raw_handle) }.write_all_vectored(bufs)
+                unsafe { as_file_view(raw_handle) }.write_all_vectored(bufs)
             }
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.write_all_vectored(bufs)
+                unsafe { as_socket_view(raw_socket) }.write_all_vectored(bufs)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.write_all_vectored(bufs),
         }
@@ -406,54 +398,52 @@ impl Write for UnsafeWriteable {
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(self, raw_handle) }.write_fmt(fmt),
-            RawEnum::Socket(raw_socket) => {
-                unsafe { as_tcp_stream_view(self, raw_socket) }.write_fmt(fmt)
-            }
+            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write_fmt(fmt),
+            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.write_fmt(fmt),
             RawEnum::Stdio(ref mut stdio) => stdio.write_fmt(fmt),
         }
     }
 }
 
 #[cfg(not(windows))]
-impl fmt::Debug for UnsafeReadable {
+impl fmt::Debug for RawReadable {
     #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just print the raw fd number.
-        f.debug_struct("UnsafeReadable")
+        f.debug_struct("RawReadable")
             .field("raw_fd", &self.0)
             .finish()
     }
 }
 
 #[cfg(windows)]
-impl fmt::Debug for UnsafeReadable {
+impl fmt::Debug for RawReadable {
     #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just print the raw handle or socket.
-        f.debug_struct("UnsafeReadable")
+        f.debug_struct("RawReadable")
             .field("raw_handle_or_socket", &self.0)
             .finish()
     }
 }
 
 #[cfg(not(windows))]
-impl fmt::Debug for UnsafeWriteable {
+impl fmt::Debug for RawWriteable {
     #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just print the raw fd number.
-        f.debug_struct("UnsafeWriteable")
+        f.debug_struct("RawWriteable")
             .field("raw_fd", &self.0)
             .finish()
     }
 }
 
 #[cfg(windows)]
-impl fmt::Debug for UnsafeWriteable {
+impl fmt::Debug for RawWriteable {
     #[allow(clippy::missing_inline_in_public_items)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just print the raw handle or socket.
-        f.debug_struct("UnsafeWriteable")
+        f.debug_struct("RawWriteable")
             .field("raw_handle_or_socket", &self.0)
             .finish()
     }
