@@ -4,12 +4,12 @@
 #![cfg(not(target_os = "wasi"))]
 #![cfg(feature = "os_pipe")]
 
+use io_extras::grip::{AsRawGrip, FromRawGrip};
+use io_extras::raw::{RawReadable, RawWriteable};
 use io_lifetimes::AsFilelike;
 use os_pipe::{pipe, PipeReader};
 use std::io::{self, Read, Write};
 use std::thread;
-use unsafe_io::grip::{AsRawGrip, FromRawGrip};
-use unsafe_io::raw::{RawReadable, RawWriteable};
 
 #[test]
 #[cfg_attr(miri, ignore)] // pipe I/O calls foreign functions

@@ -1,5 +1,5 @@
 [package]
-name = "unsafe-io"
+name = "io-extras"
 version = "0.10.2-alpha.0"
 description = "File/socket handle/descriptor utilities"
 authors = ["Dan Gohman <dev@sunfishcode.online>"]
@@ -7,7 +7,7 @@ edition = "2018"
 license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
 keywords = ["api", "io", "stream"]
 categories = ["os", "rust-patterns"]
-repository = "https://github.com/sunfishcode/unsafe-io"
+repository = "https://github.com/sunfishcode/io-extras"
 exclude = ["/.github"]
 
 [build-dependencies]

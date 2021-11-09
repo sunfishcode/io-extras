@@ -4,10 +4,10 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
+use io_extras::grip::{AsRawGrip, FromRawGrip};
+use io_extras::raw::RawWriteable;
 use io_lifetimes::AsFilelike;
 use std::io::{self, stdout, Write};
-use unsafe_io::grip::{AsRawGrip, FromRawGrip};
-use unsafe_io::raw::RawWriteable;
 
 fn main() -> io::Result<()> {
     let stdout = stdout();

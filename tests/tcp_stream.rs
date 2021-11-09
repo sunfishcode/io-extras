@@ -2,12 +2,12 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
+use io_extras::grip::{AsRawGrip, FromRawGrip};
+use io_extras::raw::{RawReadable, RawWriteable};
 use io_lifetimes::AsSocketlike;
 use std::io::{self, Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
-use unsafe_io::grip::{AsRawGrip, FromRawGrip};
-use unsafe_io::raw::{RawReadable, RawWriteable};
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
