@@ -58,7 +58,7 @@ impl AsHandleOrSocket for OwnedHandleOrSocket {
 
 impl AsHandleOrSocket for BorrowedHandleOrSocket<'_> {
     #[inline]
-    fn as_handle_or_socket(&self) -> Self {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         *self
     }
 }
