@@ -486,14 +486,6 @@ impl AsRawHandleOrSocket for mio::net::TcpListener {
 }
 
 #[cfg(feature = "use_mio_net")]
-impl AsRawHandleOrSocket for mio::net::TcpSocket {
-    #[inline]
-    fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
-        RawHandleOrSocket::unowned_from_raw_socket(Self::as_raw_socket(self))
-    }
-}
-
-#[cfg(feature = "use_mio_net")]
 impl AsRawHandleOrSocket for mio::net::UdpSocket {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
@@ -584,14 +576,6 @@ impl IntoRawHandleOrSocket for mio::net::TcpStream {
 
 #[cfg(feature = "use_mio_net")]
 impl IntoRawHandleOrSocket for mio::net::TcpListener {
-    #[inline]
-    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
-    }
-}
-
-#[cfg(feature = "use_mio_net")]
-impl IntoRawHandleOrSocket for mio::net::TcpSocket {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
         RawHandleOrSocket::unowned_from_raw_socket(Self::into_raw_socket(self))
