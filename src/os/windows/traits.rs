@@ -334,14 +334,6 @@ impl AsHandleOrSocket for mio::net::TcpListener {
 }
 
 #[cfg(feature = "use_mio_net")]
-impl AsHandleOrSocket for mio::net::TcpSocket {
-    #[inline]
-    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
-        BorrowedHandleOrSocket::from_socket(Self::as_socket(self))
-    }
-}
-
-#[cfg(feature = "use_mio_net")]
 impl AsHandleOrSocket for mio::net::UdpSocket {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -432,14 +424,6 @@ impl IntoHandleOrSocket for mio::net::TcpStream {
 
 #[cfg(feature = "use_mio_net")]
 impl IntoHandleOrSocket for mio::net::TcpListener {
-    #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
-    }
-}
-
-#[cfg(feature = "use_mio_net")]
-impl IntoHandleOrSocket for mio::net::TcpSocket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
         OwnedHandleOrSocket::from_socket(Self::into_socket(self))
