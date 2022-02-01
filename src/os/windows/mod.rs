@@ -4,15 +4,7 @@
 //! accompanying `AsRawFd`, `IntoRawFd`, and `FromRawFd` traits.
 //!
 //! These types are only defined on Windows and do not require implementors to
-//! assert that they own their resources. See [`UnsafeHandle`] and
-//! accompanying [`AsUnsafeHandle`], [`IntoRawHandle`], and
-//! [`FromUnsafeHandle`] traits for platform-independent interfaces which do
-//! include ownership assertions.
-//!
-//! [`UnsafeHandle`]: crate::UnsafeHandle
-//! [`AsUnsafeHandle`]: crate::AsUnsafeHandle
-//! [`IntoUnsafeHandle`]: crate::IntoUnsafeHandle
-//! [`FromUnsafeHandle`]: crate::FromUnsafeHandle
+//! assert that they own their resources.
 
 #[cfg(any(test, feature = "os_pipe"))]
 use os_pipe::{PipeReader, PipeWriter};
