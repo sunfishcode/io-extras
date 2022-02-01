@@ -62,6 +62,40 @@ impl<'a> BorrowedHandleOrSocket<'a> {
             _phantom: PhantomData,
         }
     }
+
+    /// Like [`AsHandle::as_handle`], but returns an `Option` so that
+    /// it can return `None` if `self` doesn't contain a `BorrowedHandle`.
+    ///
+    /// [`AsHandle::as_handle`]: std::os::windows::io::AsHandle::as_handle
+    #[inline]
+    #[must_use]
+    pub fn as_handle(&self) -> Option<BorrowedHandle> {
+        unsafe {
+            match self.raw.0 {
+                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw_handle(handle)),
+                RawEnum::Socket(_) => None,
+                RawEnum::Stdio(ref stdio) => {
+                    Some(BorrowedHandle::borrow_raw_handle(stdio.as_raw_handle()))
+                }
+            }
+        }
+    }
+
+    /// Like [`AsSocket::as_socket`], but returns an `Option` so that
+    /// it can return `None` if `self` doesn't contain a `BorrowedSocket`.
+    ///
+    /// [`AsSocket::as_socket`]: std::os::windows::io::AsSocket::as_socket
+    #[inline]
+    #[must_use]
+    pub fn as_socket(&self) -> Option<BorrowedSocket> {
+        unsafe {
+            match self.raw.0 {
+                RawEnum::Handle(_) => None,
+                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw_socket(socket)),
+                RawEnum::Stdio(_) => None,
+            }
+        }
+    }
 }
 
 impl OwnedHandleOrSocket {
@@ -95,6 +129,40 @@ impl OwnedHandleOrSocket {
     pub fn from_socket(socket: OwnedSocket) -> Self {
         Self {
             raw: RawHandleOrSocket(RawEnum::Socket(socket.as_raw_socket())),
+        }
+    }
+
+    /// Like [`AsHandle::as_handle`], but returns an `Option` so that
+    /// it can return `None` if `self` doesn't contain a `BorrowedHandle`.
+    ///
+    /// [`AsHandle::as_handle`]: std::os::windows::io::AsHandle::as_handle
+    #[inline]
+    #[must_use]
+    pub fn as_handle(&self) -> Option<BorrowedHandle> {
+        unsafe {
+            match self.raw.0 {
+                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw_handle(handle)),
+                RawEnum::Socket(_) => None,
+                RawEnum::Stdio(ref stdio) => {
+                    Some(BorrowedHandle::borrow_raw_handle(stdio.as_raw_handle()))
+                }
+            }
+        }
+    }
+
+    /// Like [`AsSocket::as_socket`], but returns an `Option` so that
+    /// it can return `None` if `self` doesn't contain a `BorrowedSocket`.
+    ///
+    /// [`AsSocket::as_socket`]: std::os::windows::io::AsSocket::as_socket
+    #[inline]
+    #[must_use]
+    pub fn as_socket(&self) -> Option<BorrowedSocket> {
+        unsafe {
+            match self.raw.0 {
+                RawEnum::Handle(_) => None,
+                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw_socket(socket)),
+                RawEnum::Stdio(_) => None,
+            }
         }
     }
 }
