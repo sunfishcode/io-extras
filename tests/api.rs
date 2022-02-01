@@ -67,7 +67,15 @@ impl Stream {
 
     fn use_file<Filelike: io_lifetimes::AsFilelike>(_filelike: &mut Filelike) {}
 
-    fn use_grip<Grip: io_extras::grip::AsGrip>(_grip: &mut Grip) {}
+    fn use_grip<Grip: io_extras::grip::AsGrip>(grip: &mut Grip) {
+        #[cfg(windows)]
+        assert_ne!(
+            grip.as_handle_or_socket().as_handle().is_some(),
+            grip.as_handle_or_socket().as_socket().is_some()
+        );
+        #[cfg(not(windows))]
+        let _ = grip.as_fd();
+    }
 
     fn from_socket<Socketlike: io_lifetimes::IntoSocketlike>(_socketlike: Socketlike) {}
 

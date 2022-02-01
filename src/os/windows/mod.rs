@@ -89,11 +89,11 @@ impl RawHandleOrSocket {
     /// it can return `None` if `self` doesn't contain a `RawHandle`.
     #[inline]
     #[must_use]
-    pub fn as_unowned_raw_handle(&self) -> Option<RawHandle> {
+    pub fn as_raw_handle(&self) -> Option<RawHandle> {
         match self.0 {
             RawEnum::Handle(raw_handle) => Some(raw_handle),
             RawEnum::Socket(_) => None,
-            RawEnum::Stdio(ref stdio) => Some(stdio.as_unowned_raw_handle()),
+            RawEnum::Stdio(ref stdio) => Some(stdio.as_raw_handle()),
         }
     }
 
@@ -101,7 +101,7 @@ impl RawHandleOrSocket {
     /// it can return `None` if `self` doesn't contain a `RawSocket`.
     #[inline]
     #[must_use]
-    pub const fn as_unowned_raw_socket(&self) -> Option<RawSocket> {
+    pub const fn as_raw_socket(&self) -> Option<RawSocket> {
         match self.0 {
             RawEnum::Handle(_) | RawEnum::Stdio(_) => None,
             RawEnum::Socket(raw_socket) => Some(raw_socket),

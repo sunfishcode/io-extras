@@ -66,7 +66,7 @@ impl Stdio {
     }
 
     #[inline]
-    pub(crate) fn as_unowned_raw_handle(self) -> RawHandle {
+    pub(crate) fn as_raw_handle(self) -> RawHandle {
         get_handle(self.id).unwrap()
     }
 }
