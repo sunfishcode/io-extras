@@ -63,11 +63,11 @@ fn read_write() {
 
 struct Stream {}
 impl Stream {
-    fn use_socket<Socketlike: io_lifetimes::AsSocketlike>(_socketlike: &mut Socketlike) {}
+    fn use_socket<Socketlike: io_lifetimes::AsSocketlike>(_socketlike: Socketlike) {}
 
-    fn use_file<Filelike: io_lifetimes::AsFilelike>(_filelike: &mut Filelike) {}
+    fn use_file<Filelike: io_lifetimes::AsFilelike>(_filelike: Filelike) {}
 
-    fn use_grip<Grip: io_extras::grip::AsGrip>(grip: &mut Grip) {
+    fn use_grip<Grip: io_extras::grip::AsGrip>(grip: Grip) {
         #[cfg(windows)]
         assert_ne!(
             grip.as_handle_or_socket().as_handle().is_some(),
@@ -86,10 +86,10 @@ impl Stream {
 
 #[test]
 fn likes() {
-    let _ = Stream::use_socket(&mut std::net::TcpListener::bind("127.0.0.1:0").unwrap());
-    let _ = Stream::use_file(&mut std::fs::File::open("Cargo.toml").unwrap());
-    let _ = Stream::use_grip(&mut std::net::TcpListener::bind("127.0.0.1:0").unwrap());
-    let _ = Stream::use_grip(&mut std::fs::File::open("Cargo.toml").unwrap());
+    let _ = Stream::use_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    let _ = Stream::use_file(std::fs::File::open("Cargo.toml").unwrap());
+    let _ = Stream::use_grip(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    let _ = Stream::use_grip(std::fs::File::open("Cargo.toml").unwrap());
 
     let _ = Stream::from_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
     let _ = Stream::from_file(std::fs::File::open("Cargo.toml").unwrap());
