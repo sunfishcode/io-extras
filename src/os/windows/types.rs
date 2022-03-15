@@ -33,7 +33,7 @@ impl<'a> BorrowedHandleOrSocket<'a> {
     /// the returned `BorrowedHandleOrSocket`, and it must not be a null handle
     /// or an invalid socket.
     #[inline]
-    pub unsafe fn borrow_raw_handle_or_socket(raw: RawHandleOrSocket) -> Self {
+    pub unsafe fn borrow_raw(raw: RawHandleOrSocket) -> Self {
         match raw.0 {
             RawEnum::Handle(raw_handle) => assert!(!raw_handle.is_null()),
             RawEnum::Socket(raw_socket) => assert_ne!(raw_socket, INVALID_SOCKET as RawSocket),
@@ -72,10 +72,10 @@ impl<'a> BorrowedHandleOrSocket<'a> {
     pub fn as_handle(&self) -> Option<BorrowedHandle> {
         unsafe {
             match self.raw.0 {
-                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw_handle(handle)),
+                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw(handle)),
                 RawEnum::Socket(_) => None,
                 RawEnum::Stdio(ref stdio) => {
-                    Some(BorrowedHandle::borrow_raw_handle(stdio.as_raw_handle()))
+                    Some(BorrowedHandle::borrow_raw(stdio.as_raw_handle()))
                 }
             }
         }
@@ -91,7 +91,7 @@ impl<'a> BorrowedHandleOrSocket<'a> {
         unsafe {
             match self.raw.0 {
                 RawEnum::Handle(_) => None,
-                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw_socket(socket)),
+                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw(socket)),
                 RawEnum::Stdio(_) => None,
             }
         }
@@ -141,10 +141,10 @@ impl OwnedHandleOrSocket {
     pub fn as_handle(&self) -> Option<BorrowedHandle> {
         unsafe {
             match self.raw.0 {
-                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw_handle(handle)),
+                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw(handle)),
                 RawEnum::Socket(_) => None,
                 RawEnum::Stdio(ref stdio) => {
-                    Some(BorrowedHandle::borrow_raw_handle(stdio.as_raw_handle()))
+                    Some(BorrowedHandle::borrow_raw(stdio.as_raw_handle()))
                 }
             }
         }
@@ -160,7 +160,7 @@ impl OwnedHandleOrSocket {
         unsafe {
             match self.raw.0 {
                 RawEnum::Handle(_) => None,
-                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw_socket(socket)),
+                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw(socket)),
                 RawEnum::Stdio(_) => None,
             }
         }

@@ -23,30 +23,22 @@ struct Stdio {}
 #[cfg(not(windows))]
 impl AsReadWriteFd for Stdio {
     fn as_read_fd(&self) -> BorrowedFd<'_> {
-        unsafe { BorrowedFd::borrow_raw_fd(std::io::stdin().as_raw_fd()) }
+        unsafe { BorrowedFd::borrow_raw(std::io::stdin().as_raw_fd()) }
     }
 
     fn as_write_fd(&self) -> BorrowedFd<'_> {
-        unsafe { BorrowedFd::borrow_raw_fd(std::io::stdout().as_raw_fd()) }
+        unsafe { BorrowedFd::borrow_raw(std::io::stdout().as_raw_fd()) }
     }
 }
 
 #[cfg(windows)]
 impl AsReadWriteHandleOrSocket for Stdio {
     fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
-        unsafe {
-            BorrowedHandleOrSocket::borrow_raw_handle_or_socket(
-                std::io::stdin().as_raw_handle_or_socket(),
-            )
-        }
+        unsafe { BorrowedHandleOrSocket::borrow_raw(std::io::stdin().as_raw_handle_or_socket()) }
     }
 
     fn as_write_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
-        unsafe {
-            BorrowedHandleOrSocket::borrow_raw_handle_or_socket(
-                std::io::stdout().as_raw_handle_or_socket(),
-            )
-        }
+        unsafe { BorrowedHandleOrSocket::borrow_raw(std::io::stdout().as_raw_handle_or_socket()) }
     }
 }
 

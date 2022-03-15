@@ -8,6 +8,8 @@ use io_lifetimes::views::FilelikeView;
 use std::fmt;
 use std::fs::File;
 use std::io::{self, IoSlice, IoSliceMut, Read, Write};
+#[cfg(all(doc, not(windows)))]
+use std::net::TcpStream;
 #[cfg(windows)]
 use {
     crate::os::windows::{

@@ -357,12 +357,12 @@ impl<T: FromRawHandleOrSocket> FromRawGrip for T {
 ///
 /// # Safety
 ///
-/// See the safety conditions for [`borrow_raw_fd`].
+/// See the safety conditions for [`borrow_raw`].
 ///
-/// [`borrow_raw_fd`]: https://doc.rust-lang.org/stable/std/os/unix/io/struct.BorrowedFd.html#method.borrow_raw_fd
+/// [`borrow_raw`]: https://doc.rust-lang.org/stable/std/os/unix/io/struct.BorrowedFd.html#method.borrow_raw
 #[cfg(not(windows))]
-pub unsafe fn borrow_raw_grip<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
-    BorrowedFd::borrow_raw_fd(grip)
+pub unsafe fn borrow_raw<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
+    BorrowedFd::borrow_raw(grip)
 }
 
 /// Portability abstraction over `BorrowedFd::from_raw_fd` and
@@ -370,12 +370,12 @@ pub unsafe fn borrow_raw_grip<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
 ///
 /// # Safety
 ///
-/// See the safety conditions for [`borrow_raw_handle`], and
-/// [`borrow_raw_socket`].
+/// See the safety conditions for [`BorrowedHandle::borrow_raw`], and
+/// [`BorrowedSocket::borrow_raw`].
 ///
-/// [`borrow_raw_handle`]: https://doc.rust-lang.org/stable/std/os/windows/io/struct.BorrowedHandle.html#method.borrow_raw_handle
-/// [`borrow_raw_socket`]: https://doc.rust-lang.org/stable/std/os/windows/io/struct.BorrowedSocket.html#method.borrow_raw_socket
+/// [`BorrowedHandle::borrow_raw`]: https://doc.rust-lang.org/stable/std/os/windows/io/struct.BorrowedHandle.html#method.borrow_raw
+/// [`BorrowedSocket::borrow_raw`]: https://doc.rust-lang.org/stable/std/os/windows/io/struct.BorrowedSocket.html#method.borrow_raw
 #[cfg(windows)]
-pub unsafe fn borrow_raw_grip<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
-    BorrowedHandleOrSocket::borrow_raw_handle_or_socket(grip)
+pub unsafe fn borrow_raw<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
+    BorrowedHandleOrSocket::borrow_raw(grip)
 }

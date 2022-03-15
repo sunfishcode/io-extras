@@ -50,9 +50,7 @@ pub trait FromHandleOrSocket {
 impl AsHandleOrSocket for OwnedHandleOrSocket {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
-        unsafe {
-            BorrowedHandleOrSocket::borrow_raw_handle_or_socket(self.as_raw_handle_or_socket())
-        }
+        unsafe { BorrowedHandleOrSocket::borrow_raw(self.as_raw_handle_or_socket()) }
     }
 }
 

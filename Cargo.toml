@@ -11,7 +11,7 @@ repository = "https://github.com/sunfishcode/io-extras"
 exclude = ["/.github"]
 
 [dependencies]
-io-lifetimes = { version = "0.5.2", default-features = false }
+io-lifetimes = { version = "0.6.0", default-features = false }
 
 # Optionally depend on async-std to implement traits for its types.
 #
