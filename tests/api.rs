@@ -3,6 +3,7 @@
 //! demonstrates the API of this crate.
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
+#![cfg_attr(io_lifetimes_use_std, feature(io_safety))]
 #![allow(unstable_name_collisions)]
 
 use io_extras::grip::{AsGrip, AsRawGrip};
