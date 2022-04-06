@@ -117,7 +117,7 @@ impl IntoHandleOrSocket for OwnedReadable {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
         unsafe {
-            OwnedHandleOrSocket::acquire_raw_handle_or_socket(self.0.into_raw_handle_or_socket())
+            OwnedHandleOrSocket::from_raw_handle_or_socket(self.0.into_raw_handle_or_socket())
         }
     }
 }

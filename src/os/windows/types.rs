@@ -101,23 +101,6 @@ impl<'a> BorrowedHandleOrSocket<'a> {
 }
 
 impl OwnedHandleOrSocket {
-    /// Return an `OwnedHandleOrSocket` holding the given raw handle or socket.
-    ///
-    /// # Safety
-    ///
-    /// The resource pointed to by `raw` must remain open for the duration of
-    /// the returned `OwnedHandleOrSocket`, and it must not be a null handle
-    /// or an invalid socket.
-    #[inline]
-    pub unsafe fn acquire_raw_handle_or_socket(raw: RawHandleOrSocket) -> Self {
-        match raw.0 {
-            RawEnum::Handle(raw_handle) => assert!(!raw_handle.is_null()),
-            RawEnum::Socket(raw_socket) => assert_ne!(raw_socket, INVALID_SOCKET as RawSocket),
-            RawEnum::Stdio(_) => (),
-        }
-        Self { raw }
-    }
-
     /// Construct a new `OwnedHandleOrSocket` from an `OwnedHandle`.
     #[inline]
     pub fn from_handle(handle: OwnedHandle) -> Self {
@@ -193,6 +176,11 @@ impl IntoRawHandleOrSocket for OwnedHandleOrSocket {
 impl FromRawHandleOrSocket for OwnedHandleOrSocket {
     #[inline]
     unsafe fn from_raw_handle_or_socket(raw: RawHandleOrSocket) -> Self {
+        match raw.0 {
+            RawEnum::Handle(raw_handle) => assert!(!raw_handle.is_null()),
+            RawEnum::Socket(raw_socket) => assert_ne!(raw_socket, INVALID_SOCKET as RawSocket),
+            RawEnum::Stdio(_) => (),
+        }
         Self { raw }
     }
 }
