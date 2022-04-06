@@ -1,5 +1,6 @@
 //! `BorrowedReadable` and `BorrowedWriteable`.
 
+use crate::grip::{AsRawGrip, BorrowedGrip, FromRawGrip};
 #[cfg(windows)]
 use crate::os::windows::{AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket};
 use crate::raw::{RawReadable, RawWriteable};
@@ -43,6 +44,30 @@ pub struct BorrowedReadable<'a> {
 pub struct BorrowedWriteable<'a> {
     raw: RawWriteable,
     _phantom: PhantomData<&'a ()>,
+}
+
+impl<'a> BorrowedReadable<'a> {
+    /// Create a `BorrowedReadable` that can read from a `BorrowedGrip`.
+    #[must_use]
+    #[inline]
+    pub fn borrow(grip: BorrowedGrip<'a>) -> Self {
+        Self {
+            raw: unsafe { RawReadable::from_raw_grip(grip.as_raw_grip()) },
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<'a> BorrowedWriteable<'a> {
+    /// Create a `BorrowedReadable` that can write to a `BorrowedGrip`.
+    #[must_use]
+    #[inline]
+    pub fn borrow(grip: BorrowedGrip<'a>) -> Self {
+        Self {
+            raw: unsafe { RawWriteable::from_raw_grip(grip.as_raw_grip()) },
+            _phantom: PhantomData,
+        }
+    }
 }
 
 /// `BorrowedReadable` borrows its handle.
