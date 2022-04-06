@@ -7,8 +7,9 @@
 //!   `HandleOrSocket` types and traits and their corresponding non-Windows `Fd`
 //!   types and traits.
 //!
-//! - `RawReadable` and `RawWritable`, which adapt a raw `Fd`/`Handle` to
-//!   implement the `Read` and `Write` traits, respectively.
+//! - `OwnedReadable`, `OwnedWriteable`, `BorrowedReadable`,
+//!   `BorrowedWriteable`, `RawReadable` and `RawWriteable`, which adapt a raw
+//!   `Fd`/`Handle` to implement the `Read` and `Write` traits, respectively.
 //!
 //! - `ReadWrite` traits, and supporting types, which provide abstractions over
 //!   types with one or two I/O resources, for reading and for writing.
@@ -19,7 +20,9 @@
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 #![cfg_attr(io_lifetimes_use_std, feature(io_safety))]
 
+pub mod borrowed;
 pub mod grip;
 pub mod os;
+pub mod owned;
 pub mod raw;
 pub mod read_write;
