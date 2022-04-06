@@ -9,7 +9,7 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::mem::forget;
 use std::os::windows::io::{
-    AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, RawSocket,
+    AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, IntoRawSocket, RawSocket,
 };
 use winapi::um::winsock2::INVALID_SOCKET;
 
@@ -116,7 +116,7 @@ impl OwnedHandleOrSocket {
     #[inline]
     pub fn from_socket(socket: OwnedSocket) -> Self {
         Self {
-            raw: RawHandleOrSocket(RawEnum::Socket(socket.as_raw_socket())),
+            raw: RawHandleOrSocket(RawEnum::Socket(socket.into_raw_socket())),
         }
     }
 
