@@ -7,6 +7,7 @@ use super::{
 use io_lifetimes::{BorrowedHandle, BorrowedSocket, OwnedHandle, OwnedSocket};
 use std::fmt;
 use std::marker::PhantomData;
+use std::mem::forget;
 use std::os::windows::io::{
     AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, RawSocket,
 };
@@ -171,7 +172,9 @@ impl AsRawHandleOrSocket for BorrowedHandleOrSocket<'_> {
 impl IntoRawHandleOrSocket for OwnedHandleOrSocket {
     #[inline]
     fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
-        self.raw
+        let raw = self.raw;
+        forget(self);
+        raw
     }
 }
 
