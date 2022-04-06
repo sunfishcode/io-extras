@@ -361,6 +361,8 @@ impl<T: FromRawHandleOrSocket> FromRawGrip for T {
 ///
 /// [`borrow_raw`]: https://doc.rust-lang.org/stable/std/os/unix/io/struct.BorrowedFd.html#method.borrow_raw
 #[cfg(not(windows))]
+#[must_use]
+#[inline]
 pub unsafe fn borrow_raw<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
     BorrowedFd::borrow_raw(grip)
 }
@@ -376,6 +378,8 @@ pub unsafe fn borrow_raw<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
 /// [`BorrowedHandle::borrow_raw`]: https://doc.rust-lang.org/stable/std/os/windows/io/struct.BorrowedHandle.html#method.borrow_raw
 /// [`BorrowedSocket::borrow_raw`]: https://doc.rust-lang.org/stable/std/os/windows/io/struct.BorrowedSocket.html#method.borrow_raw
 #[cfg(windows)]
+#[must_use]
+#[inline]
 pub unsafe fn borrow_raw<'a>(grip: RawGrip) -> BorrowedGrip<'a> {
     BorrowedHandleOrSocket::borrow_raw(grip)
 }
