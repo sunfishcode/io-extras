@@ -102,7 +102,7 @@ fn os_pipe_borrowed_readable() -> io::Result<()> {
 
 #[test]
 #[cfg_attr(miri, ignore)] // pipe I/O calls foreign functions
-fn tcp_stream_owned_readable() -> io::Result<()> {
+fn os_pipe_owned_readable() -> io::Result<()> {
     // Obtain a `OwnedReadable` and use it to read.
     let stream = write_to_pipe()?;
     let mut buf = String::new();
