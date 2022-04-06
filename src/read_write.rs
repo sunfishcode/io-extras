@@ -732,7 +732,7 @@ pub struct ReadHalf<'a, RW>(&'a RW);
 impl<'a, RW> ReadHalf<'a, RW> {
     /// Returns a new instance of `Self`.
     #[inline]
-    pub fn new(rw: &'a RW) -> Self {
+    pub const fn new(rw: &'a RW) -> Self {
         Self(rw)
     }
 }
@@ -762,7 +762,7 @@ pub struct WriteHalf<'a, RW>(&'a RW);
 impl<'a, RW> WriteHalf<'a, RW> {
     /// Returns a new instance of `Self`.
     #[inline]
-    pub fn new(rw: &'a RW) -> Self {
+    pub const fn new(rw: &'a RW) -> Self {
         Self(rw)
     }
 }
