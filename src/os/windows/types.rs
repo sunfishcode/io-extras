@@ -7,7 +7,9 @@ use super::{
 use io_lifetimes::{BorrowedHandle, BorrowedSocket, OwnedHandle, OwnedSocket};
 use std::fmt;
 use std::marker::PhantomData;
-use std::os::windows::io::{AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, RawSocket};
+use std::os::windows::io::{
+    AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, RawSocket,
+};
 use winapi::um::winsock2::INVALID_SOCKET;
 
 /// `HandleOrSocket` variant of io-lifetimes'
@@ -105,7 +107,7 @@ impl OwnedHandleOrSocket {
     #[inline]
     pub fn from_handle(handle: OwnedHandle) -> Self {
         Self {
-            raw: RawHandleOrSocket(RawEnum::Handle(handle.as_raw_handle())),
+            raw: RawHandleOrSocket(RawEnum::Handle(handle.into_raw_handle())),
         }
     }
 
