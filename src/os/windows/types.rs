@@ -1,11 +1,16 @@
 //! `HandleOrSocket` variants of io-lifetimes'
 //! `BorrowedHandle`/`BorrowedSocket` and `OwnedHandle`/`OwnedSocket`.
 
-use super::{AsRawHandleOrSocket, RawEnum, RawHandleOrSocket};
+use super::{
+    AsRawHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, RawEnum, RawHandleOrSocket,
+};
 use io_lifetimes::{BorrowedHandle, BorrowedSocket, OwnedHandle, OwnedSocket};
 use std::fmt;
 use std::marker::PhantomData;
-use std::os::windows::io::{AsRawHandle, AsRawSocket, RawSocket};
+use std::mem::forget;
+use std::os::windows::io::{
+    AsRawHandle, AsRawSocket, FromRawHandle, FromRawSocket, IntoRawHandle, IntoRawSocket, RawSocket,
+};
 use winapi::um::winsock2::INVALID_SOCKET;
 
 /// `HandleOrSocket` variant of io-lifetimes'
@@ -17,7 +22,7 @@ pub struct BorrowedHandleOrSocket<'a> {
 }
 
 /// `HandleOrSocket` variant of io-lifetimes'
-/// `BorrowedHandle`/`BorrowedSocket`.
+/// `OwnedHandle`/`OwnedSocket`.
 #[allow(missing_copy_implementations)]
 pub struct OwnedHandleOrSocket {
     raw: RawHandleOrSocket,
@@ -99,28 +104,11 @@ impl<'a> BorrowedHandleOrSocket<'a> {
 }
 
 impl OwnedHandleOrSocket {
-    /// Return an `OwnedHandleOrSocket` holding the given raw handle or socket.
-    ///
-    /// # Safety
-    ///
-    /// The resource pointed to by `raw` must remain open for the duration of
-    /// the returned `OwnedHandleOrSocket`, and it must not be a null handle
-    /// or an invalid socket.
-    #[inline]
-    pub unsafe fn acquire_raw_handle_or_socket(raw: RawHandleOrSocket) -> Self {
-        match raw.0 {
-            RawEnum::Handle(raw_handle) => assert!(!raw_handle.is_null()),
-            RawEnum::Socket(raw_socket) => assert_ne!(raw_socket, INVALID_SOCKET as RawSocket),
-            RawEnum::Stdio(_) => (),
-        }
-        Self { raw }
-    }
-
     /// Construct a new `OwnedHandleOrSocket` from an `OwnedHandle`.
     #[inline]
     pub fn from_handle(handle: OwnedHandle) -> Self {
         Self {
-            raw: RawHandleOrSocket(RawEnum::Handle(handle.as_raw_handle())),
+            raw: RawHandleOrSocket(RawEnum::Handle(handle.into_raw_handle())),
         }
     }
 
@@ -128,7 +116,7 @@ impl OwnedHandleOrSocket {
     #[inline]
     pub fn from_socket(socket: OwnedSocket) -> Self {
         Self {
-            raw: RawHandleOrSocket(RawEnum::Socket(socket.as_raw_socket())),
+            raw: RawHandleOrSocket(RawEnum::Socket(socket.into_raw_socket())),
         }
     }
 
@@ -178,6 +166,41 @@ impl AsRawHandleOrSocket for BorrowedHandleOrSocket<'_> {
     #[inline]
     fn as_raw_handle_or_socket(&self) -> RawHandleOrSocket {
         self.raw
+    }
+}
+
+impl IntoRawHandleOrSocket for OwnedHandleOrSocket {
+    #[inline]
+    fn into_raw_handle_or_socket(self) -> RawHandleOrSocket {
+        let raw = self.raw;
+        forget(self);
+        raw
+    }
+}
+
+impl FromRawHandleOrSocket for OwnedHandleOrSocket {
+    #[inline]
+    unsafe fn from_raw_handle_or_socket(raw: RawHandleOrSocket) -> Self {
+        match raw.0 {
+            RawEnum::Handle(raw_handle) => assert!(!raw_handle.is_null()),
+            RawEnum::Socket(raw_socket) => assert_ne!(raw_socket, INVALID_SOCKET as RawSocket),
+            RawEnum::Stdio(_) => (),
+        }
+        Self { raw }
+    }
+}
+
+impl Drop for OwnedHandleOrSocket {
+    fn drop(&mut self) {
+        match self.raw.0 {
+            RawEnum::Handle(raw_handle) => unsafe {
+                let _ = OwnedHandle::from_raw_handle(raw_handle);
+            },
+            RawEnum::Socket(raw_socket) => unsafe {
+                let _ = OwnedSocket::from_raw_socket(raw_socket);
+            },
+            RawEnum::Stdio(_) => (),
+        }
     }
 }
 

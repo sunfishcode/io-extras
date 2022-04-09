@@ -44,3 +44,5 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
     - run: cargo test --workspace --all-features
+      env:
+        RUST_BACKTRACE: 1

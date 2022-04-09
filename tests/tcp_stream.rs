@@ -2,10 +2,13 @@
 
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
-use io_extras::grip::{AsRawGrip, FromRawGrip};
+use io_extras::borrowed::{BorrowedReadable, BorrowedWriteable};
+use io_extras::grip::{AsGrip, AsRawGrip, FromGrip, FromRawGrip, IntoGrip};
+use io_extras::owned::OwnedReadable;
 use io_extras::raw::{RawReadable, RawWriteable};
 use io_lifetimes::AsSocketlike;
 use std::io::{self, Read, Write};
+use std::mem::forget;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 
@@ -30,6 +33,12 @@ fn tcp_stream_write() -> io::Result<()> {
             "Write via SocketlikeView"
         )?;
 
+        // Obtain an `BorrowedWriteable` and use it to write.
+        writeln!(
+            BorrowedWriteable::borrow(stream.as_grip()),
+            "Write via BorrowedWriteable"
+        )?;
+
         Ok(())
     });
 
@@ -40,7 +49,8 @@ fn tcp_stream_write() -> io::Result<()> {
     assert_eq!(
         buf,
         "Write via RawWriteable\n\
-                Write via SocketlikeView\n"
+                Write via SocketlikeView\n\
+                Write via BorrowedWriteable\n"
     );
 
     Ok(())
@@ -61,14 +71,19 @@ fn accept() -> io::Result<TcpStream> {
 
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
-fn tcp_stream_read() -> io::Result<()> {
+fn tcp_stream_raw_readable() -> io::Result<()> {
     // Obtain an `RawReadable` and use it to read.
     let stream = accept()?;
     let mut buf = String::new();
     unsafe { RawReadable::from_raw_grip(stream.as_raw_grip()) }.read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
+    Ok(())
+}
 
-    // Obtain a `FilelikeView` and use it to read.
+#[test]
+#[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
+fn tcp_stream_socketlike_view() -> io::Result<()> {
+    // Obtain a `SocketlikeView` and use it to read.
     let stream = accept()?;
     let mut buf = String::new();
     stream
@@ -76,5 +91,31 @@ fn tcp_stream_read() -> io::Result<()> {
         .read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
 
+    Ok(())
+}
+
+#[test]
+#[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
+fn tcp_stream_borrowed_readable() -> io::Result<()> {
+    // Obtain a `BorrowedReadable` and use it to read.
+    let stream = accept()?;
+    let mut buf = String::new();
+    BorrowedReadable::borrow(stream.as_grip()).read_to_string(&mut buf)?;
+    assert_eq!(buf, "hello, world");
+    Ok(())
+}
+
+#[test]
+#[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
+fn tcp_stream_owned_readable() -> io::Result<()> {
+    // Obtain a `OwnedReadable` and use it to read.
+    let stream = accept()?;
+    let mut buf = String::new();
+    let mut owned = OwnedReadable::from_grip(stream.into_grip());
+    owned.read_to_string(&mut buf)?;
+    // Avoid calling drop so that we don't depend on io-lifetimes' "close"
+    // feature.
+    forget(owned);
+    assert_eq!(buf, "hello, world");
     Ok(())
 }
