@@ -25,13 +25,11 @@ use std::os::windows::io::{FromRawHandle, RawHandle};
 use std::sync::atomic::AtomicU16;
 use std::sync::atomic::Ordering::SeqCst;
 use std::{cmp, ptr, str};
-use winapi::shared::minwindef::{DWORD, ULONG};
-use winapi::shared::winerror::ERROR_INVALID_HANDLE;
-use winapi::um::consoleapi::{GetConsoleMode, ReadConsoleW, WriteConsoleW};
-use winapi::um::handleapi::INVALID_HANDLE_VALUE;
-use winapi::um::processenv::GetStdHandle;
-use winapi::um::winbase::{STD_ERROR_HANDLE, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
-use winapi::um::wincon::CONSOLE_READCONSOLE_CONTROL;
+use windows_sys::Win32::Foundation::{ERROR_INVALID_HANDLE, HANDLE, INVALID_HANDLE_VALUE};
+use windows_sys::Win32::System::Console::{
+    GetConsoleMode, GetStdHandle, ReadConsoleW, WriteConsoleW, CONSOLE_READCONSOLE_CONTROL,
+    STD_ERROR_HANDLE, STD_HANDLE, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE,
+};
 
 static SURROGATE: AtomicU16 = AtomicU16::new(0);
 
@@ -40,7 +38,7 @@ static SURROGATE: AtomicU16 = AtomicU16::new(0);
 // `SetStdHandle` while it's running). See #40490.
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
 pub(crate) struct Stdio {
-    id: DWORD,
+    id: STD_HANDLE,
 }
 
 impl Stdio {
@@ -83,14 +81,14 @@ impl Stdio {
 const MAX_BUFFER_SIZE: usize = 8192;
 
 #[allow(clippy::as_conversions)]
-fn get_handle(handle_id: DWORD) -> io::Result<RawHandle> {
+fn get_handle(handle_id: STD_HANDLE) -> io::Result<RawHandle> {
     let handle = unsafe { GetStdHandle(handle_id) };
     if handle == INVALID_HANDLE_VALUE {
         Err(io::Error::last_os_error())
-    } else if handle.is_null() {
+    } else if (handle as RawHandle).is_null() {
         Err(io::Error::from_raw_os_error(ERROR_INVALID_HANDLE as i32))
     } else {
-        Ok(handle)
+        Ok(handle as RawHandle)
     }
 }
 
@@ -100,10 +98,10 @@ fn is_console(handle: RawHandle) -> bool {
     // other terminals connected to a pipe like MSYS. Which is exactly what we
     // need, as only Windows Console needs a conversion to UTF-16.
     let mut mode = 0;
-    unsafe { GetConsoleMode(handle, &mut mode) != 0_i32 }
+    unsafe { GetConsoleMode(handle as HANDLE, &mut mode) != 0_i32 }
 }
 
-fn write(handle_id: DWORD, data: &[u8]) -> io::Result<usize> {
+fn write(handle_id: STD_HANDLE, data: &[u8]) -> io::Result<usize> {
     let handle = get_handle(handle_id)?;
     if !is_console(handle) {
         return unsafe { RawWriteable::from_raw_handle(handle) }.write(data);
@@ -179,7 +177,7 @@ fn write_u16s(handle: RawHandle, data: &[u16]) -> io::Result<usize> {
     };
     if unsafe {
         WriteConsoleW(
-            handle,
+            handle as HANDLE,
             data.as_ptr().cast::<c_void>(),
             len,
             &mut written,
@@ -263,9 +261,9 @@ fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
     // also Ctrl-Z, the traditional DOS method to indicate end of character
     // stream / user input (SUB). See #38274 and https://stackoverflow.com/questions/43836040/win-api-readconsole.
     const CTRL_Z: u16 = 0x1A;
-    const CTRL_Z_MASK: ULONG = 1 << CTRL_Z;
+    const CTRL_Z_MASK: u32 = 1 << CTRL_Z;
     let mut input_control = CONSOLE_READCONSOLE_CONTROL {
-        nLength: std::mem::size_of::<CONSOLE_READCONSOLE_CONTROL>() as ULONG,
+        nLength: std::mem::size_of::<CONSOLE_READCONSOLE_CONTROL>() as u32,
         nInitialChars: 0,
         dwCtrlWakeupMask: CTRL_Z_MASK,
         dwControlKeyState: 0,
@@ -279,7 +277,7 @@ fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
     };
     if unsafe {
         ReadConsoleW(
-            handle,
+            handle as HANDLE,
             buf.as_mut_ptr().cast::<c_void>(),
             len,
             &mut amount,
