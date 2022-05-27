@@ -196,33 +196,33 @@ impl Read for RawReadable {
         // Safety: The caller of `as_readable()`, which is unsafe, is expected
         // to ensure that the underlying resource outlives this
         // `RawReadable`.
-        unsafe { as_file_view(self.0) }.read(buf)
+        unsafe { &*as_file_view(self.0) }.read(buf)
     }
 
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
-        unsafe { as_file_view(self.0) }.read_vectored(bufs)
+        unsafe { &*as_file_view(self.0) }.read_vectored(bufs)
     }
 
     #[cfg(can_vector)]
     #[inline]
     fn is_read_vectored(&self) -> bool {
-        unsafe { as_file_view(self.0) }.is_read_vectored()
+        unsafe { &*as_file_view(self.0) }.is_read_vectored()
     }
 
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        unsafe { as_file_view(self.0) }.read_to_end(buf)
+        unsafe { &*as_file_view(self.0) }.read_to_end(buf)
     }
 
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
-        unsafe { as_file_view(self.0) }.read_to_string(buf)
+        unsafe { &*as_file_view(self.0) }.read_to_string(buf)
     }
 
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
-        unsafe { as_file_view(self.0) }.read_exact(buf)
+        unsafe { &*as_file_view(self.0) }.read_exact(buf)
     }
 }
 
@@ -231,8 +231,8 @@ impl Read for RawReadable {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read(buf),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.read(buf),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.read(buf),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.read(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.read(buf),
         }
     }
@@ -240,9 +240,11 @@ impl Read for RawReadable {
     #[inline]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_vectored(bufs),
+            RawEnum::Handle(raw_handle) => {
+                unsafe { &*as_file_view(raw_handle) }.read_vectored(bufs)
+            }
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_socket_view(raw_socket) }.read_vectored(bufs)
+                unsafe { &*as_socket_view(raw_socket) }.read_vectored(bufs)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.read_vectored(bufs),
         }
@@ -252,8 +254,10 @@ impl Read for RawReadable {
     #[inline]
     fn is_read_vectored(&self) -> bool {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.is_read_vectored(),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.is_read_vectored(),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.is_read_vectored(),
+            RawEnum::Socket(raw_socket) => {
+                unsafe { &*as_socket_view(raw_socket) }.is_read_vectored()
+            }
             RawEnum::Stdio(ref stdio) => stdio.is_read_vectored(),
         }
     }
@@ -261,8 +265,8 @@ impl Read for RawReadable {
     #[inline]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_to_end(buf),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.read_to_end(buf),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.read_to_end(buf),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.read_to_end(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.read_to_end(buf),
         }
     }
@@ -270,9 +274,11 @@ impl Read for RawReadable {
     #[inline]
     fn read_to_string(&mut self, buf: &mut String) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_to_string(buf),
+            RawEnum::Handle(raw_handle) => {
+                unsafe { &*as_file_view(raw_handle) }.read_to_string(buf)
+            }
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_socket_view(raw_socket) }.read_to_string(buf)
+                unsafe { &*as_socket_view(raw_socket) }.read_to_string(buf)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.read_to_string(buf),
         }
@@ -281,8 +287,8 @@ impl Read for RawReadable {
     #[inline]
     fn read_exact(&mut self, buf: &mut [u8]) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.read_exact(buf),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.read_exact(buf),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.read_exact(buf),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.read_exact(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.read_exact(buf),
         }
     }
@@ -295,39 +301,39 @@ impl Write for RawWriteable {
         // Safety: The caller of `as_writeable()`, which is unsafe, is expected
         // to ensure that the underlying resource outlives this
         // `RawReadable`.
-        unsafe { as_file_view(self.0) }.write(buf)
+        unsafe { &*as_file_view(self.0) }.write(buf)
     }
 
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
-        unsafe { as_file_view(self.0) }.flush()
+        unsafe { &*as_file_view(self.0) }.flush()
     }
 
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
-        unsafe { as_file_view(self.0) }.write_vectored(bufs)
+        unsafe { &*as_file_view(self.0) }.write_vectored(bufs)
     }
 
     #[cfg(can_vector)]
     #[inline]
     fn is_write_vectored(&self) -> bool {
-        unsafe { as_file_view(self.0) }.is_write_vectored()
+        unsafe { &*as_file_view(self.0) }.is_write_vectored()
     }
 
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
-        unsafe { as_file_view(self.0) }.write_all(buf)
+        unsafe { &*as_file_view(self.0) }.write_all(buf)
     }
 
     #[cfg(write_all_vectored)]
     #[inline]
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
-        unsafe { as_file_view(self.0) }.write_all_vectored(bufs)
+        unsafe { &*as_file_view(self.0) }.write_all_vectored(bufs)
     }
 
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) -> io::Result<()> {
-        unsafe { as_file_view(self.0) }.write_fmt(fmt)
+        unsafe { &*as_file_view(self.0) }.write_fmt(fmt)
     }
 }
 
@@ -336,8 +342,8 @@ impl Write for RawWriteable {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write(buf),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.write(buf),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.write(buf),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.write(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.write(buf),
         }
     }
@@ -345,8 +351,8 @@ impl Write for RawWriteable {
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.flush(),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.flush(),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.flush(),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.flush(),
             RawEnum::Stdio(ref mut stdio) => stdio.flush(),
         }
     }
@@ -354,9 +360,11 @@ impl Write for RawWriteable {
     #[inline]
     fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write_vectored(bufs),
+            RawEnum::Handle(raw_handle) => {
+                unsafe { &*as_file_view(raw_handle) }.write_vectored(bufs)
+            }
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_socket_view(raw_socket) }.write_vectored(bufs)
+                unsafe { &*as_socket_view(raw_socket) }.write_vectored(bufs)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.write_vectored(bufs),
         }
@@ -366,9 +374,11 @@ impl Write for RawWriteable {
     #[inline]
     fn is_write_vectored(&self) -> bool {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.is_write_vectored(),
+            RawEnum::Handle(raw_handle) => {
+                unsafe { &*as_file_view(raw_handle) }.is_write_vectored()
+            }
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_socket_view(raw_socket) }.is_write_vectored()
+                unsafe { &*as_socket_view(raw_socket) }.is_write_vectored()
             }
             RawEnum::Stdio(ref stdio) => stdio.is_write_vectored(),
         }
@@ -377,8 +387,8 @@ impl Write for RawWriteable {
     #[inline]
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write_all(buf),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.write_all(buf),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.write_all(buf),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.write_all(buf),
             RawEnum::Stdio(ref mut stdio) => stdio.write_all(buf),
         }
     }
@@ -388,10 +398,10 @@ impl Write for RawWriteable {
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
         match self.0 .0 {
             RawEnum::Handle(raw_handle) => {
-                unsafe { as_file_view(raw_handle) }.write_all_vectored(bufs)
+                unsafe { &*as_file_view(raw_handle) }.write_all_vectored(bufs)
             }
             RawEnum::Socket(raw_socket) => {
-                unsafe { as_socket_view(raw_socket) }.write_all_vectored(bufs)
+                unsafe { &*as_socket_view(raw_socket) }.write_all_vectored(bufs)
             }
             RawEnum::Stdio(ref mut stdio) => stdio.write_all_vectored(bufs),
         }
@@ -400,8 +410,8 @@ impl Write for RawWriteable {
     #[inline]
     fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) -> io::Result<()> {
         match self.0 .0 {
-            RawEnum::Handle(raw_handle) => unsafe { as_file_view(raw_handle) }.write_fmt(fmt),
-            RawEnum::Socket(raw_socket) => unsafe { as_socket_view(raw_socket) }.write_fmt(fmt),
+            RawEnum::Handle(raw_handle) => unsafe { &*as_file_view(raw_handle) }.write_fmt(fmt),
+            RawEnum::Socket(raw_socket) => unsafe { &*as_socket_view(raw_socket) }.write_fmt(fmt),
             RawEnum::Stdio(ref mut stdio) => stdio.write_fmt(fmt),
         }
     }

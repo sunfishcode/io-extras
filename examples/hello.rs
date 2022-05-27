@@ -20,7 +20,7 @@ fn main() -> io::Result<()> {
     )?;
 
     // Obtain a `FilelikeView` and use it to write.
-    writeln!(stdout.as_filelike_view::<std::fs::File>(), "hello, world")?;
+    writeln!(&*stdout.as_filelike_view::<std::fs::File>(), "hello, world")?;
 
     Ok(())
 }
