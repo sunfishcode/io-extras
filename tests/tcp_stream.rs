@@ -29,7 +29,7 @@ fn tcp_stream_write() -> io::Result<()> {
 
         // Obtain a `SocketlikeView` and use it to write.
         writeln!(
-            stream.as_socketlike_view::<TcpStream>(),
+            &*stream.as_socketlike_view::<TcpStream>(),
             "Write via SocketlikeView"
         )?;
 
@@ -86,9 +86,7 @@ fn tcp_stream_socketlike_view() -> io::Result<()> {
     // Obtain a `SocketlikeView` and use it to read.
     let stream = accept()?;
     let mut buf = String::new();
-    stream
-        .as_socketlike_view::<TcpStream>()
-        .read_to_string(&mut buf)?;
+    (&*stream.as_socketlike_view::<TcpStream>()).read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
 
     Ok(())
