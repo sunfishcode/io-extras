@@ -28,7 +28,7 @@ fn os_pipe_write() -> io::Result<()> {
 
         // Obtain a `FilelikeView` and use it to write.
         writeln!(
-            output.as_filelike_view::<std::fs::File>(),
+            &*output.as_filelike_view::<std::fs::File>(),
             "Write via FilelikeView"
         )?;
 
@@ -82,9 +82,7 @@ fn os_pipe_filelike_view() -> io::Result<()> {
     // Obtain a `FilelikeView` and use it to read.
     let stream = write_to_pipe()?;
     let mut buf = String::new();
-    stream
-        .as_filelike_view::<std::fs::File>()
-        .read_to_string(&mut buf)?;
+    (&*stream.as_filelike_view::<std::fs::File>()).read_to_string(&mut buf)?;
     assert_eq!(buf, "hello, world");
     Ok(())
 }
