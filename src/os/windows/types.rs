@@ -75,15 +75,15 @@ impl<'a> BorrowedHandleOrSocket<'a> {
     #[inline]
     #[must_use]
     pub fn as_handle(&self) -> Option<BorrowedHandle> {
-        unsafe {
+        
             match self.raw.0 {
-                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw(handle)),
+                RawEnum::Handle(handle) => Some(unsafe { BorrowedHandle::borrow_raw(handle) }),
                 RawEnum::Socket(_) => None,
                 RawEnum::Stdio(ref stdio) => {
-                    Some(BorrowedHandle::borrow_raw(stdio.as_raw_handle()))
+                    Some(unsafe { BorrowedHandle::borrow_raw(stdio.as_raw_handle()) })
                 }
             }
-        }
+        
     }
 
     /// Like [`AsSocket::as_socket`], but returns an `Option` so that
@@ -93,13 +93,13 @@ impl<'a> BorrowedHandleOrSocket<'a> {
     #[inline]
     #[must_use]
     pub fn as_socket(&self) -> Option<BorrowedSocket> {
-        unsafe {
+        
             match self.raw.0 {
                 RawEnum::Handle(_) => None,
-                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw(socket)),
+                RawEnum::Socket(socket) => Some(unsafe { BorrowedSocket::borrow_raw(socket) }),
                 RawEnum::Stdio(_) => None,
             }
-        }
+        
     }
 }
 
@@ -127,15 +127,15 @@ impl OwnedHandleOrSocket {
     #[inline]
     #[must_use]
     pub fn as_handle(&self) -> Option<BorrowedHandle> {
-        unsafe {
+        
             match self.raw.0 {
-                RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw(handle)),
+                RawEnum::Handle(handle) => Some(unsafe { BorrowedHandle::borrow_raw(handle) }),
                 RawEnum::Socket(_) => None,
                 RawEnum::Stdio(ref stdio) => {
-                    Some(BorrowedHandle::borrow_raw(stdio.as_raw_handle()))
+                    Some(unsafe { BorrowedHandle::borrow_raw(stdio.as_raw_handle()) })
                 }
             }
-        }
+        
     }
 
     /// Like [`AsSocket::as_socket`], but returns an `Option` so that
@@ -145,13 +145,13 @@ impl OwnedHandleOrSocket {
     #[inline]
     #[must_use]
     pub fn as_socket(&self) -> Option<BorrowedSocket> {
-        unsafe {
+        
             match self.raw.0 {
                 RawEnum::Handle(_) => None,
-                RawEnum::Socket(socket) => Some(BorrowedSocket::borrow_raw(socket)),
+                RawEnum::Socket(socket) => Some(unsafe { BorrowedSocket::borrow_raw(socket) }),
                 RawEnum::Stdio(_) => None,
             }
-        }
+        
     }
 }
 
