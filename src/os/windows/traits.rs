@@ -2,7 +2,7 @@
 
 use super::types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
 use super::AsRawHandleOrSocket;
-use io_lifetimes::{AsHandle, AsSocket, IntoHandle, IntoSocket};
+use io_lifetimes::{AsHandle, AsSocket};
 #[cfg(feature = "os_pipe")]
 use os_pipe::{PipeReader, PipeWriter};
 use std::fs::File;
@@ -342,49 +342,49 @@ impl AsHandleOrSocket for mio::net::UdpSocket {
 impl IntoHandleOrSocket for File {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
 impl IntoHandleOrSocket for ChildStdin {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
 impl IntoHandleOrSocket for ChildStdout {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
 impl IntoHandleOrSocket for ChildStderr {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
 impl IntoHandleOrSocket for TcpStream {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
 impl IntoHandleOrSocket for TcpListener {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
 impl IntoHandleOrSocket for UdpSocket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -392,7 +392,7 @@ impl IntoHandleOrSocket for UdpSocket {
 impl IntoHandleOrSocket for PipeReader {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
@@ -400,7 +400,7 @@ impl IntoHandleOrSocket for PipeReader {
 impl IntoHandleOrSocket for PipeWriter {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
@@ -408,7 +408,7 @@ impl IntoHandleOrSocket for PipeWriter {
 impl IntoHandleOrSocket for socket2::Socket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -416,7 +416,7 @@ impl IntoHandleOrSocket for socket2::Socket {
 impl IntoHandleOrSocket for mio::net::TcpStream {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -424,7 +424,7 @@ impl IntoHandleOrSocket for mio::net::TcpStream {
 impl IntoHandleOrSocket for mio::net::TcpListener {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -432,7 +432,7 @@ impl IntoHandleOrSocket for mio::net::TcpListener {
 impl IntoHandleOrSocket for mio::net::UdpSocket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -440,7 +440,7 @@ impl IntoHandleOrSocket for mio::net::UdpSocket {
 impl IntoHandleOrSocket for async_std::fs::File {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(Self::into_handle(self))
+        OwnedHandleOrSocket::from_handle(self.into())
     }
 }
 
@@ -448,7 +448,7 @@ impl IntoHandleOrSocket for async_std::fs::File {
 impl IntoHandleOrSocket for async_std::net::TcpStream {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -456,7 +456,7 @@ impl IntoHandleOrSocket for async_std::net::TcpStream {
 impl IntoHandleOrSocket for async_std::net::TcpListener {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }
 
@@ -464,6 +464,6 @@ impl IntoHandleOrSocket for async_std::net::TcpListener {
 impl IntoHandleOrSocket for async_std::net::UdpSocket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(Self::into_socket(self))
+        OwnedHandleOrSocket::from_socket(self.into())
     }
 }

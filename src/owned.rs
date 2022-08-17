@@ -3,7 +3,7 @@
 use crate::grip::{AsRawGrip, FromRawGrip, OwnedGrip};
 use crate::raw::{RawReadable, RawWriteable};
 #[cfg(not(windows))]
-use io_lifetimes::{AsFd, BorrowedFd, FromFd, IntoFd, OwnedFd};
+use io_lifetimes::{AsFd, BorrowedFd, OwnedFd};
 use std::fmt;
 use std::io::{self, IoSlice, IoSliceMut, Read, Write};
 #[cfg(all(doc, not(windows)))]
@@ -18,7 +18,7 @@ use {
         AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket, FromHandleOrSocket,
         FromRawHandleOrSocket, IntoHandleOrSocket, IntoRawHandleOrSocket, OwnedHandleOrSocket,
     },
-    io_lifetimes::{FromHandle, OwnedHandle},
+    io_lifetimes::OwnedHandle,
     std::os::windows::io::{FromRawHandle, IntoRawHandle},
 };
 
@@ -57,18 +57,18 @@ impl AsFd for OwnedReadable {
 
 /// `OwnedReadable` owns its handle.
 #[cfg(not(windows))]
-impl IntoFd for OwnedReadable {
+impl From<OwnedReadable> for OwnedFd {
     #[inline]
-    fn into_fd(self) -> OwnedFd {
-        unsafe { OwnedFd::from_raw_fd(self.0.into_raw_fd()) }
+    fn from(owned: OwnedReadable) -> OwnedFd {
+        unsafe { OwnedFd::from_raw_fd(owned.0.into_raw_fd()) }
     }
 }
 
 /// `OwnedReadable` owns its handle.
 #[cfg(not(windows))]
-impl FromFd for OwnedReadable {
+impl From<OwnedFd> for OwnedReadable {
     #[inline]
-    fn from_fd(fd: OwnedFd) -> Self {
+    fn from(fd: OwnedFd) -> Self {
         unsafe { Self(RawReadable::from_raw_fd(fd.into_raw_fd())) }
     }
 }
@@ -84,18 +84,18 @@ impl AsFd for OwnedWriteable {
 
 /// `OwnedWriteable` owns its handle.
 #[cfg(not(windows))]
-impl IntoFd for OwnedWriteable {
+impl From<OwnedWriteable> for OwnedFd {
     #[inline]
-    fn into_fd(self) -> OwnedFd {
-        unsafe { OwnedFd::from_raw_fd(self.0.as_raw_fd()) }
+    fn from(owned: OwnedWriteable) -> OwnedFd {
+        unsafe { OwnedFd::from_raw_fd(owned.0.as_raw_fd()) }
     }
 }
 
 /// `OwnedWriteable` owns its handle.
 #[cfg(not(windows))]
-impl FromFd for OwnedWriteable {
+impl From<OwnedFd> for OwnedWriteable {
     #[inline]
-    fn from_fd(fd: OwnedFd) -> Self {
+    fn from(fd: OwnedFd) -> Self {
         unsafe { Self(RawWriteable::from_raw_fd(fd.into_raw_fd())) }
     }
 }
@@ -137,9 +137,9 @@ impl FromHandleOrSocket for OwnedReadable {
 
 /// `OwnedReadable` owns its handle.
 #[cfg(windows)]
-impl FromHandle for OwnedReadable {
+impl From<OwnedHandle> for OwnedReadable {
     #[inline]
-    fn from_handle(handle: OwnedHandle) -> Self {
+    fn from(handle: OwnedHandle) -> Self {
         unsafe { Self(RawReadable::from_raw_handle(handle.into_raw_handle())) }
     }
 }
@@ -179,9 +179,9 @@ impl FromHandleOrSocket for OwnedWriteable {
 
 /// `OwnedWriteable` owns its handle.
 #[cfg(windows)]
-impl FromHandle for OwnedWriteable {
+impl From<OwnedHandle> for OwnedWriteable {
     #[inline]
-    fn from_handle(handle: OwnedHandle) -> Self {
+    fn from(handle: OwnedHandle) -> Self {
         unsafe { Self(RawWriteable::from_raw_handle(handle.into_raw_handle())) }
     }
 }
