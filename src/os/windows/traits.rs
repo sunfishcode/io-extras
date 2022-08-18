@@ -153,6 +153,7 @@ impl AsHandleOrSocket for UdpSocket {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::io::Stdin {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -161,6 +162,7 @@ impl AsHandleOrSocket for async_std::io::Stdin {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::io::Stdout {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -169,6 +171,7 @@ impl AsHandleOrSocket for async_std::io::Stdout {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::io::Stderr {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -177,6 +180,7 @@ impl AsHandleOrSocket for async_std::io::Stderr {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::fs::File {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -188,6 +192,7 @@ impl AsHandleOrSocket for async_std::fs::File {
 // `AsFd` or `AsHandle`.
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::net::TcpStream {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -196,6 +201,7 @@ impl AsHandleOrSocket for async_std::net::TcpStream {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::net::TcpListener {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -204,6 +210,7 @@ impl AsHandleOrSocket for async_std::net::TcpListener {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl AsHandleOrSocket for async_std::net::UdpSocket {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -212,6 +219,7 @@ impl AsHandleOrSocket for async_std::net::UdpSocket {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::io::Stdin {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -220,6 +228,7 @@ impl AsHandleOrSocket for tokio::io::Stdin {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::io::Stdout {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -228,6 +237,7 @@ impl AsHandleOrSocket for tokio::io::Stdout {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::io::Stderr {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -236,6 +246,7 @@ impl AsHandleOrSocket for tokio::io::Stderr {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::fs::File {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -244,6 +255,7 @@ impl AsHandleOrSocket for tokio::fs::File {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::net::TcpStream {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -252,6 +264,7 @@ impl AsHandleOrSocket for tokio::net::TcpStream {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::net::TcpListener {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -260,6 +273,7 @@ impl AsHandleOrSocket for tokio::net::TcpListener {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::net::UdpSocket {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -268,6 +282,7 @@ impl AsHandleOrSocket for tokio::net::UdpSocket {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::process::ChildStdin {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -276,6 +291,7 @@ impl AsHandleOrSocket for tokio::process::ChildStdin {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::process::ChildStdout {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -284,6 +300,7 @@ impl AsHandleOrSocket for tokio::process::ChildStdout {
 }
 
 #[cfg(feature = "tokio")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for tokio
 impl AsHandleOrSocket for tokio::process::ChildStderr {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -292,6 +309,7 @@ impl AsHandleOrSocket for tokio::process::ChildStderr {
 }
 
 #[cfg(feature = "os_pipe")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
 impl AsHandleOrSocket for PipeReader {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -300,6 +318,7 @@ impl AsHandleOrSocket for PipeReader {
 }
 
 #[cfg(feature = "os_pipe")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
 impl AsHandleOrSocket for PipeWriter {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -308,6 +327,7 @@ impl AsHandleOrSocket for PipeWriter {
 }
 
 #[cfg(feature = "socket2")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for socket2
 impl AsHandleOrSocket for socket2::Socket {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -316,6 +336,7 @@ impl AsHandleOrSocket for socket2::Socket {
 }
 
 #[cfg(feature = "use_mio_net")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
 impl AsHandleOrSocket for mio::net::TcpStream {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -324,6 +345,7 @@ impl AsHandleOrSocket for mio::net::TcpStream {
 }
 
 #[cfg(feature = "use_mio_net")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
 impl AsHandleOrSocket for mio::net::TcpListener {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -332,6 +354,7 @@ impl AsHandleOrSocket for mio::net::TcpListener {
 }
 
 #[cfg(feature = "use_mio_net")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
 impl AsHandleOrSocket for mio::net::UdpSocket {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -405,6 +428,7 @@ impl IntoHandleOrSocket for PipeWriter {
 }
 
 #[cfg(feature = "socket2")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for socket2
 impl IntoHandleOrSocket for socket2::Socket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -413,6 +437,7 @@ impl IntoHandleOrSocket for socket2::Socket {
 }
 
 #[cfg(feature = "use_mio_net")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
 impl IntoHandleOrSocket for mio::net::TcpStream {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -421,6 +446,7 @@ impl IntoHandleOrSocket for mio::net::TcpStream {
 }
 
 #[cfg(feature = "use_mio_net")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
 impl IntoHandleOrSocket for mio::net::TcpListener {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -429,6 +455,7 @@ impl IntoHandleOrSocket for mio::net::TcpListener {
 }
 
 #[cfg(feature = "use_mio_net")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
 impl IntoHandleOrSocket for mio::net::UdpSocket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -437,6 +464,7 @@ impl IntoHandleOrSocket for mio::net::UdpSocket {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl IntoHandleOrSocket for async_std::fs::File {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -445,6 +473,7 @@ impl IntoHandleOrSocket for async_std::fs::File {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl IntoHandleOrSocket for async_std::net::TcpStream {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -453,6 +482,7 @@ impl IntoHandleOrSocket for async_std::net::TcpStream {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl IntoHandleOrSocket for async_std::net::TcpListener {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -461,6 +491,7 @@ impl IntoHandleOrSocket for async_std::net::TcpListener {
 }
 
 #[cfg(feature = "async-std")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
 impl IntoHandleOrSocket for async_std::net::UdpSocket {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
