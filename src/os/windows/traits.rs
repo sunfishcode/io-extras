@@ -3,8 +3,6 @@
 use super::types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
 use super::AsRawHandleOrSocket;
 use io_lifetimes::{AsHandle, AsSocket};
-#[cfg(feature = "os_pipe")]
-use os_pipe::{PipeReader, PipeWriter};
 use std::fs::File;
 use std::io::{Stderr, StderrLock, Stdin, StdinLock, Stdout, StdoutLock};
 use std::net::{TcpListener, TcpStream, UdpSocket};
@@ -310,7 +308,7 @@ impl AsHandleOrSocket for tokio::process::ChildStderr {
 
 #[cfg(feature = "os_pipe")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
-impl AsHandleOrSocket for PipeReader {
+impl AsHandleOrSocket for os_pipe::PipeReader {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
@@ -319,7 +317,7 @@ impl AsHandleOrSocket for PipeReader {
 
 #[cfg(feature = "os_pipe")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
-impl AsHandleOrSocket for PipeWriter {
+impl AsHandleOrSocket for os_pipe::PipeWriter {
     #[inline]
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
         BorrowedHandleOrSocket::from_handle(Self::as_handle(self))
@@ -413,7 +411,7 @@ impl IntoHandleOrSocket for UdpSocket {
 
 #[cfg(feature = "os_pipe")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
-impl IntoHandleOrSocket for PipeReader {
+impl IntoHandleOrSocket for os_pipe::PipeReader {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
         OwnedHandleOrSocket::from_handle(self.into())
@@ -422,7 +420,7 @@ impl IntoHandleOrSocket for PipeReader {
 
 #[cfg(feature = "os_pipe")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
-impl IntoHandleOrSocket for PipeWriter {
+impl IntoHandleOrSocket for os_pipe::PipeWriter {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
         OwnedHandleOrSocket::from_handle(self.into())
