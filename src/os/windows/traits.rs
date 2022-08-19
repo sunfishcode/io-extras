@@ -412,6 +412,7 @@ impl IntoHandleOrSocket for UdpSocket {
 }
 
 #[cfg(feature = "os_pipe")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
 impl IntoHandleOrSocket for PipeReader {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
@@ -420,6 +421,7 @@ impl IntoHandleOrSocket for PipeReader {
 }
 
 #[cfg(feature = "os_pipe")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
 impl IntoHandleOrSocket for PipeWriter {
     #[inline]
     fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
