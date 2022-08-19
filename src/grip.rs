@@ -11,7 +11,7 @@ use crate::os::windows::{
 #[cfg(not(windows))]
 use {
     crate::os::rustix::{AsRawFd, AsRawReadWriteFd, AsReadWriteFd, FromRawFd, IntoRawFd, RawFd},
-    io_lifetimes::{AsFd, BorrowedFd, FromFd, IntoFd, OwnedFd},
+    io_lifetimes::{AsFd, BorrowedFd, FromFd, OwnedFd},
 };
 
 /// Portability abstraction over `BorrowedFd` and `BorrowedHandleOrSocket`.
@@ -76,15 +76,15 @@ pub trait AsReadWriteGrip: AsReadWriteHandleOrSocket {
     fn as_write_grip(&self) -> BorrowedGrip<'_>;
 }
 
-/// Portability abstraction over `IntoFd` and
+/// Portability abstraction over `Into<OwnedFd>` and
 /// `IntoHandleOrSocket`.
 #[cfg(not(windows))]
-pub trait IntoGrip: IntoFd {
+pub trait IntoGrip: Into<OwnedFd> {
     /// Consume `self` and convert into an `OwnedGrip`.
     fn into_grip(self) -> OwnedGrip;
 }
 
-/// Portability abstraction over `IntoFd` and
+/// Portability abstraction over `Into<OwnedFd>` and
 /// `IntoHandleOrSocket`.
 #[cfg(windows)]
 pub trait IntoGrip: IntoHandleOrSocket {
@@ -151,10 +151,10 @@ impl<T: AsReadWriteHandleOrSocket> AsReadWriteGrip for T {
 }
 
 #[cfg(not(windows))]
-impl<T: IntoFd> IntoGrip for T {
+impl<T: Into<OwnedFd>> IntoGrip for T {
     #[inline]
     fn into_grip(self) -> OwnedGrip {
-        self.into_fd()
+        self.into()
     }
 }
 
@@ -167,10 +167,10 @@ impl<T: IntoHandleOrSocket> IntoGrip for T {
 }
 
 #[cfg(not(windows))]
-impl<T: FromFd> FromGrip for T {
+impl<T: From<OwnedFd>> FromGrip for T {
     #[inline]
     fn from_grip(owned_grip: OwnedGrip) -> Self {
-        Self::from_fd(owned_grip)
+        Self::from(owned_grip)
     }
 }
 
@@ -238,16 +238,16 @@ pub trait AsRawReadWriteGrip: AsRawReadWriteHandleOrSocket {
     fn as_raw_write_grip(&self) -> RawGrip;
 }
 
-/// Portability abstraction over `IntoFd` and
-/// `IntoHandleOrSocket`.
+/// Portability abstraction over `IntoRawFd` and
+/// `IntoRawHandleOrSocket`.
 #[cfg(not(windows))]
 pub trait IntoRawGrip: IntoRawFd {
     /// Consume `self` and convert into an `RawGrip`.
     fn into_raw_grip(self) -> RawGrip;
 }
 
-/// Portability abstraction over `IntoFd` and
-/// `IntoHandleOrSocket`.
+/// Portability abstraction over `IntoRawFd` and
+/// `IntoRawHandleOrSocket`.
 #[cfg(windows)]
 pub trait IntoRawGrip: IntoRawHandleOrSocket {
     /// Consume `self` and convert into an `RawGrip`.
