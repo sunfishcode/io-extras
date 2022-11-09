@@ -36,7 +36,7 @@ features = [
 ]
 
 [dev-dependencies]
-os_pipe = { version = "1.0.0", features = ["io_safety"] }
+os_pipe = { version = "1.0.0" }
 
 [features]
 default = []
