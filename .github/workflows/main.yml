@@ -24,11 +24,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [msrv, stable, nightly, windows]
+        build: [stable, nightly, windows]
         include:
-          - build: msrv
-            os: ubuntu-latest
-            rust: 1.58
           - build: stable
             os: ubuntu-latest
             rust: stable
@@ -48,6 +45,30 @@ jobs:
         toolchain: ${{ matrix.rust }}
     # Don't use --all-features because some of the features depend on trait
     # impls that aren't available yet.
-    - run: cargo test --workspace --features=os_pipe
+    - run: cargo test --workspace  --features=os_pipe
+      env:
+        RUST_BACKTRACE: 1
+
+  test_msrv:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [msrv]
+        include:
+          - build: msrv
+            os: ubuntu-latest
+            rust: 1.58
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - uses: ./.github/actions/install-rust
+      with:
+        toolchain: ${{ matrix.rust }}
+    # Don't use --all-features because some of the features have dependencies
+    # that don't work on newer Rust versions.
+    - run: cargo test --workspace
       env:
         RUST_BACKTRACE: 1
