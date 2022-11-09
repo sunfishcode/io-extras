@@ -262,7 +262,7 @@ fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
     // stream / user input (SUB). See #38274 and https://stackoverflow.com/questions/43836040/win-api-readconsole.
     const CTRL_Z: u16 = 0x1A;
     const CTRL_Z_MASK: u32 = 1 << CTRL_Z;
-    let mut input_control = CONSOLE_READCONSOLE_CONTROL {
+    let input_control = CONSOLE_READCONSOLE_CONTROL {
         nLength: std::mem::size_of::<CONSOLE_READCONSOLE_CONTROL>() as u32,
         nInitialChars: 0,
         dwCtrlWakeupMask: CTRL_Z_MASK,
@@ -281,7 +281,7 @@ fn read_u16s(handle: RawHandle, buf: &mut [u16]) -> io::Result<usize> {
             buf.as_mut_ptr().cast::<c_void>(),
             len,
             &mut amount,
-            &mut input_control,
+            &input_control,
         )
     } == 0_i32
     {

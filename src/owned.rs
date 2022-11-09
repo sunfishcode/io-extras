@@ -15,8 +15,8 @@ use std::os::wasi::io::{AsRawFd, FromRawFd, IntoRawFd};
 #[cfg(windows)]
 use {
     crate::os::windows::{
-        AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket, FromHandleOrSocket,
-        FromRawHandleOrSocket, IntoHandleOrSocket, IntoRawHandleOrSocket, OwnedHandleOrSocket,
+        AsHandleOrSocket, AsRawHandleOrSocket, BorrowedHandleOrSocket, FromRawHandleOrSocket,
+        IntoRawHandleOrSocket, OwnedHandleOrSocket,
     },
     io_lifetimes::OwnedHandle,
     std::os::windows::io::{FromRawHandle, IntoRawHandle},
@@ -59,8 +59,8 @@ impl AsFd for OwnedReadable {
 #[cfg(not(windows))]
 impl From<OwnedReadable> for OwnedFd {
     #[inline]
-    fn from(owned: OwnedReadable) -> OwnedFd {
-        unsafe { OwnedFd::from_raw_fd(owned.0.into_raw_fd()) }
+    fn from(owned: OwnedReadable) -> Self {
+        unsafe { Self::from_raw_fd(owned.0.into_raw_fd()) }
     }
 }
 
@@ -86,8 +86,8 @@ impl AsFd for OwnedWriteable {
 #[cfg(not(windows))]
 impl From<OwnedWriteable> for OwnedFd {
     #[inline]
-    fn from(owned: OwnedWriteable) -> OwnedFd {
-        unsafe { OwnedFd::from_raw_fd(owned.0.as_raw_fd()) }
+    fn from(owned: OwnedWriteable) -> Self {
+        unsafe { Self::from_raw_fd(owned.0.as_raw_fd()) }
     }
 }
 
@@ -113,20 +113,20 @@ impl AsHandleOrSocket for OwnedReadable {
 
 /// `OwnedReadable` owns its handle.
 #[cfg(windows)]
-impl IntoHandleOrSocket for OwnedReadable {
+impl From<OwnedReadable> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
+    fn from(readable: OwnedReadable) -> Self {
         unsafe {
-            OwnedHandleOrSocket::from_raw_handle_or_socket(self.0.into_raw_handle_or_socket())
+            OwnedHandleOrSocket::from_raw_handle_or_socket(readable.0.into_raw_handle_or_socket())
         }
     }
 }
 
 /// `OwnedReadable` owns its handle.
 #[cfg(windows)]
-impl FromHandleOrSocket for OwnedReadable {
+impl From<OwnedHandleOrSocket> for OwnedReadable {
     #[inline]
-    fn from_handle_or_socket(handle_or_socket: OwnedHandleOrSocket) -> Self {
+    fn from(handle_or_socket: OwnedHandleOrSocket) -> Self {
         unsafe {
             Self(RawReadable::from_raw_handle_or_socket(
                 handle_or_socket.into_raw_handle_or_socket(),
@@ -155,20 +155,20 @@ impl AsHandleOrSocket for OwnedWriteable {
 
 /// `OwnedWriteable` owns its handle.
 #[cfg(windows)]
-impl IntoHandleOrSocket for OwnedWriteable {
+impl From<OwnedWriteable> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
+    fn from(writeable: OwnedWriteable) -> Self {
         unsafe {
-            OwnedHandleOrSocket::from_raw_handle_or_socket(self.0.into_raw_handle_or_socket())
+            OwnedHandleOrSocket::from_raw_handle_or_socket(writeable.0.into_raw_handle_or_socket())
         }
     }
 }
 
 /// `OwnedWriteable` owns its handle.
 #[cfg(windows)]
-impl FromHandleOrSocket for OwnedWriteable {
+impl From<OwnedHandleOrSocket> for OwnedWriteable {
     #[inline]
-    fn from_handle_or_socket(handle_or_socket: OwnedHandleOrSocket) -> Self {
+    fn from(handle_or_socket: OwnedHandleOrSocket) -> Self {
         unsafe {
             Self(RawWriteable::from_raw_handle_or_socket(
                 handle_or_socket.into_raw_handle_or_socket(),

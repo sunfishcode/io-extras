@@ -1,4 +1,4 @@
-//! `HandleOrSocket` variants of `{As,Into}{Handle,Socket}`.
+//! `AsHandleOrSocket` and related `From` impls.
 
 use super::types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
 use super::AsRawHandleOrSocket;
@@ -14,35 +14,6 @@ pub trait AsHandleOrSocket {
     /// Like [`AsHandle::as_handle`] and [`AsSocket::as_socket`]
     /// but can return either type.
     fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_>;
-}
-
-/// Like [`IntoHandle`] and [`IntoSocket`], but implementable by types
-/// which can implement either one.
-pub trait IntoHandleOrSocket {
-    /// Like [`IntoHandle::into_handle`] and
-    /// [`IntoSocket::into_socket`] but can return either type.
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket;
-}
-
-/// Like [`FromHandle`] and [`FromSocket`], but implementable by types
-/// which can implement both.
-///
-/// Note: Don't implement this trait for types which can only implement one
-/// or the other, such that it would need to panic if passed the wrong form.
-///
-/// [`FromHandle`]: io_lifetimes::FromHandle
-/// [`FromSocket`]: io_lifetimes::FromSocket
-pub trait FromHandleOrSocket {
-    /// Like [`FromHandle::from_handle`] and
-    /// [`FromSocket::from_socket`] but can be passed either type.
-    ///
-    /// # Safety
-    ///
-    /// `handle_or_socket` must be valid and otherwise unowned.
-    ///
-    /// [`FromHandle::from_handle`]: io_lifetimes::FromHandle::from_handle
-    /// [`FromSocket::from_socket`]: io_lifetimes::FromSocket::from_socket
-    fn from_handle_or_socket(handle_or_socket: OwnedHandleOrSocket) -> Self;
 }
 
 impl AsHandleOrSocket for OwnedHandleOrSocket {
@@ -360,141 +331,141 @@ impl AsHandleOrSocket for mio::net::UdpSocket {
     }
 }
 
-impl IntoHandleOrSocket for File {
+impl From<File> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(file: File) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(file.into())
     }
 }
 
-impl IntoHandleOrSocket for ChildStdin {
+impl From<ChildStdin> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(stdin: ChildStdin) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(stdin.into())
     }
 }
 
-impl IntoHandleOrSocket for ChildStdout {
+impl From<ChildStdout> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(stdout: ChildStdout) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(stdout.into())
     }
 }
 
-impl IntoHandleOrSocket for ChildStderr {
+impl From<ChildStderr> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(stderr: ChildStderr) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(stderr.into())
     }
 }
 
-impl IntoHandleOrSocket for TcpStream {
+impl From<TcpStream> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(stream: TcpStream) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(stream.into())
     }
 }
 
-impl IntoHandleOrSocket for TcpListener {
+impl From<TcpListener> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(listener: TcpListener) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(listener.into())
     }
 }
 
-impl IntoHandleOrSocket for UdpSocket {
+impl From<UdpSocket> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
-    }
-}
-
-#[cfg(feature = "os_pipe")]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
-impl IntoHandleOrSocket for os_pipe::PipeReader {
-    #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(socket: UdpSocket) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(socket.into())
     }
 }
 
 #[cfg(feature = "os_pipe")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
-impl IntoHandleOrSocket for os_pipe::PipeWriter {
+impl From<os_pipe::PipeReader> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(reader: os_pipe::PipeReader) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(reader.into())
+    }
+}
+
+#[cfg(feature = "os_pipe")]
+#[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for os_pipe
+impl From<os_pipe::PipeWriter> for OwnedHandleOrSocket {
+    #[inline]
+    fn from(writer: os_pipe::PipeReader) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(writer.into())
     }
 }
 
 #[cfg(feature = "socket2")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for socket2
-impl IntoHandleOrSocket for socket2::Socket {
+impl From<socket2::Socket> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(socket: socket2::Socket) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(socket.into())
     }
 }
 
 #[cfg(feature = "use_mio_net")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
-impl IntoHandleOrSocket for mio::net::TcpStream {
+impl From<mio::net::TcpStream> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(stream: mio::net::TcpStream) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(stream.into())
     }
 }
 
 #[cfg(feature = "use_mio_net")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
-impl IntoHandleOrSocket for mio::net::TcpListener {
+impl From<mio::net::TcpListener> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(listener: mio::net::TcpListener) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(listener.into())
     }
 }
 
 #[cfg(feature = "use_mio_net")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for mio
-impl IntoHandleOrSocket for mio::net::UdpSocket {
+impl From<mio::net::UdpSocket> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(socket: mio::net::UdpSocket) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(socket.into())
     }
 }
 
 #[cfg(feature = "async-std")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
-impl IntoHandleOrSocket for async_std::fs::File {
+impl From<async_std::fs::File> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_handle(self.into())
+    fn from(file: async_std::fs::File) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_handle(file.into())
     }
 }
 
 #[cfg(feature = "async-std")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
-impl IntoHandleOrSocket for async_std::net::TcpStream {
+impl From<async_std::net::TcpStream> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(stream: async_std::net::TcpStream) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(stream.into())
     }
 }
 
 #[cfg(feature = "async-std")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
-impl IntoHandleOrSocket for async_std::net::TcpListener {
+impl From<async_std::net::TcpListener> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(listener: async_std::net::TcpListener) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(listener.into())
     }
 }
 
 #[cfg(feature = "async-std")]
 #[cfg(not(io_lifetimes_use_std))] // TODO: Enable when we have impls for async_std
-impl IntoHandleOrSocket for async_std::net::UdpSocket {
+impl From<async_std::net::UdpSocket> for OwnedHandleOrSocket {
     #[inline]
-    fn into_handle_or_socket(self) -> OwnedHandleOrSocket {
-        OwnedHandleOrSocket::from_socket(self.into())
+    fn from(socket: async_std::net::UdpSocket) -> OwnedHandleOrSocket {
+        OwnedHandleOrSocket::from_socket(socket.into())
     }
 }

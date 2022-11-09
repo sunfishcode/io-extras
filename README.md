@@ -26,3 +26,8 @@ This crate provides a few miscellaneous utilities related to I/O:
 
  - `ReadWrite` traits, and supporting types, which provide abstractions over
    types with one or two I/O resources, for reading and for writing.
+
+## Minimum Supported Rust Version (MSRV)
+
+This crate currently works on Rust 1.58, when default features are enabled.
+Some of the optional features have stricter requirements.
