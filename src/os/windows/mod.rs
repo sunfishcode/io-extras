@@ -22,7 +22,7 @@ mod traits;
 mod types;
 
 pub use crate::read_write::{AsRawReadWriteHandleOrSocket, AsReadWriteHandleOrSocket};
-pub use traits::{AsHandleOrSocket, FromHandleOrSocket, IntoHandleOrSocket};
+pub use traits::AsHandleOrSocket;
 pub use types::{BorrowedHandleOrSocket, OwnedHandleOrSocket};
 
 /// A Windows analog for the Posix-ish `AsRawFd` type. Unlike Posix-ish

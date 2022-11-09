@@ -5,8 +5,8 @@
 #[cfg(windows)]
 use crate::os::windows::{
     AsHandleOrSocket, AsRawHandleOrSocket, AsRawReadWriteHandleOrSocket, AsReadWriteHandleOrSocket,
-    BorrowedHandleOrSocket, FromHandleOrSocket, FromRawHandleOrSocket, IntoHandleOrSocket,
-    IntoRawHandleOrSocket, OwnedHandleOrSocket, RawHandleOrSocket,
+    BorrowedHandleOrSocket, FromRawHandleOrSocket, IntoRawHandleOrSocket, OwnedHandleOrSocket,
+    RawHandleOrSocket,
 };
 #[cfg(not(windows))]
 use {
@@ -77,7 +77,7 @@ pub trait AsReadWriteGrip: AsReadWriteHandleOrSocket {
 }
 
 /// Portability abstraction over `Into<OwnedFd>` and
-/// `IntoHandleOrSocket`.
+/// `Into<OwnedHandleOrSocket>`.
 #[cfg(not(windows))]
 pub trait IntoGrip: Into<OwnedFd> {
     /// Consume `self` and convert into an `OwnedGrip`.
@@ -85,15 +85,15 @@ pub trait IntoGrip: Into<OwnedFd> {
 }
 
 /// Portability abstraction over `Into<OwnedFd>` and
-/// `IntoHandleOrSocket`.
+/// `Into<OwnedHandleOrSocket>`.
 #[cfg(windows)]
-pub trait IntoGrip: IntoHandleOrSocket {
+pub trait IntoGrip: Into<OwnedHandleOrSocket> {
     /// Consume `self` and convert into an `OwnedGrip`.
     fn into_grip(self) -> OwnedGrip;
 }
 
 /// Portability abstraction over `From<OwnedFd>` and
-/// `FromHandleOrSocket`.
+/// `From<OwnedHandleOrSocket>`.
 #[cfg(not(windows))]
 pub trait FromGrip: From<OwnedFd> {
     /// Consume an `OwnedGrip` and convert into a `Self`.
@@ -101,9 +101,9 @@ pub trait FromGrip: From<OwnedFd> {
 }
 
 /// Portability abstraction over `From<OwnedFd>` and
-/// `FromHandleOrSocket`.
+/// `From<OwnedHandleOrSocket>`.
 #[cfg(windows)]
-pub trait FromGrip: FromHandleOrSocket {
+pub trait FromGrip: From<OwnedHandleOrSocket> {
     /// Consume an `OwnedGrip` and convert into a `Self`.
     fn from_grip(owned_grip: OwnedGrip) -> Self;
 }
@@ -159,10 +159,10 @@ impl<T: Into<OwnedFd>> IntoGrip for T {
 }
 
 #[cfg(windows)]
-impl<T: IntoHandleOrSocket> IntoGrip for T {
+impl<T: Into<OwnedHandleOrSocket>> IntoGrip for T {
     #[inline]
     fn into_grip(self) -> OwnedGrip {
-        self.into_handle_or_socket()
+        self.into()
     }
 }
 
@@ -175,10 +175,10 @@ impl<T: From<OwnedFd>> FromGrip for T {
 }
 
 #[cfg(windows)]
-impl<T: FromHandleOrSocket> FromGrip for T {
+impl<T: From<OwnedHandleOrSocket>> FromGrip for T {
     #[inline]
     fn from_grip(owned_grip: OwnedGrip) -> Self {
-        Self::from_handle_or_socket(owned_grip)
+        Self::from(owned_grip)
     }
 }
 
@@ -255,7 +255,7 @@ pub trait IntoRawGrip: IntoRawHandleOrSocket {
 }
 
 /// Portability abstraction over `From<OwnedFd>` and
-/// `FromHandleOrSocket`.
+/// `From<OwnedHandleOrSocket>`.
 #[cfg(not(windows))]
 pub trait FromRawGrip: FromRawFd {
     /// Consume an `RawGrip` and convert into a `Self`.
@@ -267,7 +267,7 @@ pub trait FromRawGrip: FromRawFd {
 }
 
 /// Portability abstraction over `From<OwnedFd>` and
-/// `FromHandleOrSocket`.
+/// `From<OwnedHandleOrSocket>`.
 #[cfg(windows)]
 pub trait FromRawGrip: FromRawHandleOrSocket {
     /// Consume an `RawGrip` and convert into a `Self`.
