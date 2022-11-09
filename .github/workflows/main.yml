@@ -24,11 +24,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [msrv, stable, nightly, windows]
+        build: [stable, nightly, windows]
         include:
-          - build: msrv
-            os: ubuntu-latest
-            rust: 1.58
           - build: stable
             os: ubuntu-latest
             rust: stable
@@ -50,20 +47,17 @@ jobs:
       env:
         RUST_BACKTRACE: 1
 
-  check-msrv:
-    name: Check
+  test_msrv:
+    name: Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [1.58]
+        build: [msrv]
         include:
-          - build: 1.58
+          - build: msrv
             os: ubuntu-latest
             rust: 1.58
 
-    env:
-      # -D warnings is commented out in our install-rust action; re-add it here.
-      RUSTFLAGS: -D warnings
     steps:
     - uses: actions/checkout@v2
       with:
@@ -71,7 +65,8 @@ jobs:
     - uses: ./.github/actions/install-rust
       with:
         toolchain: ${{ matrix.rust }}
-
-    - run: rustup target add x86_64-apple-darwin
-    - run: cargo check --workspace --release -vv
-    - run: cargo check --workspace --release -vv --target=x86_64-apple-darwin
+    # Don't use --all-features because some of the features have dependencies
+    # that don't work on newer Rust versions.
+    - run: cargo test --workspace --features=os_pipe
+      env:
+        RUST_BACKTRACE: 1
