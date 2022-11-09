@@ -11,7 +11,7 @@ use crate::os::windows::{
 #[cfg(not(windows))]
 use {
     crate::os::rustix::{AsRawFd, AsRawReadWriteFd, AsReadWriteFd, FromRawFd, IntoRawFd, RawFd},
-    io_lifetimes::{AsFd, BorrowedFd, FromFd, OwnedFd},
+    io_lifetimes::{AsFd, BorrowedFd, OwnedFd},
 };
 
 /// Portability abstraction over `BorrowedFd` and `BorrowedHandleOrSocket`.
@@ -92,15 +92,15 @@ pub trait IntoGrip: IntoHandleOrSocket {
     fn into_grip(self) -> OwnedGrip;
 }
 
-/// Portability abstraction over `FromFd` and
+/// Portability abstraction over `From<OwnedFd>` and
 /// `FromHandleOrSocket`.
 #[cfg(not(windows))]
-pub trait FromGrip: FromFd {
+pub trait FromGrip: From<OwnedFd> {
     /// Consume an `OwnedGrip` and convert into a `Self`.
     fn from_grip(owned_grip: OwnedGrip) -> Self;
 }
 
-/// Portability abstraction over `FromFd` and
+/// Portability abstraction over `From<OwnedFd>` and
 /// `FromHandleOrSocket`.
 #[cfg(windows)]
 pub trait FromGrip: FromHandleOrSocket {
@@ -254,7 +254,7 @@ pub trait IntoRawGrip: IntoRawHandleOrSocket {
     fn into_raw_grip(self) -> RawGrip;
 }
 
-/// Portability abstraction over `FromFd` and
+/// Portability abstraction over `From<OwnedFd>` and
 /// `FromHandleOrSocket`.
 #[cfg(not(windows))]
 pub trait FromRawGrip: FromRawFd {
@@ -266,7 +266,7 @@ pub trait FromRawGrip: FromRawFd {
     unsafe fn from_raw_grip(raw_grip: RawGrip) -> Self;
 }
 
-/// Portability abstraction over `FromFd` and
+/// Portability abstraction over `From<OwnedFd>` and
 /// `FromHandleOrSocket`.
 #[cfg(windows)]
 pub trait FromRawGrip: FromRawHandleOrSocket {
