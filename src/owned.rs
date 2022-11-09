@@ -59,8 +59,8 @@ impl AsFd for OwnedReadable {
 #[cfg(not(windows))]
 impl From<OwnedReadable> for OwnedFd {
     #[inline]
-    fn from(owned: OwnedReadable) -> OwnedFd {
-        unsafe { OwnedFd::from_raw_fd(owned.0.into_raw_fd()) }
+    fn from(owned: OwnedReadable) -> Self {
+        unsafe { Self::from_raw_fd(owned.0.into_raw_fd()) }
     }
 }
 
@@ -86,8 +86,8 @@ impl AsFd for OwnedWriteable {
 #[cfg(not(windows))]
 impl From<OwnedWriteable> for OwnedFd {
     #[inline]
-    fn from(owned: OwnedWriteable) -> OwnedFd {
-        unsafe { OwnedFd::from_raw_fd(owned.0.as_raw_fd()) }
+    fn from(owned: OwnedWriteable) -> Self {
+        unsafe { Self::from_raw_fd(owned.0.as_raw_fd()) }
     }
 }
 
@@ -115,7 +115,7 @@ impl AsHandleOrSocket for OwnedReadable {
 #[cfg(windows)]
 impl From<OwnedReadable> for OwnedHandleOrSocket {
     #[inline]
-    fn from(readable: OwnedReadable) -> OwnedHandleOrSocket {
+    fn from(readable: OwnedReadable) -> Self {
         unsafe {
             OwnedHandleOrSocket::from_raw_handle_or_socket(readable.0.into_raw_handle_or_socket())
         }
@@ -157,7 +157,7 @@ impl AsHandleOrSocket for OwnedWriteable {
 #[cfg(windows)]
 impl From<OwnedWriteable> for OwnedHandleOrSocket {
     #[inline]
-    fn from(writeable: OwnedWriteable) -> OwnedHandleOrSocket {
+    fn from(writeable: OwnedWriteable) -> Self {
         unsafe {
             OwnedHandleOrSocket::from_raw_handle_or_socket(writeable.0.into_raw_handle_or_socket())
         }
