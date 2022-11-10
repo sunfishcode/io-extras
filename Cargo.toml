@@ -9,6 +9,7 @@ keywords = ["api", "io", "stream"]
 categories = ["os", "rust-patterns"]
 repository = "https://github.com/sunfishcode/io-extras"
 include = ["src", "build.rs", "Cargo.toml", "COPYRIGHT", "LICENSE*", "/*.md"]
+rust-version = "1.56"
 
 [dependencies]
 io-lifetimes = { version = "1.0.0", default-features = false }
