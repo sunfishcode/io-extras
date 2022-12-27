@@ -74,7 +74,7 @@ impl<'a> BorrowedHandleOrSocket<'a> {
     /// [`AsHandle::as_handle`]: std::os::windows::io::AsHandle::as_handle
     #[inline]
     #[must_use]
-    pub fn as_handle(&self) -> Option<BorrowedHandle> {
+    pub fn as_handle(&self) -> Option<BorrowedHandle<'a>> {
         unsafe {
             match self.raw.0 {
                 RawEnum::Handle(handle) => Some(BorrowedHandle::borrow_raw(handle)),
@@ -92,7 +92,7 @@ impl<'a> BorrowedHandleOrSocket<'a> {
     /// [`AsSocket::as_socket`]: std::os::windows::io::AsSocket::as_socket
     #[inline]
     #[must_use]
-    pub fn as_socket(&self) -> Option<BorrowedSocket> {
+    pub fn as_socket(&self) -> Option<BorrowedSocket<'a>> {
         unsafe {
             match self.raw.0 {
                 RawEnum::Handle(_) => None,
