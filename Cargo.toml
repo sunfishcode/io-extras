@@ -1,6 +1,6 @@
 [package]
 name = "io-extras"
-version = "0.17.0"
+version = "0.17.1"
 description = "File/socket handle/descriptor utilities"
 authors = ["Dan Gohman <dev@sunfishcode.online>"]
 edition = "2018"
