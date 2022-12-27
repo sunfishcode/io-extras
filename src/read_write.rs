@@ -756,17 +756,17 @@ impl<'a, RW> ReadHalf<'a, RW> {
 }
 
 #[cfg(not(windows))]
-impl<RW: AsReadWriteFd> AsFd for ReadHalf<'_, RW> {
+impl<'a, RW: AsReadWriteFd> AsFd for ReadHalf<'a, RW> {
     #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
+    fn as_fd(&self) -> BorrowedFd<'a> {
         self.0.as_read_fd()
     }
 }
 
 #[cfg(windows)]
-impl<RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for ReadHalf<'_, RW> {
+impl<'a, RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for ReadHalf<'a, RW> {
     #[inline]
-    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'a> {
         self.0.as_read_handle_or_socket()
     }
 }
@@ -786,17 +786,17 @@ impl<'a, RW> WriteHalf<'a, RW> {
 }
 
 #[cfg(not(windows))]
-impl<RW: AsReadWriteFd> AsFd for WriteHalf<'_, RW> {
+impl<'a, RW: AsReadWriteFd> AsFd for WriteHalf<'a, RW> {
     #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
+    fn as_fd(&self) -> BorrowedFd<'a> {
         self.0.as_write_fd()
     }
 }
 
 #[cfg(windows)]
-impl<RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for WriteHalf<'_, RW> {
+impl<'a, RW: AsReadWriteHandleOrSocket> AsHandleOrSocket for WriteHalf<'a, RW> {
     #[inline]
-    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'a> {
         self.0.as_write_handle_or_socket()
     }
 }

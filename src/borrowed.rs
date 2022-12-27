@@ -74,7 +74,7 @@ impl<'a> BorrowedWriteable<'a> {
 #[cfg(not(windows))]
 impl<'a> AsFd for BorrowedReadable<'a> {
     #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
+    fn as_fd(&self) -> BorrowedFd<'a> {
         unsafe { BorrowedFd::borrow_raw(self.raw.as_raw_fd()) }
     }
 }
@@ -83,7 +83,7 @@ impl<'a> AsFd for BorrowedReadable<'a> {
 #[cfg(not(windows))]
 impl<'a> AsFd for BorrowedWriteable<'a> {
     #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
+    fn as_fd(&self) -> BorrowedFd<'a> {
         unsafe { BorrowedFd::borrow_raw(self.raw.as_raw_fd()) }
     }
 }
@@ -94,7 +94,7 @@ impl<'a> AsFd for BorrowedWriteable<'a> {
 #[cfg(windows)]
 impl<'a> AsHandleOrSocket for BorrowedReadable<'a> {
     #[inline]
-    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'a> {
         unsafe { BorrowedHandleOrSocket::borrow_raw(self.raw.as_raw_handle_or_socket()) }
     }
 }
@@ -103,7 +103,7 @@ impl<'a> AsHandleOrSocket for BorrowedReadable<'a> {
 #[cfg(windows)]
 impl<'a> AsHandleOrSocket for BorrowedWriteable<'a> {
     #[inline]
-    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
+    fn as_handle_or_socket(&self) -> BorrowedHandleOrSocket<'a> {
         unsafe { BorrowedHandleOrSocket::borrow_raw(self.raw.as_raw_handle_or_socket()) }
     }
 }
