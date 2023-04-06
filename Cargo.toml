@@ -18,7 +18,7 @@ io-lifetimes = { version = "1.0.0", default-features = false }
 #
 # Enable the "unstable" feature so that we can implement traits for
 # `process::ChildStdin` etc.
-async-std = { version = "1.9.0", features = ["unstable"], optional = true }
+async-std = { version = "1.12.0", features = ["unstable"], optional = true }
 # Optionally depend on tokio to implement traits for its types.
 tokio = { version = "1.6.0", features = ["io-std", "fs", "net", "process"], optional = true }
 # Optionally depend on os_pipe to implement traits for its types.
@@ -43,7 +43,7 @@ os_pipe = "1.0.0"
 default = []
 use_mio_net = ["mio", "mio/net", "io-lifetimes/mio"]
 use_mio_os_ext = ["mio", "mio/os-ext", "io-lifetimes/mio"]
-use_async_std = ["async-std", "io-lifetimes/async-std"]
+use_async_std = ["async-std"]
 use_tokio = ["tokio", "io-lifetimes/tokio"]
 use_socket2 = ["socket2", "io-lifetimes/socket2"]
 use_os_pipe = ["os_pipe", "io-lifetimes/os_pipe"]
