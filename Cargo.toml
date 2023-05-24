@@ -3,16 +3,16 @@ name = "io-extras"
 version = "0.17.4"
 description = "File/socket handle/descriptor utilities"
 authors = ["Dan Gohman <dev@sunfishcode.online>"]
-edition = "2018"
+edition = "2021"
 license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
 keywords = ["api", "io", "stream"]
 categories = ["os", "rust-patterns"]
 repository = "https://github.com/sunfishcode/io-extras"
 include = ["src", "build.rs", "Cargo.toml", "COPYRIGHT", "LICENSE*", "/*.md"]
-rust-version = "1.56"
+rust-version = "1.63"
 
 [dependencies]
-io-lifetimes = { version = "1.0.0", default-features = false }
+io-lifetimes = "1.1.0-pre.0"
 
 # Optionally depend on async-std to implement traits for its types.
 #
@@ -41,9 +41,9 @@ os_pipe = "1.0.0"
 
 [features]
 default = []
-use_mio_net = ["mio", "mio/net", "io-lifetimes/mio"]
-use_mio_os_ext = ["mio", "mio/os-ext", "io-lifetimes/mio"]
+use_mio_net = ["mio", "mio/net"]
+use_mio_os_ext = ["mio", "mio/os-ext"]
 use_async_std = ["async-std"]
-use_tokio = ["tokio", "io-lifetimes/tokio"]
-use_socket2 = ["socket2", "io-lifetimes/socket2"]
-use_os_pipe = ["os_pipe", "io-lifetimes/os_pipe"]
+use_tokio = ["tokio"]
+use_socket2 = ["socket2"]
+use_os_pipe = ["os_pipe"]

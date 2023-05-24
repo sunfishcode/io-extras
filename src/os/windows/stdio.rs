@@ -18,7 +18,6 @@
 
 use crate::raw::{RawReadable, RawWriteable};
 use std::char::decode_utf16;
-use std::convert::TryInto;
 use std::io::{self, Read, Write};
 use std::os::raw::c_void;
 use std::os::windows::io::{FromRawHandle, RawHandle};
