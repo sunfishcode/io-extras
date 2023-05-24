@@ -29,5 +29,5 @@ This crate provides a few miscellaneous utilities related to I/O:
 
 ## Minimum Supported Rust Version (MSRV)
 
-This crate currently works on Rust 1.58, when default features are enabled.
+This crate currently works on Rust 1.63, when default features are enabled.
 Some of the optional features have stricter requirements.
