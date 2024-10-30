@@ -230,7 +230,6 @@ impl AsRawReadWriteFd for async_std::fs::File {
 }
 
 #[cfg(all(feature = "async-std", not(windows)))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have async_std impls
 impl AsReadWriteFd for async_std::fs::File {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -257,7 +256,6 @@ impl AsRawReadWriteHandleOrSocket for async_std::fs::File {
 }
 
 #[cfg(all(feature = "async-std", windows))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have async_std impls
 impl AsReadWriteHandleOrSocket for async_std::fs::File {
     #[inline]
     fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -284,7 +282,6 @@ impl AsRawReadWriteFd for async_std::net::TcpStream {
 }
 
 #[cfg(all(feature = "async-std", not(windows)))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have async_std impls
 impl AsReadWriteFd for async_std::net::TcpStream {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -311,7 +308,6 @@ impl AsRawReadWriteHandleOrSocket for async_std::net::TcpStream {
 }
 
 #[cfg(all(feature = "async-std", windows))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have async_std impls
 impl AsReadWriteHandleOrSocket for async_std::net::TcpStream {
     #[inline]
     fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -338,7 +334,6 @@ impl AsRawReadWriteFd for async_std::os::unix::net::UnixStream {
 }
 
 #[cfg(all(feature = "async-std", unix))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have async_std impls
 impl AsReadWriteFd for async_std::os::unix::net::UnixStream {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -365,7 +360,6 @@ impl AsRawReadWriteFd for tokio::fs::File {
 }
 
 #[cfg(all(feature = "tokio", not(windows)))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have tokio impls
 impl AsReadWriteFd for tokio::fs::File {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -392,7 +386,6 @@ impl AsRawReadWriteHandleOrSocket for tokio::fs::File {
 }
 
 #[cfg(all(feature = "tokio", windows))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have tokio impls
 impl AsReadWriteHandleOrSocket for tokio::fs::File {
     #[inline]
     fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -419,7 +412,6 @@ impl AsRawReadWriteFd for tokio::net::TcpStream {
 }
 
 #[cfg(all(feature = "tokio", not(windows)))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have tokio impls
 impl AsReadWriteFd for tokio::net::TcpStream {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -433,7 +425,6 @@ impl AsReadWriteFd for tokio::net::TcpStream {
 }
 
 #[cfg(all(feature = "tokio", windows))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have tokio impls
 impl AsReadWriteHandleOrSocket for tokio::net::TcpStream {
     #[inline]
     fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -460,7 +451,6 @@ impl AsRawReadWriteFd for tokio::net::UnixStream {
 }
 
 #[cfg(all(feature = "tokio", unix))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have tokio impls
 impl AsReadWriteFd for tokio::net::UnixStream {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -539,7 +529,6 @@ impl AsRawReadWriteFd for socket2::Socket {
 }
 
 #[cfg(all(not(windows), feature = "socket2"))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have socket2 impls
 impl AsReadWriteFd for socket2::Socket {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -566,7 +555,6 @@ impl AsRawReadWriteHandleOrSocket for socket2::Socket {
 }
 
 #[cfg(all(windows, feature = "socket2"))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have socket2 impls
 impl AsReadWriteHandleOrSocket for socket2::Socket {
     #[inline]
     fn as_read_handle_or_socket(&self) -> BorrowedHandleOrSocket<'_> {
@@ -593,7 +581,6 @@ impl AsRawReadWriteFd for mio::net::TcpListener {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have mio impls
 impl AsReadWriteFd for mio::net::TcpListener {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -647,7 +634,6 @@ impl AsRawReadWriteFd for mio::net::TcpStream {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have mio impls
 impl AsReadWriteFd for mio::net::TcpStream {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
@@ -701,7 +687,6 @@ impl AsRawReadWriteFd for mio::net::UdpSocket {
 }
 
 #[cfg(all(not(windows), feature = "use_mio_net"))]
-#[cfg(not(io_lifetimes_use_std))] // TODO: Enable once we have mio impls
 impl AsReadWriteFd for mio::net::UdpSocket {
     #[inline]
     fn as_read_fd(&self) -> BorrowedFd<'_> {
