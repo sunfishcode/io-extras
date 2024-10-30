@@ -44,3 +44,6 @@ use_async_std = ["async-std"]
 use_tokio = ["tokio"]
 use_socket2 = ["socket2"]
 use_os_pipe = ["os_pipe"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(can_vector)'] }
