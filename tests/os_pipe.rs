@@ -3,7 +3,6 @@
 
 #![cfg(not(target_os = "wasi"))]
 #![cfg(feature = "os_pipe")]
-#![cfg(not(io_lifetimes_use_std))] // TODO: Enable when os_pipe has impls
 
 use io_extras::borrowed::{BorrowedReadable, BorrowedWriteable};
 use io_extras::grip::{AsGrip, AsRawGrip, FromGrip, FromRawGrip, IntoGrip};
