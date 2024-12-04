@@ -177,7 +177,7 @@ fn write_u16s(handle: RawHandle, data: &[u16]) -> io::Result<usize> {
     if unsafe {
         WriteConsoleW(
             handle as HANDLE,
-            data.as_ptr().cast::<c_void>(),
+            data.as_ptr().cast(),
             len,
             &mut written,
             ptr::null_mut(),
