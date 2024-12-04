@@ -26,7 +26,7 @@ socket2 = { version = "0.5.7", optional = true }
 mio = { version = "1.0.2", optional = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.52.0"
+version = ">=0.52, <=0.59"
 features = [
     "Win32_Foundation",
     "Win32_Networking_WinSock",
