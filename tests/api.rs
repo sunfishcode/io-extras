@@ -79,13 +79,13 @@ impl Stream {
 #[test]
 #[cfg_attr(miri, ignore)] // TCP I/O calls foreign functions
 fn likes() {
-    let _ = Stream::use_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
-    let _ = Stream::use_file(std::fs::File::open("Cargo.toml").unwrap());
-    let _ = Stream::use_grip(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
-    let _ = Stream::use_grip(std::fs::File::open("Cargo.toml").unwrap());
+    Stream::use_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    Stream::use_file(std::fs::File::open("Cargo.toml").unwrap());
+    Stream::use_grip(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    Stream::use_grip(std::fs::File::open("Cargo.toml").unwrap());
 
-    let _ = Stream::from_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
-    let _ = Stream::from_file(std::fs::File::open("Cargo.toml").unwrap());
-    let _ = Stream::from_grip(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
-    let _ = Stream::from_grip(std::fs::File::open("Cargo.toml").unwrap());
+    Stream::from_socket(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    Stream::from_file(std::fs::File::open("Cargo.toml").unwrap());
+    Stream::from_grip(std::net::TcpListener::bind("127.0.0.1:0").unwrap());
+    Stream::from_grip(std::fs::File::open("Cargo.toml").unwrap());
 }
