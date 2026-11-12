@@ -204,7 +204,7 @@ impl Read for RawReadable {
         unsafe { &*as_file_view(self.0) }.read_vectored(bufs)
     }
 
-    #[cfg(can_vector)]
+    #[cfg(has_can_vector)]
     #[inline]
     fn is_read_vectored(&self) -> bool {
         unsafe { &*as_file_view(self.0) }.is_read_vectored()
@@ -250,7 +250,7 @@ impl Read for RawReadable {
         }
     }
 
-    #[cfg(can_vector)]
+    #[cfg(has_can_vector)]
     #[inline]
     fn is_read_vectored(&self) -> bool {
         match self.0 .0 {
@@ -314,7 +314,7 @@ impl Write for RawWriteable {
         unsafe { &*as_file_view(self.0) }.write_vectored(bufs)
     }
 
-    #[cfg(can_vector)]
+    #[cfg(has_can_vector)]
     #[inline]
     fn is_write_vectored(&self) -> bool {
         unsafe { &*as_file_view(self.0) }.is_write_vectored()
@@ -325,7 +325,7 @@ impl Write for RawWriteable {
         unsafe { &*as_file_view(self.0) }.write_all(buf)
     }
 
-    #[cfg(write_all_vectored)]
+    #[cfg(has_write_all_vectored)]
     #[inline]
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
         unsafe { &*as_file_view(self.0) }.write_all_vectored(bufs)
@@ -370,7 +370,7 @@ impl Write for RawWriteable {
         }
     }
 
-    #[cfg(can_vector)]
+    #[cfg(has_can_vector)]
     #[inline]
     fn is_write_vectored(&self) -> bool {
         match self.0 .0 {
@@ -393,7 +393,7 @@ impl Write for RawWriteable {
         }
     }
 
-    #[cfg(write_all_vectored)]
+    #[cfg(has_write_all_vectored)]
     #[inline]
     fn write_all_vectored(&mut self, bufs: &mut [IoSlice<'_>]) -> io::Result<()> {
         match self.0 .0 {

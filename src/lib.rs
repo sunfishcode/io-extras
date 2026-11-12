@@ -16,8 +16,8 @@
 //!   types with one or two I/O resources, for reading and for writing.
 
 #![deny(missing_docs)]
-#![cfg_attr(can_vector, feature(can_vector))]
-#![cfg_attr(write_all_vectored, feature(write_all_vectored))]
+#![cfg_attr(unstable_can_vector, feature(can_vector))]
+#![cfg_attr(unstable_write_all_vectored, feature(write_all_vectored))]
 #![cfg_attr(target_os = "wasi", feature(wasi_ext))]
 
 pub mod borrowed;
